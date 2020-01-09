@@ -6,33 +6,10 @@
 		global $uwa_buoy_details; 
 
 		// Get list of Buoys
-		// $buoys = $wpdb->get_results("SELECT * FROM `wp_spoondrift_post_data_processed` GROUP BY `spotter_id`");
-		// Temporary 
-		/*
-		$buoys = $wpdb->get_results("SELECT * FROM `wp_spoondrift_post_data_processed` 
-			WHERE (
-				`spotter_id` != 'SPOT-0168' AND 
-				`spotter_id` != 'SPOT-0169' AND 
-				`spotter_id` != 'SPOT-0170' AND 
-				`spotter_id` != 'SPOT-0171' AND 
-				`spotter_id` != 'SPOT-0172'
-			)
-			GROUP BY `spotter_id`");
-		*/
 		$buoys = $wpdb->get_results(" SELECT * FROM `{$wpdb->prefix}buoy_info` WHERE `visible` = 1 AND `buoy_type` = 'spoondrift'");
 		
 		foreach($buoys as $b) {
 			print '<div class="panel panel-primary buoy-' . $b->buoy_id . '">';
-				/*
-				$recent = $wpdb->get_row("
-					SELECT * FROM `wp_spoondrift_post_data_processed` AS P 
-	    		LEFT JOIN `wp_spoondrift_post_data_processed_waves` AS W
-	    		ON P.`id` = W.`post_data_processed_id`
-	    		WHERE P.`spotter_id` = '" . $b->buoy_id . "'
-	    		ORDER BY W.`timestamp` DESC
-	    		LIMIT 1
-	    	");
-				*/
 				$recent = $wpdb->get_row("
 					SELECT * FROM 
 					(SELECT * FROM `wp_spoondrift_post_data_processed` WHERE `spotter_id` = '" . $b->buoy_id . "' ORDER BY id DESC LIMIT 1) AS P
@@ -68,100 +45,82 @@
 				</div>';
 				print '<div class="panel-body">';
 	    	
-				print '<div class="panel-body">';
-				
-					
-					if($recent) {
-						// Get previous 3 days wave height, direction and period data.
-					  $wave_from = $recent->timestamp;
-					  $wave_until = date('Y-m-d H:i:s', strtotime('-3 days', strtotime($recent->timestamp)));
+					print '<div class="panel-body">';
+						if($recent) {
+							// Get previous 3 days wave height, direction and period data.
+							$wave_from = $recent->timestamp;
+							$wave_until = date('Y-m-d H:i:s', strtotime('-3 days', strtotime($recent->timestamp)));
 
-					  // $waves = $wpdb->get_results(
-					  // 	$wpdb->prepare("
-						//   		SELECT W.*, UNIX_TIMESTAMP(W.`timestamp`) AS time 
-						// 			FROM `{$wpdb->prefix}spoondrift_post_data_processed` AS P 
-						// 			LEFT JOIN `{$wpdb->prefix}spoondrift_post_data_processed_waves` AS W 
-						// 			ON P.post_data_id = W.post_data_processed_id
-						// 			WHERE P.spotter_id = '%s'
-						// 			AND W.`timestamp` < '%s'
-						//   		AND W.`timestamp` > '%s'
-						// 			ORDER BY W.`timestamp`;
-						//   	", 
-					  // 		$b->buoy_id,
-					  // 		$wave_from,
-						//   	$wave_until
-					  // 	)
-					 	// );
-					 	
-					 	$waves = $wpdb->get_results(
-						 	$wpdb->prepare("	
-								SELECT * FROM 
-								(SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed` WHERE spotter_id = '%s') AS P
-								INNER JOIN
-								(SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed_waves` WHERE `timestamp` < '%s' AND `timestamp` > '%s') AS W
-								ON P.id = W.post_data_processed_id
-								ORDER BY W.`timestamp`
-							 	", 
-					  		$b->buoy_id,
-					  		$wave_from,
-						  	$wave_until
-						  )
-					 	);
-					 	
-					 	$spotter_id = str_replace('-', '_', sanitize_title($b->buoy_id));
-					 	$chart_id = $spotter_id . '_chart_div';
-					 	$callback = $spotter_id . 'DrawChart';
-						 	
-						$direction_points = array();
-					 	foreach($waves as $k => $w) {
-				    	$direction_points[] = ((floor($w->mean_direction / 10) * 10) + 180) % 360; // Flip direction
-				    }
-				    
-						// Date GMT Offset
-				    if($offset = get_option('uwa_spoondrift_time_adjustment')) {
-							$offset = floatval(str_replace('+', '', $offset));
-							$offset = $offset * 3600; // To seconds
+							$waves = $wpdb->get_results(
+								$wpdb->prepare("	
+									SELECT * FROM 
+									(SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed` WHERE spotter_id = '%s') AS P
+									INNER JOIN
+									(SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed_waves` WHERE `timestamp` < '%s' AND `timestamp` > '%s') AS W
+									ON P.id = W.post_data_processed_id
+									ORDER BY W.`timestamp`
+									", 
+									$b->buoy_id,
+									$wave_from,
+									$wave_until
+								)
+							);
+							
+							$spotter_id = str_replace('-', '_', sanitize_title($b->buoy_id));
+							$chart_id = $spotter_id . '_chart_div';
+							$callback = $spotter_id . 'DrawChart';
+								
+							$direction_points = array();
+							foreach($waves as $k => $w) {
+								$direction_points[] = ((floor($w->mean_direction / 10) * 10) + 180) % 360; // Flip direction
+							}
+							
+							// Date GMT Offset
+							if($offset = get_option('uwa_spoondrift_time_adjustment')) {
+								$offset = floatval(str_replace('+', '', $offset));
+								$offset = $offset * 3600; // To seconds
+							}
+							else {
+								$offset = 28800;
+							}
+							
+							$data_points = ''; $max_wave = 0; $max_peak = 0; $time_previous = 0;
+							foreach($waves as $w) {
+								// if($time_previous < strtotime($w->timestamp)) {
+									$max_wave = ($w->significant_wave_height > $max_wave) ? $w->significant_wave_height : $max_wave;
+									$max_peak = ($w->peak_period > $max_peak) ? $w->peak_period : $max_peak;
+									$label = date('M d, Y G:i', strtotime($w->timestamp) + $offset) . '\nSignificant Wave Height: ' . $w->significant_wave_height . ' m\nPeak Period: ' . $w->peak_period . ' s';
+									
+									$time = strtotime($w->timestamp) + $offset; // 28800; // Add 8 Hours
+									$data_points .= '[new Date(' . $time . ' * 1000), ' . $w->significant_wave_height . ', "' . $label . '", ' . $w->peak_period . ', "' . $label . '"],';
+									//$time_previous = strtotime($w->timestamp);
+								// }
+							}
+							$max_wave = round($max_wave * 2);
+							$max_peak = $max_peak + 3;
+
+							generate_google_chart($spotter_id, $chart_id, $callback, $data_points, $max_wave, $max_peak, $direction_points, 2);
+
+							print '<table class="table">';
+								print '<thead><tr>';
+									print '<th>Significant Wave Height</th>';
+									print '<th>Peak Period</th>';
+									print '<th>Peak Direction</th>';
+									print '<th>Directional spreading</th>';
+								print '</tr></thead>';
+								print '<tbody>';
+									print '<tr>';
+										print '<td><strong>' . $recent->significant_wave_height . ' m</strong></td>';
+										print '<td>' . $recent->peak_period . ' s</td>';
+										print '<td>' . $recent->peak_direction . ' degrees</td>';
+										print '<td>' . $recent->peak_directional_spread . ' degrees</td>';
+									print '</tr>';
+								print '</tbody>';
+							print '</table>';
+							
+							// print '<a href="/spoondrift?spotter_id=' . $b->spotter_id . '" class="btn btn-success" role="button">Go to ' . $title . ' Data Page</a>';
 						}
-						else {
-							$offset = 28800;
-						}
-						
-						$data_points = ''; $max_wave = 0; $max_peak = 0; $time_previous = 0;
-				    foreach($waves as $w) {
-					    // if($time_previous < strtotime($w->timestamp)) {
-						    $max_wave = ($w->significant_wave_height > $max_wave) ? $w->significant_wave_height : $max_wave;
-						    $max_peak = ($w->peak_period > $max_peak) ? $w->peak_period : $max_peak;
-						    $label = date('M d, Y G:i', strtotime($w->timestamp) + $offset) . '\nSignificant Wave Height: ' . $w->significant_wave_height . ' m\nPeak Period: ' . $w->peak_period . ' s';
-						    
-						    $time = strtotime($w->timestamp) + $offset; // 28800; // Add 8 Hours
-					    	$data_points .= '[new Date(' . $time . ' * 1000), ' . $w->significant_wave_height . ', "' . $label . '", ' . $w->peak_period . ', "' . $label . '"],';
-					    	//$time_previous = strtotime($w->timestamp);
-					    // }
-				    }
-				    $max_wave = round($max_wave * 2);
-				    $max_peak = $max_peak + 3;
-
-					  generate_google_chart($spotter_id, $chart_id, $callback, $data_points, $max_wave, $max_peak, $direction_points, 2);
-
-				  	print '<table class="table">';
-				  		print '<thead><tr>';
-				  			print '<th>Significant Wave Height</th>';
-				  			print '<th>Peak Period</th>';
-				  			print '<th>Peak Direction</th>';
-				  			print '<th>Directional spreading</th>';
-				  		print '</tr></thead>';
-				  		print '<tbody>';
-				  			print '<tr>';
-				  				print '<td><strong>' . $recent->significant_wave_height . ' m</strong></td>';
-				  				print '<td>' . $recent->peak_period . ' s</td>';
-				  				print '<td>' . $recent->peak_direction . ' degrees</td>';
-				  				print '<td>' . $recent->peak_directional_spread . ' degrees</td>';
-				  			print '</tr>';
-				  		print '</tbody>';
-				    print '</table>';
-				    
-				    // print '<a href="/spoondrift?spotter_id=' . $b->spotter_id . '" class="btn btn-success" role="button">Go to ' . $title . ' Data Page</a>';
-					}
+					print '</div>';
 				print '</div>';
 			print '</div>';
 		}		
