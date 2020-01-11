@@ -272,7 +272,7 @@
  	function cron_update_triaxy() {
 		// Update run option	
 		$count = 0;
-    $limit = 10;
+    $limit = 24;
     $ftp_array = uwa_triaxy_fetch_servers();
     foreach($ftp_array as $ftp) {
       if($count >= $limit) {
