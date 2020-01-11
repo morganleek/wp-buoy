@@ -62,4 +62,5 @@
 	require_once( UWA__PLUGIN_DIR . 'modules/views/charts.php' );
 	require_once( UWA__PLUGIN_DIR . 'modules/spoondrift.php' );
 	require_once( UWA__PLUGIN_DIR . 'modules/datawell.php' );
+	require_once( UWA__PLUGIN_DIR . 'modules/triaxy.php' );
 	
