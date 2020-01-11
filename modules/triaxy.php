@@ -187,12 +187,14 @@
 
                       if(!empty($wave) && isset($wave['time'])) {
                         // Check if it exists
-                        $wpdb->get_results("
-                          SELECT * FROM " . $wpdb->prefix . "triaxy_post_data_processed_waves 
-                          WHERE `buoy_serial_id` = %d 
-                          AND `timestamp` = '%s'", 
-                          $serial_id, 
-                          $wave['time']
+                        $wpdb->get_results(
+                          $wpdb->prepare(
+                            "SELECT * FROM " . $wpdb->prefix . "triaxy_post_data_processed_waves 
+                            WHERE `buoy_serial_id` = %d 
+                            AND `timestamp` = '%s'", 
+                            $serial_id, 
+                            $wave['time']
+                          )
                         );
 
                         if($wpdb->num_rows === 0) {
