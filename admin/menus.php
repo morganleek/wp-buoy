@@ -45,7 +45,7 @@
 								<textarea name="uwa_triaxy_ftps" rows="10" cols="100" id="uwa_triaxy_ftps" class="text-large code"><?php echo esc_attr( get_option('uwa_triaxy_ftps') ); ?></textarea>
 								<p class="description">
 									Format:<br>
-									<code>{ "ftp": [{ "url": "example.com", "port": "21", "user": "example", "pass": "strongpassword" }, {...}]}</code>
+									<code>{ "ftp": [{ "serial": "A0-123456789", "url": "example.com", "port": "21", "user": "example", "pass": "strongpassword" }, {...}]}</code>
 								</p>
 							</td>
 						</tr>

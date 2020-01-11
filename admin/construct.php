@@ -197,6 +197,57 @@
 		) $charset_collate;";
 		dbDelta( $sql );
 
+		// Triaxy
+		$table_name = $wpdb->prefix . "triaxy_serial_lookup";
+		$sql = "CREATE TABLE $table_name (
+			id mediumint(9) NOT NULL AUTO_INCREMENT,
+			buoy_serial varchar(100) NOT NULL,
+			PRIMARY KEY (id)
+		) $charset_collate;";
+		dbDelta( $sql );
+
+		$table_name = $wpdb->prefix . "triaxy_ftp_wave_files";
+		$sql = "CREATE TABLE $table_name (
+			id mediumint(9) NOT NULL AUTO_INCREMENT,
+			buoy_serial varchar(100) NOT NULL,
+			timestamp datetime NOT NULL,
+			size mediumint(9) NOT NULL,
+			file_path varchar(255) NOT NULL,
+			PRIMARY KEY (id)
+		) $charset_collate;";
+		dbDelta( $sql );
+
+		$table_name = $wpdb->prefix . "triaxy_post_data_processed_waves";
+		$sql = "CREATE TABLE $table_name (
+			id mediumint(9) NOT NULL AUTO_INCREMENT,
+			buoy_serial_id mediumint(9) NOT NULL,
+			number_of_zero_crossings mediumint(9) NOT NULL,
+			average_wave_height DECIMAL(5,2) NOT NULL,
+			t_avg DECIMAL(5,2) NOT NULL,
+			max_wave_height DECIMAL(5,2) NOT NULL,
+			t_max DECIMAL(5,2) NOT NULL,
+			significant_wave_height DECIMAL(5,2) NOT NULL,
+			significant_wave_peroid DECIMAL(5,2) NOT NULL,
+			h10 DECIMAL(5,2) NOT NULL,
+			t10 DECIMAL(5,2) NOT NULL,
+			peak_crest DECIMAL(5,2) NOT NULL,
+			mean_period DECIMAL(5,2) NOT NULL,
+			peak_period DECIMAL(5,2) NOT NULL,
+			peak_direction DECIMAL(5,2) NOT NULL,
+			peak_directional_spread DECIMAL(5,2) NOT NULL,
+			tp5 DECIMAL(5,2) NOT NULL,
+			hm0 DECIMAL(5,2) NOT NULL,
+			mean_direction DECIMAL(5,2) NOT NULL, # Mean Magnetic Direction
+			mean_directional_spread DECIMAL(5,2) NOT NULL, # Mean Spread
+			te DECIMAL(5,2) NOT NULL, 
+			wave_steepness DECIMAL(5,3) NOT NULL, # Mean Magnetic Direction
+			timestamp datetime NOT NULL,
+			latitude DECIMAL(10, 8) NOT NULL,
+			longitude DECIMAL(11, 8) NOT NULL,
+			PRIMARY KEY (id)
+		) $charset_collate;";
+		dbDelta( $sql );
+
 		update_option( 'uwa_db_version', $uwa_db_version );
 		
 		add_action( 'admin_notices', function() { print '<div class="notice notice-success is-dismissible"><p>UWA Buoy DB Updated</p></div>'; } );
