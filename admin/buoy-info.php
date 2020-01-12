@@ -299,7 +299,7 @@ class Buoy_Info_Plugin {
 									
 									
 									// Existing
-									if(isset($_POST['id']) && !empty($_POST['id'])) {
+									if(isset($_POST['hidden-id']) && !empty($_POST['hidden-id'])) {
 										$wpdb->query(
 											$wpdb->prepare("
 												UPDATE {$wpdb->prefix}buoy_info
@@ -310,24 +310,28 @@ class Buoy_Info_Plugin {
 												`buoy_type` = '%s',
 												`visible` = %d,
 												`hide_location` = %d,
+												`custom_lat` = '%s',
+												`custom_lng` = '%s',
 												`image_url` = '%s',
 												`homepage_graph_event_limit` = '%s',
 												`depth` = '%s',
 												`wave_height_increments` = '%s'
 												WHERE `id` = %d
 											", 
-												$_POST['tag-buoy-id'],
+												$_POST['tag-buoy-id'], 
 												$_POST['tag-aws-label'],
 												$_POST['tag-title'],
 												$_POST['tag-description'],
 												$_POST['tag-buoy-type'],
 												isset($_POST['tag-enabled']) ? 1 : 0,
 												isset($_POST['tag-hide-location']) ? 1 : 0,
+												isset($_POST['tag-custom-lat']) ? $_POST['tag-custom-lat'] : '',
+												isset($_POST['tag-custom-lng']) ? $_POST['tag-custom-lng'] : '',
 												$_POST['tag-image'],
 												$_POST['tag-intervals'],
 												$_POST['tag-depth'],
 												$_POST['tag-wave-height-increments'],
-												$_POST['id']
+												$_POST['hidden-id']
 											)
 										);
 									}	
@@ -343,6 +347,8 @@ class Buoy_Info_Plugin {
 												'buoy_type' => $_POST['tag-buoy-type'],
 												'visible' => isset($_POST['tag-enabled']) ? 1 : 0,
 												'hide_location' => isset($_POST['tag-hide-location']) ? 1 : 0,
+												'custom_lat' => isset($_POST['tag-custom-lat']) ? $_POST['tag-custom-lat'] : '', 
+												'custom_lng' => isset($_POST['tag-custom-lng']) ? $_POST['tag-custom-lng'] : '', 
 												'image_url' => $_POST['tag-image'], 
 												'homepage_graph_event_limit' => $_POST['tag-intervals'],
 												'depth' => $_POST['tag-depth'],
@@ -356,6 +362,8 @@ class Buoy_Info_Plugin {
 												'%s',
 												'%d',
 												'%d',
+												'%s', 
+												'%s', 
 												'%s', 
 												'%s', 
 												'%d',
@@ -384,6 +392,8 @@ class Buoy_Info_Plugin {
 											'buoy_type' => $buoy->buoy_type,
 											'visible' => $buoy->visible,
 											'hide_location' => $buoy->hide_location,
+											'custom_lat' => $buoy->custom_lat,
+											'custom_lng' => $buoy->custom_lng,
 											'image_url' => $buoy->image_url,
 											'homepage_graph_event_limit' => $buoy->homepage_graph_event_limit,
 											'depth' => $buoy->depth,
@@ -399,7 +409,7 @@ class Buoy_Info_Plugin {
 							<h2><?php print $title; ?></h2>
 							<form method="post">
 								<input type="hidden" name="buoy-info" value="1">
-								<input type="hidden" name="id" value="<?php print (isset($form_data['id'])) ? $form_data['id'] : ''; ?>"> 
+								<input type="hidden" name="hidden-id" value="<?php print (isset($form_data['id'])) ? $form_data['id'] : ''; ?>"> 
 								<div class="form-field form-required term-buoy-id-wrap">
 									<label for="tag-buoy-id">Buoy ID</label>
 									<input name="tag-buoy-id" id="tag-buoy-id" type="text" value="<?php print (isset($form_data['buoy_id'])) ? $form_data['buoy_id'] : ''; ?>" size="40" aria-required="true">
@@ -431,6 +441,7 @@ class Buoy_Info_Plugin {
 										<option value=''>Select a buoy type</option>
 										<option value="datawell" <?php selected($form_data['buoy_type'], 'datawell'); ?>>Datawell</option>
 										<option value="spoondrift" <?php selected($form_data['buoy_type'], 'spoondrift'); ?>>Spoondrift</option>
+										<option value="spoondrift" <?php selected($form_data['buoy_type'], 'tiraxy'); ?>>Triaxy</option>
 									</select>
 									<!-- <p></p> -->
 								</div>
@@ -443,6 +454,12 @@ class Buoy_Info_Plugin {
 									<label for="tag-hide-location">Hide Location</label>
 									<input name="tag-hide-location" id="tag-hide-location" type="checkbox" value="1" <?php print (isset($form_data['hide_location'])) ? checked($form_data['hide_location']) : ''; ?> size="40" aria-required="true">
 									<p>Hide LAT/LNG on the sites frontend.</p>
+								</div>
+								<div class="form-required term-custom-lat-lng-wrap">
+									<label for="tag-custom-lat">Custom LAT/LNG</label>
+									<input name="tag-custom-lat" id="tag-custom-lat" type="text" value="<?php print (isset($form_data['custom_lat'])) ? $form_data['custom_lat'] : ''; ?>" class="small-text" size="5" aria-required="true"> , 
+									<input name="tag-custom-lng" id="tag-custom-lng" type="text" value="<?php print (isset($form_data['custom_lng'])) ? $form_data['custom_lng'] : ''; ?>" class="small-text" size="5" aria-required="true">
+									<p>Override buoy info LAT/LNG</p>
 								</div>
 								<div class="form-field form-required term-wave-height-increments">
 									<label for="tag-wave-height-increments">Wave Height Increments (m) <small>Comma Separated</small></label>

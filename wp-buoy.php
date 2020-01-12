@@ -15,14 +15,14 @@
 	// Security
 	defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 	// Version
-	define( 'UWA_VERSION', '20200109' );
+	define( 'UWA_VERSION', '20200112' );
 	// Paths
 	define( 'UWA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 	define( 'UWA__PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 	// Options
 	global $uwa_db_version;
-	$uwa_db_version = '1.0.53';
+	$uwa_db_version = '1.0.55';
 	
 	global $wpdb;
 	
