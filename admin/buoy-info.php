@@ -441,7 +441,7 @@ class Buoy_Info_Plugin {
 										<option value=''>Select a buoy type</option>
 										<option value="datawell" <?php selected($form_data['buoy_type'], 'datawell'); ?>>Datawell</option>
 										<option value="spoondrift" <?php selected($form_data['buoy_type'], 'spoondrift'); ?>>Spoondrift</option>
-										<option value="spoondrift" <?php selected($form_data['buoy_type'], 'tiraxy'); ?>>Triaxy</option>
+										<option value="triaxy" <?php selected($form_data['buoy_type'], 'triaxy'); ?>>Triaxy</option>
 									</select>
 									<!-- <p></p> -->
 								</div>

@@ -1,8 +1,8 @@
 <?php
- 	// // Front end view functions
- 	// require_once( UWA__PLUGIN_DIR . 'modules/views/view-datawell.php' );
+ 	// Front end view functions
+ 	require_once( UWA__PLUGIN_DIR . 'modules/views/view-triaxy.php' );
  	// // Ajax
-	// require_once( UWA__PLUGIN_DIR . 'modules/ajax/ajax-datawell.php' );
+	// require_once( UWA__PLUGIN_DIR . 'modules/ajax/ajax-triaxy.php' );
 
   function uwa_extract_wave_data($cache = '') {
     if(!empty($cache)) {
@@ -331,7 +331,7 @@
 			
 			?>
 			<div class="wrap">
-				<h2>Spoondrift Events</h2>
+				<h2>Triaxy Events</h2>
 	
 				<table class="form-table">
 					<tbody>

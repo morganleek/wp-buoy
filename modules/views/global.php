@@ -1,4 +1,11 @@
 <?php
+	// Home Views List
+	function uwa_list_buoys() {
+		uwa_datawell_list_buoys();
+		uwa_spoondrift_list_buoys();
+		// uwa_triaxy_list_buoys();
+	}
+
 	function uwa_global_header_scripts() {
 		if ($GLOBALS['pagenow'] != 'wp-login.php' && !is_admin()) {
 			// jQuery
