@@ -1,6 +1,6 @@
 <?php
  	// Front end view functions
- 	// require_once( UWA__PLUGIN_DIR . 'modules/views/view-triaxy.php' );
+ 	require_once( UWA__PLUGIN_DIR . 'modules/views/view-triaxy.php' );
  	// // Ajax
 	// require_once( UWA__PLUGIN_DIR . 'modules/ajax/ajax-triaxy.php' );
 
