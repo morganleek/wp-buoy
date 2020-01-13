@@ -9,19 +9,31 @@
 		$buoys = $wpdb->get_results(" SELECT * FROM `{$wpdb->prefix}buoy_info` WHERE `visible` = 1 AND `buoy_type` = 'spoondrift'");
 		
 		foreach($buoys as $b) {
-			print '<div class="panel panel-primary buoy-' . $b->buoy_id . '">';
-				$recent = $wpdb->get_row("
-					SELECT * FROM 
-					(SELECT * FROM `wp_spoondrift_post_data_processed` WHERE `spotter_id` = '" . $b->buoy_id . "' ORDER BY id DESC LIMIT 1) AS P
-					LEFT JOIN `wp_spoondrift_post_data_processed_waves` AS W
-					ON P.`id` = W.`post_data_processed_id`
-					ORDER BY W.`timestamp` DESC
-					LIMIT 1
-				");
-		    	
+			$html = '';
+			
+			$recent = $wpdb->get_row("
+				SELECT * FROM 
+				(SELECT * FROM `wp_spoondrift_post_data_processed` WHERE `spotter_id` = '" . $b->buoy_id . "' ORDER BY id DESC LIMIT 1) AS P
+				LEFT JOIN `wp_spoondrift_post_data_processed_waves` AS W
+				ON P.`id` = W.`post_data_processed_id`
+				ORDER BY W.`timestamp` DESC
+				LIMIT 1
+			");
+
+			// Check for cached chart
+			$recent_option = get_option('spoondrift_recent_event_' . $b->buoy_id, 0);
+			if($recent_option == strtotime($recent->timestamp) && !isset($_GET['flush_charts'])) {
+				// Grab Cached Version
+        $cached = get_option('spoondrift_recent_cache_' . $b->buoy_id, '<p>No cached version available</p>');
+				print $cached;
+			}
+			else {
+				// Create new chart
+        update_option('spoondrift_recent_event_' . $b->buoy_id, strtotime($recent->timestamp));
+						
 				$title = (isset($uwa_buoy_details[$b->buoy_id])) ? $uwa_buoy_details[$b->buoy_id]['title'] : $b->buoy_id;
-		    	
-	    	$last_observation = "";
+					
+				$last_observation = "";
 				if($recent) {
 					// Adjust time from GMT to current time
 					if(!$offset = get_option('uwa_spoondrift_time_adjustment')) {
@@ -35,17 +47,17 @@
 					$last_observation = "Latest Observations at <span class='" . $alert . "'>" . $date . "</span>";
 				}
 				
-				$hide_location = (isset($uwa_buoy_details[$b->buoy_id])) ? $uwa_buoy_details[$b->buoy_id]['hide_location'] : 0;
-	    	
-	    	print '<div class="panel-heading clearfix">
+				$hide_location = ($b->hide_location === "1") ? true : false;
+				
+				$html .= '<div class="panel-heading clearfix">
 					<h5 style="float: left;">' . $b->title . ' &mdash; ';
-					print (!$hide_location) ? '[' . round($recent->latitude, 4) . '&deg;, ' . round($recent->longitude, 4) . '&deg;] &mdash; ' : '';
-					print $last_observation . '</h5>
+					$html .= (!$hide_location) ? '[' . round($recent->latitude, 4) . '&deg;, ' . round($recent->longitude, 4) . '&deg;] &mdash; ' : '';
+					$html .= $last_observation . '</h5>
 					<a style="float: right;" href="/spoondrift?spotter_id=' . $b->buoy_id . '" class="btn btn-success" role="button">Go to ' . $title . ' Data Page</a>
 				</div>';
-				print '<div class="panel-body">';
-	    	
-					print '<div class="panel-body">';
+				$html .= '<div class="panel-body">';
+				
+					$html .= '<div class="panel-body">';
 						if($recent) {
 							// Get previous 3 days wave height, direction and period data.
 							$wave_from = $recent->timestamp;
@@ -99,30 +111,46 @@
 							$max_wave = round($max_wave * 2);
 							$max_peak = $max_peak + 3;
 
-							generate_google_chart($spotter_id, $chart_id, $callback, $data_points, $max_wave, $max_peak, $direction_points, 2);
+							$html .= generate_google_chart_with_args(
+								array(
+									'bouy_id' => $spotter_id, 
+									'chart_id' => $chart_id, 
+									'callback' => $callback, 
+									'data_points' => $data_points, 
+									'max_wave' => $max_wave, 
+									'max_peak' => $max_peak, 
+									'direction_points' => $direction_points, 
+									'modulus' => 2, 
+									'return' => true
+								)
+							);
 
-							print '<table class="table">';
-								print '<thead><tr>';
-									print '<th>Significant Wave Height</th>';
-									print '<th>Peak Period</th>';
-									print '<th>Peak Direction</th>';
-									print '<th>Directional spreading</th>';
-								print '</tr></thead>';
-								print '<tbody>';
-									print '<tr>';
-										print '<td><strong>' . $recent->significant_wave_height . ' m</strong></td>';
-										print '<td>' . $recent->peak_period . ' s</td>';
-										print '<td>' . $recent->peak_direction . ' degrees</td>';
-										print '<td>' . $recent->peak_directional_spread . ' degrees</td>';
-									print '</tr>';
-								print '</tbody>';
-							print '</table>';
-							
-							// print '<a href="/spoondrift?spotter_id=' . $b->spotter_id . '" class="btn btn-success" role="button">Go to ' . $title . ' Data Page</a>';
+							$html .= '<table class="table">';
+								$html .= '<thead><tr>';
+									$html .= '<th>Significant Wave Height</th>';
+									$html .= '<th>Peak Period</th>';
+									$html .= '<th>Peak Direction</th>';
+									$html .= '<th>Directional spreading</th>';
+								$html .= '</tr></thead>';
+								$html .= '<tbody>';
+									$html .= '<tr>';
+										$html .= '<td><strong>' . $recent->significant_wave_height . ' m</strong></td>';
+										$html .= '<td>' . $recent->peak_period . ' s</td>';
+										$html .= '<td>' . $recent->peak_direction . ' degrees</td>';
+										$html .= '<td>' . $recent->peak_directional_spread . ' degrees</td>';
+									$html .= '</tr>';
+								$html .= '</tbody>';
+							$html .= '</table>';
 						}
-					print '</div>';
-				print '</div>';
-			print '</div>';
+					$html .= '</div>';
+				$html .= '</div>';
+				
+				$return = '<div class="panel panel-primary buoy-' . $b->buoy_id . '">' . $html . '</div>';
+				print $return;
+
+				// Save for Caching
+        update_option('spoondrift_recent_cache_' . $b->buoy_id, '<div class="panel panel-primary buoy-' . $b->buoy_id . ' cached">' . $html . '</div>');
+			}
 		}		
 	}
 

@@ -1,19 +1,56 @@
 <?php 
 	function generate_google_chart($bouy_id, $chart_id, $callback, $data_points, $max_wave, $max_peak, $direction_points, $modulus) {
-		$chart_id = sanitize_title($bouy_id) . '_chart_div';
-	  print '<div class="chart-surround">';
-		  print '<div id="' . $chart_id . '"></div>';
+		generate_google_chart_with_args(
+			array(
+				'bouy_id' => $bouy_id, 
+				'chart_id' => $chart_id, 
+				'callback' => $callback, 
+				'data_points' => $data_points, 
+				'max_wave' => $max_wave, 
+				'max_peak' => $max_peak, 
+				'direction_points' => $direction_points, 
+				'modulus' => $modulus
+			)
+		);
+	}
+	function generate_google_chart_with_args($args = array()) {
+		$html = '';
+
+		$defaults = array(
+			'bouy_id' => '', 
+			'chart_id' => '', 
+			'callback' => '', 
+			'data_points' => '', 
+			'max_wave' => '', 
+			'max_peak' => '', 
+			'direction_points' => '', 
+			'modulus' => '',
+			'return' => false
+		);
+
+		$_args = wp_parse_args($args, $defaults);
+		foreach($_args as $k => $_a) {
+			if($_a === "") {
+				return;
+			}
+		}
+		extract($_args);
+
+		$sanitized_buoy_id = str_replace('-', '_', sanitize_title($bouy_id));
+		$chart_id = $sanitized_buoy_id . '_chart_div';
+	  $html .= '<div class="chart-surround">';
+		  $html .= '<div id="' . $chart_id . '"></div>';
 	    foreach($direction_points as $k => $w) {
 		    if($k % $modulus == 0) {
-		    	print '<div class="overlay-marker ' . sanitize_title($bouy_id) . '-overlay-marker-' . $k . ' direction-' . $w . '">
+		    	$html .= '<div class="overlay-marker om-' . $sanitized_buoy_id . '-overlay-marker-' . $k . ' direction-' . $w . '">
 		  	    <img src="' . get_template_directory_uri() . '/img/0.png" height="50">
 		  	  </div>';
 		  	}
 	    }
-	    print '<div class="overlay-marker ' . sanitize_title($bouy_id) . '-legend-marker direction-0">
+	    $html .= '<div class="overlay-marker om-' . $sanitized_buoy_id . '-legend-marker direction-0">
   	    <img src="' . get_template_directory_uri() . '/img/0.png" width="25" height="25" style="width: 25px; height: 25px;">
   	  </div>';
-	  print '</div>';
+	  $html .= '</div>';
 	  
 	  $waveTicks = array();
 	  $waveTickMax = round($max_wave / 4) * 4;
@@ -29,7 +66,7 @@
 		  $peakTicks[] = $i * $peakTickDivider;
 	  }
 	  
-		print '<script type="text/javascript">
+		$html .= '<script type="text/javascript">
 			var global_' . $chart_id . ';
 	
 	  	google.charts.load(\'current\', {\'packages\':[\'line\', \'corechart\']});
@@ -101,14 +138,14 @@
 			  	var chartArea = cli.getChartAreaBoundingBox();
 			  	for(var i = 0; i < dataTable.getNumberOfRows(); i++) {
 				  	if(i % ' . $modulus . ' == 0) {
-				  	  document.querySelector(\'.' . sanitize_title($bouy_id) . '-overlay-marker-\' + i).style.top = Math.floor(cli.getYLocation(dataTable.getValue(i, 3), 1)) - 25 + "px";
-				  	  document.querySelector(\'.' . sanitize_title($bouy_id) . '-overlay-marker-\' + i).style.left = Math.floor(cli.getXLocation(dataTable.getValue(i, 0))) - 25 + "px";
+				  	  document.querySelector(\'.om-' . $sanitized_buoy_id . '-overlay-marker-\' + i).style.top = Math.floor(cli.getYLocation(dataTable.getValue(i, 3), 1)) - 25 + "px";
+				  	  document.querySelector(\'.om-' . $sanitized_buoy_id . '-overlay-marker-\' + i).style.left = Math.floor(cli.getXLocation(dataTable.getValue(i, 0))) - 25 + "px";
 				  	}
 			  	}
 			  	
 			  	// Place Legend Marker
-			  	document.querySelector(\'.' . sanitize_title($bouy_id) . '-legend-marker\').style.top = Math.floor(cli.getBoundingBox("legendentry#1").top) - 8 + "px";
-			  	document.querySelector(\'.' . sanitize_title($bouy_id) . '-legend-marker\').style.left = Math.floor(cli.getBoundingBox("legendentry#1").left) + 4 + "px";
+			  	document.querySelector(\'.om-' . $sanitized_buoy_id . '-legend-marker\').style.top = Math.floor(cli.getBoundingBox("legendentry#1").top) - 8 + "px";
+			  	document.querySelector(\'.om-' . $sanitized_buoy_id . '-legend-marker\').style.left = Math.floor(cli.getBoundingBox("legendentry#1").left) + 4 + "px";
 	      };
 
 			  function drawMaterialChart() {
@@ -122,7 +159,12 @@
 
 			}
 
-	  </script>';
+		</script>';
+		
+		if($_args['return']) {
+			return $html;
+		}
+		print $html;
 	} 
 	
 	function generate_time_series_charts($buoy_id, $sig_wave_x, $sig_wave_y, $max_wave_x, $max_wave_y, $peak_period_x, $peak_period_y, $mean_period_x, $mean_period_y, $peak_direction_x, $peak_direction_y, $peak_directional_spread_x, $peak_directional_spread_y, $mean_direction_x, $mean_direction_y, $mean_directional_spread_x, $mean_directional_spread_y, $plotclick = false) {
