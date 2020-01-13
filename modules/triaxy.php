@@ -90,6 +90,9 @@
     if(!empty($serial) && !empty($ftp_server) && !empty($ftp_user_name) && !empty($ftp_user_pass)) {
       global $wpdb;
 
+      $_br = "&#13;&#10;";
+      $triaxy_ftp_log = get_option('triaxy_ftp_log', '');
+
       // Fetch Buoy ID from Serial
       $serial_id = $wpdb->get_var(
         $wpdb->prepare("SELECT id FROM " . $wpdb->prefix . "triaxy_serial_lookup WHERE `buoy_serial` = %s", $serial)
@@ -105,7 +108,7 @@
           $serial_id = $wpdb->insert_id;
         }
         else {
-          _d('Failed to insert serial');
+          $triaxy_ftp_log .= time() . ":" . "Failed to insert serial $_br";
         }
       }
 
@@ -119,27 +122,30 @@
 
       // check connection
       if ((!$conn_id) || (!$login_result)) { 
-          echo "FTP connection has failed!";
-          echo "Attempted to connect to $ftp_server for user $ftp_user_name<br>"; 
-          exit; 
+        $triaxy_ftp_log .= time() . ":" . "FTP connection has failed! $_br";
+        $triaxy_ftp_log .= time() . ":" . "Attempted to connect to $ftp_server for user $ftp_user_name $_br";
+        exit; 
       } else {
-          echo "Connected to $ftp_server, for user $ftp_user_name";
+        $triaxy_ftp_log .= time() . ":" . "Connected to $ftp_server, for user $ftp_user_name $_br";
       }
 
       // $fullWaves = array();
 
       // Read contents
+      $triaxy_ftp_log .= time() . ":" . "Reading " . $root . "/ $_br";
       $rawYears = ftp_rawlist($conn_id, $root . "/"); // 
       if($rawYears) {
         // Fetch Years
         $years = uwa_process_raw_list($rawYears);
         foreach($years as $year) {
-          $rawMonths = ftp_rawlist($conn_id, $root . "/" . $year['link'] . '/');
+          $triaxy_ftp_log .= time() . ":" . "Reading " . $root . "/" . $year['link'] . "/ $_br";
+          $rawMonths = ftp_rawlist($conn_id, $root . "/" . $year['link'] . "/");
           if($rawMonths) {
             // Fetch Months
             $months = uwa_process_raw_list($rawMonths);
             foreach($months as $month) {
-              $rawWaves = ftp_rawlist($conn_id, $root . "/" . $year['link'] . '/' . $month['link'] . '/' . 'WAVE' . '/');
+              $triaxy_ftp_log .= time() . ":" . "Reading " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/ $_br";
+              $rawWaves = ftp_rawlist($conn_id, $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/");
               if($rawWaves) {
                 $waves = uwa_process_raw_list($rawWaves);
                 // _z($rawWaves);
@@ -147,17 +153,20 @@
                 foreach($waves as $wave) {
                   if(strlen($wave['link']) > 14) {
                     if($count > $limit) {
+                      $triaxy_ftp_log .= time() . ":" . "Count Limit Reached $_br";
                       ftp_close($conn_id); 
+                      update_option( 'triaxy_ftp_log', $triaxy_ftp_log);
                       return 0;
                     }
+
+                    $triaxy_ftp_log .= time() . ":" . "Checking if scanned " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/" . $wave['link'] . " $_br";
 
                     $w = array(
                       'serial' => $serial,
                       'timestamp' => date('Y-m-d H:i:s', $wave['timestamp']),
                       'size' => $wave['type'],
-                      'path' => $root . "/" . $year['link'] . '/' . $month['link'] . '/' . 'WAVE' . '/' . $wave['link']
+                      'path' => $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/" . $wave['link']
                     );
-                    // _d($w);
 
                     // Check this file hasn't been loaded before
                     $wpdb->get_results(
@@ -171,6 +180,8 @@
                     );
 
                     if($wpdb->num_rows === 0) {
+                      $triaxy_ftp_log .= time() . ":" . "Not scanned ... downloading $_br";
+
                       $cache = "cache.wave";
                       $remote = $w['path'];
 
@@ -178,8 +189,11 @@
 
                       if(ftp_fget($conn_id, $handle, $remote, FTP_ASCII, 0)) {
                         // Success
+                        $triaxy_ftp_log .= time() . ":" . "Downloaded $_br";
                       }
                       else {
+                        $triaxy_ftp_log .= time() . ":" . "Download failed $_br";
+                        update_option( 'triaxy_ftp_log', $triaxy_ftp_log);
                         return 0;
                       }
 
@@ -197,7 +211,10 @@
                           )
                         );
 
+                        $triaxy_ftp_log .= time() . ":" . "Exists? $_br";
+
                         if($wpdb->num_rows === 0) {
+                          $triaxy_ftp_log .= time() . ":" . "No, inserting and marking as read $_br";
                           // Insert it
                           $wpdb->insert($wpdb->prefix . "triaxy_post_data_processed_waves",
                             array(
@@ -242,9 +259,15 @@
                             )
                           );
                         }
+                        else {
+                          $triaxy_ftp_log .= time() . ":" . "Exists $_br";
+                        }
                       }
 
                       $count++;
+                    }
+                    else {
+                      $triaxy_ftp_log .= time() . ":" . "Already scanned $_br";
                     }
                   }
                 }
@@ -254,11 +277,13 @@
         }
       }
       else {
-        print 'Failed';
+        $triaxy_ftp_log .= time() . ":" . "Failed $_br";
       }
 
       // close the FTP stream 
       ftp_close($conn_id); 
+
+      update_option( 'triaxy_ftp_log', $triaxy_ftp_log);
 
       return $count; // $fullWaves;
     }
@@ -347,6 +372,12 @@
 									<input type="hidden" name="force-manual-fetch" value="force-manual-fetch" />
 									<input type="submit" name="submit" id="submit" class="button button-primary" value="Force Manual Fetch">
 								</form>
+							</td>
+						</tr>
+            <tr class="user-rich-editing-wrap">
+							<th scope="row">FTP Transfer Log<br><em>(Last 500 lines)</em></th>
+							<td>
+                <textarea name="triaxy_ftp_log" rows="10" cols="100" id="triaxy_ftp_log" class="text-large code"><?php print get_option('triaxy_ftp_log', '...'); ?></textarea>
 							</td>
 						</tr>
 					</tbody>
