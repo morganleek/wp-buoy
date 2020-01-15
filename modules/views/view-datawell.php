@@ -72,11 +72,13 @@
 							)
 						);
 						
-						$callback = sanitize_title($b->buoy_id) . 'DrawChart';
-						
 						foreach($waves as $k => $w) {
 							$direction_points[] = ((floor($w->peak_direction / 10) * 10) + 180) % 360; // Flip direction floor($w->peak_direction / 10) * 10;
 						}
+
+						$spotter_id = str_replace('-', '_', sanitize_title($b->buoy_id));
+						$chart_id = $spotter_id . '_chart_div';
+						$callback = $spotter_id . 'DrawChart';
 						
 						$data_points = ''; $max_wave = 0; $max_peak = 0;
 						foreach($waves as $w) {
@@ -91,7 +93,7 @@
 					
 						$html .= generate_google_chart_with_args(
 							array(
-								'bouy_id' => $b->buoy_id, 
+								'bouy_id' => $spotter_id, 
 								'chart_id' => $chart_id, 
 								'callback' => $callback, 
 								'data_points' => $data_points, 
