@@ -52,6 +52,11 @@
 				wp_enqueue_script('google-maps-init');
 			}
 		}
+		if ($GLOBALS['pagenow'] != 'wp-login.php' && !is_admin() && !is_page('home')) {
+			// Conditional script(s)
+			wp_register_script('plotly', 'https://cdn.plot.ly/plotly-latest.min.js', array(), '1.0.0');
+			wp_enqueue_script('plotly');
+		}
 	}
 
 	add_action('init', 'uwa_global_header_scripts'); // Add Custom Scripts to wp_head
