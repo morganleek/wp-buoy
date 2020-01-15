@@ -150,42 +150,4 @@
 		}
 	}
 
-	// function uwa_triaxy_list_markers() {
-	// 	global $wpdb;
-	// 	global $uwa_buoy_details;
-
-	// 	// Points 
-	// 	$points = array();
-		
-	// 	// Get list of Buoys
-	// 	$buoys = $wpdb->get_results(
-	// 		"SELECT * FROM 
-	// 			(SELECT * FROM wp_triaxy_post_data_processed_waves ORDER BY `timestamp` DESC LIMIT 18446744073709551615) 
-	// 		AS alias 
-	// 		GROUP BY `buoy_id`;");
-
-	// 	foreach($buoys as $b) {
-	//   	if($b->buoy_id != 'Offshore') {
-	// 	  	$title = (isset($uwa_buoy_details[$b->buoy_id])) ? $uwa_buoy_details[$b->buoy_id]['title'] : $b->buoy_id;
-		  	
-	//   		$points[] = array(
-	//   			$b->buoy_id,
-	//   			$b->id,
-	//   			$b->latitude,
-	//   			$b->longitude,
-	//   			'0',
-	//   			$title,
-	//   			get_bloginfo('url') . '/triaxy?buoy_id=' . $b->buoy_id
-	//   		);
-	//   	}
-  	
-	// 	}
-
-	// 	print '<script type="text/javascript">';
-	// 		print 'var triaxy_points = [';
-	// 		foreach($points as $k => $p) {
-	// 			print '["' . implode('","', $p) . '"],';
-	// 		}
-	// 		print '];';
-	// 	print '</script>';
-	// }
+	

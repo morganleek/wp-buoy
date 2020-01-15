@@ -41,7 +41,10 @@
 			'depth' => ($b->depth > 0) ? $b->depth . 'm' : '',
 			'image_url' => $b->image_url,
 			'visible' => $b->visible,
-			'hide_location' => $b->hide_location
+			'hide_location' => $b->hide_location,
+			'buoy_type' => $b->buoy_type,
+			'custom_lat' => $b->custom_lat,
+			'custom_lng' => $b->custom_lng
 		);
 	}
 	

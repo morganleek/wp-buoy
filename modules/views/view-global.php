@@ -272,3 +272,544 @@
 
 		return $return;
 	}
+
+	function uwa_global_template_general($args = array()) {
+		$html = '';
+
+		$defaults = array(
+			'buoy_id' => '',
+			'buoy_type' => '',
+			'dates' => true,
+			'csv_form' => false,
+			'csv_form_2d' => false,
+			'csv_form_1d' => false,
+			'return' => false
+		);
+
+		$_args = wp_parse_args($args, $defaults);
+
+		if(!empty($_args['buoy_id']) && !empty($_args['buoy_type'])) {
+			// Search form
+			$html .= uwa_global_template_search(array(
+				'buoy_id' => $_args['buoy_id'],
+				'buoy_type' => $_args['buoy_type'],
+				'dates' => $_args['dates'],
+				'csv_form' => $_args['csv_form'],
+				'csv_form_2d' => $_args['csv_form_2d'],
+				'csv_form_1d' => $_args['csv_form_1d'],
+				'return' => true
+			));
+
+			// Date range extracted
+			$date_range = uwa_global_template_date_range($_POST['dates']);
+			
+			// Layout Time Series & Model Results
+			$search_params = array(
+				'buoy_id' => $_args['buoy_id'], 
+				'buoy_type' => $_args['buoy_type'],
+				'return' => true
+			);
+			// Add date
+			if($date_range['has_date']) {
+				$search_params['from_date'] = $date_range['from'];
+				$search_params['until_date'] = $date_range['until'];
+			}	
+
+			$html .= '<div class="single-buoy-data">';
+				$html .= '<div>';
+					$html .= call_user_func('uwa_global_time_series_data_with_args', $search_params);
+				$html .= '</div>';
+				$html .= '<div>';
+					$html .= call_user_func('uwa_global_model_results_with_args', $search_params);
+				$html .= uwa_terms_popup('<p>You are free the use these data for non-commercial use under a Creative Commons non-commercial license provided you acknowledge The University of Western Australia</p>', true);
+				$html .= '</div>';
+			$html .= '</div>';
+		}
+		else {
+			$html .= '<p>No Spotter ID Specified.</p>';
+		}
+
+		if($_args['return']) {
+			return $html;
+		}
+		print $html;
+	}
+
+	function uwa_global_time_series_data_with_args($args) {
+		$html = '';
+				
+		$defaults = array(
+			'buoy_id' => '', 
+			'buoy_type' => '',
+			'from_date' => null, 
+			'until_date' => null,
+			'return' => false
+		);
+
+		$_args = wp_parse_args($args, $defaults);
+
+		// $_args['buoy_id'] = $_args['buoy_id'];
+		// $buoy_type = $_args['buoy_type'];
+		$from_date = $_args['from_date'];
+		$until_date = $_args['until_date'];
+
+		if($_args['buoy_id'] == '' || $_args['buoy_type'] == '') {
+			return $html;
+		}
+
+		global $wpdb;
+		global $uwa_buoy_details;
+
+		if($from_date == null) {
+			$from_date = Date('Y-m-d H:i:s', (time() - (60 * 60 * 24 * 7 * 8)));
+		}
+		if($until_date == null) {
+			$until_date = Date('Y-m-d H:i:s', time());
+		}
+
+		$data = null;
+
+		switch($_args['buoy_type']) {
+			case 'spoondrift':
+				$data = $wpdb->get_results(
+					$wpdb->prepare( "SELECT * 
+						FROM `wp_spoondrift_post_data_processed` AS P 
+						LEFT JOIN `wp_spoondrift_post_data_processed_waves` AS W 
+						ON P.`id` = W.`post_data_processed_id` 
+						WHERE P.`spotter_id` = '%s' 
+						AND W.`timestamp` >= '%s'
+						AND W.`timestamp` <= '%s'
+						ORDER BY W.`timestamp` ASC",
+						$_args['buoy_id'],
+						$from_date,
+						$until_date
+					)
+				);
+				// [id] => 6826
+				// [post_data_id] => 3732
+				// [spotter_id] => SPOT-0093
+				// [spotter_name] => Perth Canyon
+				// [payload_type] => full
+				// [battery_voltage] => 0.00
+				// [solar_voltage] => 7.00
+				// [temperature] => 0.00
+				// [humidity] => 30.40
+				// [post_data_processed_id] => 3733
+				// [significant_wave_height] => 2.96
+				// [peak_period] => 12.80
+				// [mean_period] => 9.21
+				// [peak_direction] => 232.55
+				// [peak_directional_spread] => 17.80
+				// [mean_direction] => 229.41
+				// [mean_directional_spread] => 32.47
+				// [timestamp] => 2019-11-21 01:46:01
+				// [latitude] => -31.79666700
+				// [longitude] => 115.01825000
+				break;
+			case 'datawell':
+				$data = $wpdb->get_results(
+					$wpdb->prepare( "SELECT * 
+						FROM `wp_datawell_post_data_processed_waves` 
+						WHERE `buoy_id` = '%s' 
+						AND `timestamp` >= '%s' 
+						AND `timestamp` <= '%s' 
+						ORDER BY `timestamp` ASC",
+						$_args['buoy_id'],
+						$from_date,
+						$until_date
+					)
+				);
+				break;
+			case 'triaxy':
+				$data = $wpdb->get_results(
+					$wpdb->prepare( "SELECT * 
+						FROM `wp_triaxy_post_data_processed_waves` 
+						WHERE `buoy_serial_id` = '%s' 
+						AND `timestamp` >= '%s' 
+						AND `timestamp` <= '%s' 
+						ORDER BY `timestamp` ASC",
+						$_args['buoy_id'],
+						$from_date,
+						$until_date
+					)
+				);
+				break;
+			default:
+				_d('Buoy type: ' . $_args['buoy_type'] . ', ' . $_args['buoy_id'] . ' has no data SQL in uwa_global_time_series_data_with_args()');
+				die();
+				break;
+		}
+
+		if($data) {
+			$sig_wave_x = array();
+			$sig_wave_y = array();
+
+			$peak_period_x = array();
+			$peak_period_y = array();
+
+			$mean_period_x = array();
+			$mean_period_y = array();
+
+			$peak_direction_x = array();
+			$peak_direction_y = array();
+
+			$peak_directional_spread_x = array();
+			$peak_directional_spread_y = array();
+
+			$mean_direction_x = array();
+			$mean_direction_y = array();
+
+			$mean_directional_spread_x = array();
+			$mean_directional_spread_y = array();
+
+			foreach($data as $d) {
+				if(!$offset = get_option('uwa_' . $_args['buoy_type'] . '_time_adjustment')) {
+					$offset = '+8'; // Default to Perth +8 hours
+				}
+				$timestamp = date('Y-m-d H:i:s', strtotime($offset . ' hours', strtotime($d->timestamp)));
+				// Significant Wave Heig
+				if($d->significant_wave_height > 0) {
+					array_push($sig_wave_x, $timestamp);
+					array_push($sig_wave_y, $d->significant_wave_height);
+				}
+				
+				// // Peak Period
+				if($d->peak_period > 0) {
+					array_push($peak_period_x, $timestamp);
+					array_push($peak_period_y, $d->peak_period);
+				}
+				
+				// // Mean Period
+				if($d->mean_period > 0) {
+					array_push($mean_period_x, $timestamp);
+					array_push($mean_period_y, $d->mean_period);
+				}
+				
+				// // Peak Direction, Peak Spr
+				if($d->peak_direction > 0) {
+					array_push($peak_direction_x, $timestamp);
+					array_push($peak_direction_y, $d->peak_direction);
+				}
+				
+				if($d->peak_directional_spread > 0) {
+					array_push($peak_directional_spread_x, $timestamp);
+					array_push($peak_directional_spread_y, $d->peak_directional_spread);
+				}
+				
+				// // Mean Direction, Mean Spr
+				if($d->mean_direction > 0) {
+					array_push($mean_direction_x, $timestamp);
+					array_push($mean_direction_y, $d->mean_direction);
+				}
+				
+				if($d->mean_directional_spread > 0) {
+					array_push($mean_directional_spread_x, $timestamp);
+					array_push($mean_directional_spread_y, $d->mean_directional_spread);
+				}
+
+			}
+
+			$title = (isset($uwa_buoy_details[$data[0]->spotter_id])) ? $uwa_buoy_details[$data[0]->spotter_id]['title'] : $data[0]->spotter_id;
+
+			$html .= '<div class="panel panel-primary">';
+				$html .= '<div class="panel-heading">' . $title . ' (' . ucfirst($_args['buoy_type']) . ') &mdash; Time Series Data<br>( ' . date('d-m-Y', strtotime($from_date)) . '  &mdash; ' . date('d-m-Y', strtotime($until_date)) . ' )</div>';
+
+				$html .= '<div class="panel-body">';
+					$html .= generate_time_series_charts($_args['buoy_id'], $sig_wave_x, $sig_wave_y, array(), array(), $peak_period_x, $peak_period_y, $mean_period_x, $mean_period_y, $peak_direction_x, $peak_direction_y, $peak_directional_spread_x, $peak_directional_spread_y, $mean_direction_x, $mean_direction_y, $mean_directional_spread_x, $mean_directional_spread_y, false, true);
+				$html .= '</div>';
+			$html .= '</div>';
+		}
+		else {
+			$html .= '<div class="panel panel-primary">';
+				$html .= '<div class="panel-body">';
+					$html .= 'No data in this date range';
+				$html .= '</div>';
+			$html .= '</div>';
+		}
+
+		$from_date_month = date('m', strtotime($from_date)) - 1;
+		$until_date_month = date('m', strtotime($until_date)) - 1;
+
+		$html .= '<script type="text/javascript">
+			/*
+		  ** Refine Dates on Single Buoy Data
+		  */
+		  var start = moment().set({
+		  		\'year\': ' . date('Y', strtotime($from_date)) . ',
+		  		\'month\': ' . $from_date_month . ', // JS Month starts at zero
+		  		\'date\': ' . date('d', strtotime($from_date)) . '
+		  	});
+		  var end = moment().set({
+					\'year\': ' . date('Y', strtotime($until_date)) . ',
+		  		\'month\': ' . $until_date_month . ', // JS Month starts at zero
+		  		\'date\': ' . date('d', strtotime($until_date)) . '
+		  	});
+
+		  $("input[name=\'dates\']").daterangepicker({
+		  	startDate: start,
+		  	endDate: end,
+		  	locale: {
+		      format: \'DD/MM/YYYY\'
+		    }
+		  });
+		  
+		  $("input[name=\'dates\']").on("apply.daterangepicker", function(ev, picker) {
+			  $(".refine-dates form").first().submit();
+			});
+		</script>';
+
+		if($_args['return']) {
+			return $html;
+		}
+		print $html;
+	}
+
+	function uwa_global_model_results_with_args($args) {
+		$defaults = array(
+			'buoy_id' => '',
+			'buoy_type' => '', 
+			'from_date' => null, 
+			'until_date' => null,
+			'return' => false
+		);
+
+		$_args = wp_parse_args($args, $defaults);
+
+		$buoy_id = $_args['buoy_id'];
+		$buoy_type = $_args['buoy_type'];
+		$from_date = $_args['from_date'];
+		$until_date = $_args['until_date'];
+
+		$html = '';
+
+		if($buoy_id == '' || $buoy_type == '') {
+			return $html;
+		}
+
+		global $wpdb, $uwa_photo_lookup, $uwa_buoy_details;	
+
+		$title = uwa_global_get_buoy_title($buoy_id, $buoy_type);
+		
+		switch($buoy_type) {
+			case 'spoondrift':
+				$recent = $wpdb->get_row(
+					$wpdb->prepare("
+						SELECT * FROM {$wpdb->prefix}spoondrift_post_data_processed_waves AS w 
+						LEFT JOIN {$wpdb->prefix}spoondrift_post_data_processed AS p 
+						ON p.id = w.post_data_processed_id 
+						WHERE `spotter_id` = '%s' 
+						LIMIT 1;
+					",
+					$buoy_id)
+				);
+				break;
+			case 'datawell':
+				$recent = $wpdb->get_row(
+					$wpdb->prepare("
+						SELECT * FROM `{$wpdb->prefix}datawell_post_data_processed_waves`
+						WHERE `buoy_id` = '%s'
+						AND `significant_wave_height` != 0
+						ORDER BY `timestamp` DESC
+						LIMIT 1
+					",
+					$buoy_id)
+				);
+				break;
+			case 'triaxy':
+				$recent = $wpdb->get_row(
+					$wpdb->prepare("
+						SELECT * FROM `{$wpdb->prefix}triaxy_post_data_processed_waves`
+						WHERE `buoy_serial_id` = '%s'
+						AND `significant_wave_height` != 0
+						ORDER BY `timestamp` DESC
+						LIMIT 1
+					",
+					$buoy_id)
+				);
+				break;
+				
+			default: 
+				break;
+		}
+		
+		$html .= '<div class="panel panel-primary">';
+			$html .= '<div class="panel-heading panel-memplot">' . $title .' Wave Buoy</div>';
+			$html .= '<div class="panel-body">';
+			
+				$until_where = '';
+				if($until != null) {
+					$until_where = " AND timestamp <= '" . $until . "' ";
+				}
+				
+				switch($buoy_type) {
+					case 'spoondrift':
+					case 'datawell':
+						$memplot = $wpdb->get_row(
+							$wpdb->prepare("SELECT * FROM `{$wpdb->prefix}{$buoy_type}_memplot` 
+								WHERE buoy_id='%s' 
+								" . $until_where . "
+								ORDER BY timestamp 
+								DESC LIMIT 1
+							", $buoy_id)
+						);
+						// [id] => 1004
+						// [buoy_id] => SPOT-0093
+						// [timestamp] => 2020-01-09 01:46:00
+						// [url] => SpoondriftBuoys/PerthCanyon/MEMplot/2020/01/PerthCanyon_MEMplot_20200109_0146UTC.jpg
+						break;
+					default: 
+						break;
+				}
+				
+				if($memplot) {
+					$date = date('d-m-Y H:i:s', strtotime($memplot->timestamp));
+					$html .= '<div class="col-sm-7">';
+						$html .= '<h5 style="text-align: center;" class="panel-memplot">Frequency-Directional Spectrum</h5>';
+
+						$html .= '<div class="memplot">
+							<img src="/wp-admin/admin-ajax.php?action=uwa_datawell_aws&do=image_fetch&key=' . $memplot->url . '" alt="">
+							<input type="hidden" name="memplot" value="' . $memplot->url . '">
+						</div>';
+					$html .= '</div>';
+				}
+			
+				$html .= '<div class="col-sm-5">';
+					$html .= '<div>';
+					$buoy_id_details = $buoy_id;
+					if($buoy_type === 'triaxy') {
+						// Look up buoy id slug
+						$buoy_id_details = $wpdb->get_var(
+							$wpdb->prepare(
+								"SELECT buoy_serial 
+								FROM {$wpdb->prefix}triaxy_serial_lookup
+								WHERE id = %d",
+								$buoy_id
+							)
+						);
+					}
+					if(isset($uwa_buoy_details[$buoy_id_details])) {
+						if(isset($uwa_buoy_details[$buoy_id_details]['description'])) {
+							$html .= $uwa_buoy_details[$buoy_id_details]['description'];
+						}
+						
+						if(!$uwa_buoy_details[$buoy_id_details]['hide_location']) {
+							if(isset($uwa_buoy_details[$buoy_id_details]['custom_lat']) && isset($uwa_buoy_details[$buoy_id_details]['custom_lat'])) {
+								$html .= '<br>Position: ' . round($uwa_buoy_details[$buoy_id_details]['custom_lat'], 4) . '&deg; ' . round($uwa_buoy_details[$buoy_id_details]['custom_lng'], 4) . '&deg;';
+							}
+							else {
+								$html .= '<br>Position: ' . round($recent->latitude, 4) . '&deg;, ' . round($recent->longitude, 4) . '&deg;';	
+							}
+						}
+						if(isset($uwa_buoy_details[$buoy_id_details]['depth']) && !empty($uwa_buoy_details[$buoy_id_details]['depth'])) {
+							$html .= '<br>Approx water depth: ' . $uwa_buoy_details[$buoy_id_details]['depth'];
+						}
+					}
+					$html .= '</div>';
+					if(isset($uwa_photo_lookup[$buoy_id_details]) && !empty($uwa_photo_lookup[$buoy_id_details])) {
+						$html .= '<img src="' . $uwa_photo_lookup[$buoy_id_details] . '" class="img-thumbnail" style="">';
+					}
+				$html .= '</div>';
+			$html .= '</div>';
+		$html .= '</div>';
+
+		if($_args['return']) {
+			return $html;
+		}
+		print $html;
+	}
+
+	function uwa_global_get_buoy_title($buoy_id = '', $buoy_type = '') {
+		global $wpdb, $uwa_buoy_details;
+
+		if($buoy_type === 'triaxy') {
+			// Look up buoy id slug
+			$buoy_id = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT buoy_serial 
+					FROM {$wpdb->prefix}triaxy_serial_lookup
+					WHERE id = %d",
+					$buoy_id
+				)
+			);
+		}
+
+		return (isset($uwa_buoy_details[$buoy_id])) ? $uwa_buoy_details[$buoy_id]['title'] : $buoy_id;
+
+	}
+
+	function uwa_global_time_series_csv($args) {
+		global $wpdb;
+
+		$defaults = array(
+			'buoy_id' => '',
+			'buoy_type' => '', 
+			'from_date' => null, 
+			'until_date' => null
+		);
+
+		$_args = wp_parse_args($args, $defaults);
+
+		if($_args['buoy_id'] == '' || $_args['buoy_type'] == '') {
+			return;
+		}
+		
+
+		if($_args['from_date'] == null) {
+			$_args['from_date'] = Date('Y-m-d H:i:s', (time() - (60 * 60 * 24 * 7)));
+		}
+		if($_args['until_date'] == null) {
+			$_args['until_date'] = Date('Y-m-d H:i:s', time());
+		}
+
+		switch($_args['buoy_type']) {
+			case 'spoondrift':
+				$data = $wpdb->get_results(
+					$wpdb->prepare( "SELECT * 
+						FROM `{$wpdb->prefix}spoondrift_post_data_processed` AS P 
+						LEFT JOIN `{$wpdb->prefix}spoondrift_post_data_processed_waves` AS W 
+						ON P.`id` = W.`post_data_processed_id` 
+						WHERE P.`spotter_id` = '%s' 
+						AND W.`timestamp` >= '%s'
+						AND W.`timestamp` <= '%s'
+						ORDER BY W.`timestamp` ASC",
+						$_args['buoy_id'],
+						$_args['from_date'],
+						$_args['until_date']
+					)
+				);
+				break;
+			case 'datawell':
+				$data = $wpdb->get_results(
+					$wpdb->prepare( "SELECT id, buoy_id, significant_wave_height AS 'significant_wave_height (meters)', peak_period AS 'peak_period (seconds)', mean_period AS 'mean_period (seconds)', peak_direction AS 'peak_direction (degrees)', peak_directional_spread AS 'peak_directional_spread (degress)', mean_direction AS 'mean_direction (degrees)', mean_directional_spread AS 'mean_directional_spread (degrees)', timestamp, latitude, longitude
+						FROM `{$wpdb->prefix}datawell_post_data_processed_waves` 
+						WHERE `buoy_id` = '%s' 
+						AND `timestamp` >= '%s' 
+						AND `timestamp` <= '%s' 
+						ORDER BY `timestamp` ASC",
+						$_args['buoy_id'],
+						$_args['from_date'],
+						$_args['until_date']
+					)
+				);
+				break;
+			case 'triaxy':
+				$data = $wpdb->get_results(
+					$wpdb->prepare( "SELECT id, buoy_serial_id, significant_wave_height AS 'significant_wave_height (meters)', peak_period AS 'peak_period (seconds)', mean_period AS 'mean_period (seconds)', peak_direction AS 'peak_direction (degrees)', peak_directional_spread AS 'peak_directional_spread (degress)', mean_direction AS 'mean_direction (degrees)', mean_directional_spread AS 'mean_directional_spread (degrees)', timestamp, latitude, longitude
+						FROM `{$wpdb->prefix}triaxy_post_data_processed_waves`  
+						WHERE `buoy_serial_id` = '%s' 
+						AND `timestamp` >= '%s' 
+						AND `timestamp` <= '%s' 
+						ORDER BY `timestamp` ASC",
+						$_args['buoy_id'],
+						$_args['from_date'],
+						$_args['until_date']
+					)
+				);
+				break;
+			default:
+				_d('No CSV SQL for this buoy type');
+				break;
+		}
+
+		uwa_sql_results_to_table($data, $_args['buoy_id']);
+	}
