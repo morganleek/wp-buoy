@@ -16,6 +16,12 @@
 				<table class="form-table">
 					<tbody>
 						<tr>
+							<th scope="row"><label for="uwa_copyright_message">Download Copyright Message</label></th>
+							<td>
+								<textarea name="uwa_copyright_message" rows="10" cols="100" id="uwa_copyright_message" class="text-large code"><?php echo esc_attr( get_option('uwa_copyright_message') ); ?></textarea>
+							</td>
+						</tr>
+						<tr>
 							<th scope="row"><label for="uwa_google_maps_api">Google Maps API Key</label></th>
 							<td><input name="uwa_google_maps_api" type="text" id="uwa_google_maps_api" value="<?php echo esc_attr( get_option('uwa_google_maps_api') ); ?>" class="regular-text"></td>
 						</tr>
@@ -63,6 +69,7 @@
 	
 	// Register Settings
 	function uwa_register_settings() {
+		register_setting( 'uwa-buoy-options', 'uwa_copyright_message' );
 		register_setting( 'uwa-buoy-options', 'uwa_google_maps_api' );
 		register_setting( 'uwa-buoy-options', 'uwa_datawell_s3_key' );
 		register_setting( 'uwa-buoy-options', 'uwa_datawell_s3_secret' );

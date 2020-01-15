@@ -325,8 +325,9 @@
 					$html .= call_user_func('uwa_global_time_series_data_with_args', $search_params);
 				$html .= '</div>';
 				$html .= '<div>';
+					$message = get_option('uwa_copyright_message', '<p>Click to continue</p>');
 					$html .= call_user_func('uwa_global_model_results_with_args', $search_params);
-				$html .= uwa_terms_popup('<p>You are free the use these data for non-commercial use under a Creative Commons non-commercial license provided you acknowledge The University of Western Australia</p>', true);
+					$html .= uwa_terms_popup($message, true);
 				$html .= '</div>';
 			$html .= '</div>';
 		}
