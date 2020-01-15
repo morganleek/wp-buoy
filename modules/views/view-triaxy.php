@@ -31,12 +31,12 @@
 
       // Check for cached chart
       $recent_option = get_option('triaxy_recent_event_' . $b->buoy_serial_id, 0);
-      // if($recent_option == strtotime($recent->timestamp) && !isset($_GET['flush_charts'])) {
-      //   // Grab Cached Version
-      //   $cached = get_option('triaxy_recent_cache_' . $b->buoy_serial_id, '<p>No cached version available</p>');
-      //   print $cached;
-      // }
-      // else {
+      if($recent_option == strtotime($recent->timestamp) && !isset($_GET['flush_charts'])) {
+        // Grab Cached Version
+        $cached = get_option('triaxy_recent_cache_' . $b->buoy_serial_id, '<p>No cached version available</p>');
+        print $cached;
+      }
+      else {
         // Create new chart
         update_option('triaxy_recent_event_' . $b->buoy_serial_id, strtotime($recent->timestamp));
 
@@ -146,7 +146,7 @@
 
         // Save for Caching
         update_option('triaxy_recent_cache_' . $b->buoy_serial_id, '<div class="panel panel-primary buoy-' . $b->buoy_id . ' cached">' . $html . '</div>');
-      // }
+      }
 		}
 	}
 
