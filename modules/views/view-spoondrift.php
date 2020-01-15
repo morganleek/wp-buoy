@@ -408,71 +408,71 @@
 		</script>';
 	}
 
-	function uwa_spoondrift_list_markers() {
-		global $wpdb;
-		global $uwa_buoy_details; 
+	// function uwa_spoondrift_list_markers() {
+	// 	global $wpdb;
+	// 	global $uwa_buoy_details; 
 
-		// Points 
-		$points = array();
+	// 	// Points 
+	// 	$points = array();
 		
-		// Get list of Buoys
-		// $buoys = $wpdb->get_results("SELECT * FROM `wp_spoondrift_post_data_processed` GROUP BY `spotter_id`");
-		// Temporary
-		/*
-		$buoys = $wpdb->get_results("SELECT * FROM `wp_spoondrift_post_data_processed` 
-			WHERE (
-				`spotter_id` != 'SPOT-0168' AND 
-				`spotter_id` != 'SPOT-0169' AND 
-				`spotter_id` != 'SPOT-0170' AND 
-				`spotter_id` != 'SPOT-0171' AND 
-				`spotter_id` != 'SPOT-0172'
-			)
-			GROUP BY `spotter_id`");
-		*/
-		$buoys = $wpdb->get_results(" SELECT * FROM `{$wpdb->prefix}buoy_info` WHERE `visible` = 1 AND `buoy_type` = 'spoondrift'");
+	// 	// Get list of Buoys
+	// 	// $buoys = $wpdb->get_results("SELECT * FROM `wp_spoondrift_post_data_processed` GROUP BY `spotter_id`");
+	// 	// Temporary
+	// 	/*
+	// 	$buoys = $wpdb->get_results("SELECT * FROM `wp_spoondrift_post_data_processed` 
+	// 		WHERE (
+	// 			`spotter_id` != 'SPOT-0168' AND 
+	// 			`spotter_id` != 'SPOT-0169' AND 
+	// 			`spotter_id` != 'SPOT-0170' AND 
+	// 			`spotter_id` != 'SPOT-0171' AND 
+	// 			`spotter_id` != 'SPOT-0172'
+	// 		)
+	// 		GROUP BY `spotter_id`");
+	// 	*/
+	// 	$buoys = $wpdb->get_results(" SELECT * FROM `{$wpdb->prefix}buoy_info` WHERE `visible` = 1 AND `buoy_type` = 'spoondrift'");
 
-		foreach($buoys as $b) {
-			// Get Last 20 Wave Profiles
-			/*
-			// This is way too slow
-			$recent = $wpdb->get_results("
-				SELECT * FROM `wp_spoondrift_post_data_processed` AS P 
-    		LEFT JOIN `wp_spoondrift_post_data_processed_waves` AS W
-    		ON P.`id` = W.`post_data_processed_id`
-    		WHERE P.`spotter_id` = '" . $b->buoy_id . "'
-    		ORDER BY W.`timestamp` DESC
-    		LIMIT 1
-    	");
-			*/
-			$recent = $wpdb->get_results("
-				SELECT * FROM 
-				(SELECT * FROM `wp_spoondrift_post_data_processed` WHERE `spotter_id` = '" . $b->buoy_id . "' ORDER BY id DESC LIMIT 1) AS P
-				LEFT JOIN `wp_spoondrift_post_data_processed_waves` AS W
-				ON P.`id` = W.`post_data_processed_id`
-				ORDER BY W.`timestamp` DESC
-				LIMIT 1
-			");
+	// 	foreach($buoys as $b) {
+	// 		// Get Last 20 Wave Profiles
+	// 		/*
+	// 		// This is way too slow
+	// 		$recent = $wpdb->get_results("
+	// 			SELECT * FROM `wp_spoondrift_post_data_processed` AS P 
+  //   		LEFT JOIN `wp_spoondrift_post_data_processed_waves` AS W
+  //   		ON P.`id` = W.`post_data_processed_id`
+  //   		WHERE P.`spotter_id` = '" . $b->buoy_id . "'
+  //   		ORDER BY W.`timestamp` DESC
+  //   		LIMIT 1
+  //   	");
+	// 		*/
+	// 		$recent = $wpdb->get_results("
+	// 			SELECT * FROM 
+	// 			(SELECT * FROM `wp_spoondrift_post_data_processed` WHERE `spotter_id` = '" . $b->buoy_id . "' ORDER BY id DESC LIMIT 1) AS P
+	// 			LEFT JOIN `wp_spoondrift_post_data_processed_waves` AS W
+	// 			ON P.`id` = W.`post_data_processed_id`
+	// 			ORDER BY W.`timestamp` DESC
+	// 			LIMIT 1
+	// 		");
     	
-    	foreach($recent as $r) {
-	    	$title = (isset($uwa_buoy_details[$b->buoy_id])) ? $uwa_buoy_details[$b->buoy_id]['title'] : $b->buoy_id;
+  //   	foreach($recent as $r) {
+	//     	$title = (isset($uwa_buoy_details[$b->buoy_id])) ? $uwa_buoy_details[$b->buoy_id]['title'] : $b->buoy_id;
 	    	
-    		$points[] = array(
-    			$b->buoy_id,
-    			$r->id,
-    			$r->latitude,
-    			$r->longitude,
-    			$r->mean_direction,
-    			$title,
-    			get_bloginfo('url') . '/spoondrift?spotter_id=' . $b->buoy_id
-    		);
-    	}
-		}
+  //   		$points[] = array(
+  //   			$b->buoy_id,
+  //   			$r->id,
+  //   			$r->latitude,
+  //   			$r->longitude,
+  //   			$r->mean_direction,
+  //   			$title,
+  //   			get_bloginfo('url') . '/spoondrift?spotter_id=' . $b->buoy_id
+  //   		);
+  //   	}
+	// 	}
 
-		print '<script type="text/javascript">';
-			print 'var spoondrift_points = [';
-			foreach($points as $k => $p) {
-				print '["' . implode('","', $p) . '"],';
-			}
-			print '];';
-		print '</script>';
-	}
+	// 	print '<script type="text/javascript">';
+	// 		print 'var spoondrift_points = [';
+	// 		foreach($points as $k => $p) {
+	// 			print '["' . implode('","', $p) . '"],';
+	// 		}
+	// 		print '];';
+	// 	print '</script>';
+	// }

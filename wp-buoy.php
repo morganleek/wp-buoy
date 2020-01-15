@@ -58,8 +58,8 @@
 	require_once( UWA__PLUGIN_DIR . 'admin/general.php' );
 	
 	// Different Buoy Modules 
-	require_once( UWA__PLUGIN_DIR . 'modules/views/global.php' );
-	require_once( UWA__PLUGIN_DIR . 'modules/views/charts.php' );
+	require_once( UWA__PLUGIN_DIR . 'modules/views/view-global.php' );
+	require_once( UWA__PLUGIN_DIR . 'modules/views/view-charts.php' );
 	require_once( UWA__PLUGIN_DIR . 'modules/spoondrift.php' );
 	require_once( UWA__PLUGIN_DIR . 'modules/datawell.php' );
 	require_once( UWA__PLUGIN_DIR . 'modules/triaxy.php' );
