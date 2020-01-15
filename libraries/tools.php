@@ -29,12 +29,19 @@
 		}
 	}
 	
-	function uwa_terms_popup($message = '') {
+	function uwa_terms_popup($message = '', $return = false) {
+		$html = '';
+		
 		// Confirmation of ownership
-		print '<div id="dialog-confirm" title="Terms and Conditions">' . $message . '</div>';
+		$html .= '<div id="dialog-confirm" title="Terms and Conditions">' . $message . '</div>';
 		// CSV Generator Progress
-		print '<div id="dialog-csv-progress" title="CSV Generator Progress">
+		$html .= '<div id="dialog-csv-progress" title="CSV Generator Progress">
 			<div id="progressbar"><div class="progress-label">Loading...</div></div>
 			<div id="progressdescription"><small style="display: block;margin: 10px 0;font-size: 0.7em;font-style: italic;">When all parts have been processed a download will begin. This may take some time.</small></div>
 		</div>';
+
+		if($return) {
+			return $html;
+		}
+		print $html;
 	}

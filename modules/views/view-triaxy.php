@@ -66,7 +66,7 @@
           <h5 style="float: left;">' . $title . ' &mdash; ';
           $html .= (!$hide_location) ? '[' . round($lat, 4) . '&deg;, ' . round($lng, 4) . '&deg;] &mdash; ' : '';
           $html .= $last_observation . '</h5>';
-          // $html .= '<a style="float: right;" href="/triaxy?buoy_id=' . $b->buoy_id . '" class="btn btn-success" role="button">Go to ' . $title . ' Data Page</a>';
+          $html .= '<a style="float: right;" href="/triaxy?buoy_id=' . $b->buoy_serial_id . '" class="btn btn-success" role="button">Go to ' . $title . ' Data Page</a>';
         $html .= '</div>';
         $html .= '<div class="panel-body">';
           if($recent) {

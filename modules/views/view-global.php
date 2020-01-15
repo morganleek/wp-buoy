@@ -147,7 +147,7 @@
 								$point['lat'] = (!empty($r->latitude)) ? $r->latitude : 0;
 								$point['lng'] = (!empty($r->longitude)) ? $r->longitude : 0;
 								$point['mean_direction'] = 0;
-								$point['url'] = get_bloginfo('url') . '/triaxy?buoy_id=' . $b->buoy_id;
+								$point['url'] = get_bloginfo('url') . '/triaxy?buoy_id=' . $s->id;
 							}
 
 							// $point ['type'] = 'triaxy';
@@ -177,3 +177,98 @@
 	}
 
 	add_action('wp_print_scripts', 'uwa_global_list_markers');
+
+	function uwa_global_template_search($args = array()) {
+		$defaults = array(
+			'buoy_id' => 0,
+			'buoy_type' => '',
+			'dates' => true,
+			'csv_form' => false,
+			'csv_form_2d' => false,
+			'csv_form_1d' => false,
+			'return' => false
+		);
+
+		$_args = wp_parse_args($args, $defaults);
+
+		if($_args['buoy_id'] === 0 || $_args['buoy_type'] === '') {
+			return;
+		}
+
+		$html = '';
+		
+		$html .= '<div class="refine-dates">';
+			if($_args['dates']) {
+				$html .= '
+					<form action="" method="post">
+						<input type="hidden" name="spotter_id" value="' . $_args['buoy_id'] . '">
+						<label for="from">Date</label>
+						<input type="text" name="dates" autocomplete="off" value="">
+						<button class="btn btn-default">Refine Time Period</button>
+					</form>
+				';
+			}
+			if($_args['csv_form']) {
+				$html .= '
+					<form class="csv-form" action="" method="post">
+						<input type="hidden" name="csv-buoy_id" value="' . $_args['buoy_id'] . '">
+						<input type="hidden" name="csv-type" value="' . $_args['buoy_type'] . '">
+						<input type="hidden" name="csv-dates" value="">
+						<input type="hidden" name="csv" value="csv">
+						<button class="btn btn-info">Download Time Series Data</button>
+					</form>
+				';
+			}
+			if($_args['csv_form_2d']) {
+				$html .= '
+					<form class="csv-form csv-form-2d" action="" method="post">
+						<input type="hidden" name="csv-buoy_id" value="' . $_args['buoy_id'] . '">
+						<input type="hidden" name="csv-type" value="' . $_args['buoy_type'] . '">
+						<input type="hidden" name="csv-dates" value="">
+						<input type="hidden" name="spectrum" value="2d">
+						<input type="hidden" name="send-memplot" value="">
+						<button class="btn btn-success">Download 2D spectrum</button>
+					</form>
+				';
+			}
+			if($_args['csv_form_1d']) {
+				$html .= '
+					<form class="csv-form csv-form-1d" action="" method="post">
+						<input type="hidden" name="csv-buoy_id" value="' . $_args['buoy_id'] . '">
+						<input type="hidden" name="csv-type" value="' . $_args['buoy_type'] . '">
+						<input type="hidden" name="csv-dates" value="">
+						<input type="hidden" name="spectrum" value="1d">
+						<input type="hidden" name="send-memplot" value="">
+						<button class="btn btn-warning">Download 1D spectrum</button>
+					</form>
+				';
+			}
+		$html .= '</div>';
+
+		if($_args['return']) {
+			return $html;
+		}
+		print $html;
+	}
+
+	function uwa_global_template_date_range($post_date = '') {
+		$return = array(
+			'has_date' => false,
+			'from' => '', 
+			'until' => ''
+		);
+
+		if(!empty($post_date)) {
+			$dates = explode(' - ', $post_date);
+			
+			if(sizeof($dates) === 2) {
+				$from_exploded = explode('/', $dates[0]);
+				$return['from'] = date('Y-m-d 00:00:00', strtotime($from_exploded[1] . '/' . $from_exploded[0] . '/' . $from_exploded[2]));
+				$until_exploded = explode('/', $dates[1]);
+				$return['until'] = date('Y-m-d 23:59:59', strtotime($until_exploded[1] . '/' . $until_exploded[0] . '/' . $until_exploded[2]));
+				$return['has_date'] = true;
+			}
+		}
+
+		return $return;
+	}

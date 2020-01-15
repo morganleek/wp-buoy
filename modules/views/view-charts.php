@@ -167,28 +167,30 @@
 		print $html;
 	} 
 	
-	function generate_time_series_charts($buoy_id, $sig_wave_x, $sig_wave_y, $max_wave_x, $max_wave_y, $peak_period_x, $peak_period_y, $mean_period_x, $mean_period_y, $peak_direction_x, $peak_direction_y, $peak_directional_spread_x, $peak_directional_spread_y, $mean_direction_x, $mean_direction_y, $mean_directional_spread_x, $mean_directional_spread_y, $plotclick = false) {
+	function generate_time_series_charts($buoy_id, $sig_wave_x, $sig_wave_y, $max_wave_x, $max_wave_y, $peak_period_x, $peak_period_y, $mean_period_x, $mean_period_y, $peak_direction_x, $peak_direction_y, $peak_directional_spread_x, $peak_directional_spread_y, $mean_direction_x, $mean_direction_y, $mean_directional_spread_x, $mean_directional_spread_y, $plotclick = false, $return = false) {
+		$html = '';
+
 		// Only show title if data exists
 		// Height Graph
 		$title_height = array();
 		if(!empty($sig_wave_x)) { array_push($title_height, 'Significant Wave Height'); }
 		if(!empty($max_wave_x)) { array_push($title_height, 'Max Wave Height'); }
 		
-		print '<h5>' . implode(' &amp; ', $title_height) . '</h5>'; 
-		print '<div id="plot-sig-wave" class="plot"></div>';
-		print '<hr>';
-		print '<h5>Peak Period &amp; Mean Period</h5>';
-		print '<div id="plot-peak-period" class="plot"></div>';
-		print '<hr>';
-		print '<h5>Peak Direction</h5>'; // &amp; Peak Spread
-		print '<div id="plot-peak-direction" class="plot"></div>';
+		$html .= '<h5>' . implode(' &amp; ', $title_height) . '</h5>'; 
+		$html .= '<div id="plot-sig-wave" class="plot"></div>';
+		$html .= '<hr>';
+		$html .= '<h5>Peak Period &amp; Mean Period</h5>';
+		$html .= '<div id="plot-peak-period" class="plot"></div>';
+		$html .= '<hr>';
+		$html .= '<h5>Peak Direction</h5>'; // &amp; Peak Spread
+		$html .= '<div id="plot-peak-direction" class="plot"></div>';
 
-		// print '<h5>Mean Direction &amp; Mean Spread</h5>';
-		// print '<div id="plot-mean-direction" class="plot"></div>';
+		// $html .= '<h5>Mean Direction &amp; Mean Spread</h5>';
+		// $html .= '<div id="plot-mean-direction" class="plot"></div>';
 
-		print '<script type="text/javascript">';
+		$html .= '<script type="text/javascript">';
 			if($plotclick) {		 	
-				print 'function processPlotClick(data) {
+				$html .= 'function processPlotClick(data) {
 					var date = "";
 			    for(var i=0; i < data.points.length; i++){
 			        date = data.points[i].x;
@@ -199,7 +201,7 @@
 			    datawell_memplot_swap(\'' . $buoy_id . '\', formatDate);
 				}';
 			}
-			print 'var sigWaveX = [\'' . implode('\', \'', $sig_wave_x) . '\'];' . 
+			$html .= 'var sigWaveX = [\'' . implode('\', \'', $sig_wave_x) . '\'];' . 
 			'var sigWaveY = [\'' . implode('\', \'', $sig_wave_y) . '\'];' .
 			'var maxWaveX = [\'' . implode('\', \'', $max_wave_x) . '\'];' . 
 			'var maxWaveY = [\'' . implode('\', \'', $max_wave_y) . '\'];' .
@@ -251,7 +253,7 @@
 				};';
 			
 			if(!empty($max_wave_x)) {
-				print '
+				$html .= '
 				var maxWaveTrace = {
 				  x: maxWaveX,
 				  y: maxWaveY,
@@ -262,10 +264,10 @@
 				var data = [sigWaveTrace, maxWaveTrace];';
 			}
 			else {
-				print 'var data = [sigWaveTrace];';
+				$html .= 'var data = [sigWaveTrace];';
 			}
 			
-			print '
+			$html .= '
 			var plotSigWave = document.getElementById(\'plot-sig-wave\');
 			Plotly.newPlot(\'plot-sig-wave\', data, layout);
 			
@@ -342,4 +344,9 @@
 
 			' .
 		'</script>';
+
+		if($return) {
+			return $html;
+		}
+		print $html;
 	}
