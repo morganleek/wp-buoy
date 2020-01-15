@@ -31,12 +31,12 @@
 
       // Check for cached chart
       $recent_option = get_option('triaxy_recent_event_' . $b->buoy_serial_id, 0);
-      if($recent_option == strtotime($recent->timestamp) && !isset($_GET['flush_charts'])) {
-        // Grab Cached Version
-        $cached = get_option('triaxy_recent_cache_' . $b->buoy_serial_id, '<p>No cached version available</p>');
-        print $cached;
-      }
-      else {
+      // if($recent_option == strtotime($recent->timestamp) && !isset($_GET['flush_charts'])) {
+      //   // Grab Cached Version
+      //   $cached = get_option('triaxy_recent_cache_' . $b->buoy_serial_id, '<p>No cached version available</p>');
+      //   print $cached;
+      // }
+      // else {
         // Create new chart
         update_option('triaxy_recent_event_' . $b->buoy_serial_id, strtotime($recent->timestamp));
 
@@ -82,10 +82,12 @@
                   WHERE `timestamp` < '%s'
                   AND `timestamp` > '%s'
                   -- AND (`peak_period` != 0 AND `peak_direction` != 0) # disclude empty values
+                  AND `buoy_serial_id` = %d
                   ORDER BY `timestamp` DESC
                 ) AS S # LIMIT 12",
                 $wave_from,
-                $wave_until
+                $wave_until,
+                $b->buoy_serial_id
               )
             );
             
@@ -93,13 +95,9 @@
             $chart_id = 'triaxy_' . $b->buoy_serial_id . '_chart_div'; // sanitize_title($b->buoy_id) . '_chart_div';
             $callback = 'triaxy_' . $b->buoy_serial_id . 'DrawChart'; // sanitize_title($b->buoy_id) . 'DrawChart';
             
-            foreach($waves as $k => $w) {
-              $direction_points[] = ((floor($w->peak_direction / 10) * 10) + 180) % 360; // Flip direction floor($w->peak_direction / 10) * 10;
-            }
-            
-            
             $data_points = ''; $max_wave = 0; $max_peak = 0;
-            foreach($waves as $w) {
+            foreach($waves as $k => $w) {
+              $direction_points[] = ((floor($w->peak_direction / 10) * 10) + 180) % 360; // Flip direction 
               $max_wave = ($w->significant_wave_height > $max_wave) ? $w->significant_wave_height : $max_wave;
               $max_peak = ($w->peak_period > $max_peak) ? $w->peak_period : $max_peak;
               $label = date('M d, Y G:i', strtotime($w->timestamp) + 28800) . '\nSignificant Wave Height: ' . $w->significant_wave_height . ' m\nPeak Period: ' . $w->peak_period . ' s';
@@ -147,7 +145,7 @@
 
         // Save for Caching
         update_option('triaxy_recent_cache_' . $b->buoy_serial_id, '<div class="panel panel-primary buoy-' . $b->buoy_id . ' cached">' . $html . '</div>');
-      }
+      // }
 		}
 	}
 

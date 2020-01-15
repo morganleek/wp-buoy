@@ -24,7 +24,7 @@
 			'max_wave' => '', 
 			'max_peak' => '', 
 			'direction_points' => '', 
-			'modulus' => '',
+			'modulus' => 0,
 			'return' => false
 		);
 
@@ -37,15 +37,15 @@
 		extract($_args);
 
 		$sanitized_buoy_id = str_replace('-', '_', sanitize_title($bouy_id));
-		$chart_id = $sanitized_buoy_id . '_chart_div';
+		
 	  $html .= '<div class="chart-surround">';
 		  $html .= '<div id="' . $chart_id . '"></div>';
 	    foreach($direction_points as $k => $w) {
-		    if($k % $modulus == 0) {
+		    // if($k % $modulus == 0) {
 		    	$html .= '<div class="overlay-marker om-' . $sanitized_buoy_id . '-overlay-marker-' . $k . ' direction-' . $w . '">
 		  	    <img src="' . get_template_directory_uri() . '/img/0.png" height="50">
 		  	  </div>';
-		  	}
+		  	// }
 	    }
 	    $html .= '<div class="overlay-marker om-' . $sanitized_buoy_id . '-legend-marker direction-0">
   	    <img src="' . get_template_directory_uri() . '/img/0.png" width="25" height="25" style="width: 25px; height: 25px;">
