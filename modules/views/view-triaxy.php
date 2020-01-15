@@ -95,6 +95,7 @@
             $chart_id = 'triaxy_' . $b->buoy_serial_id . '_chart_div'; // sanitize_title($b->buoy_id) . '_chart_div';
             $callback = 'triaxy_' . $b->buoy_serial_id . 'DrawChart'; // sanitize_title($b->buoy_id) . 'DrawChart';
             
+            $direction_points = array();
             $data_points = ''; $max_wave = 0; $max_peak = 0;
             foreach($waves as $k => $w) {
               $direction_points[] = ((floor($w->peak_direction / 10) * 10) + 180) % 360; // Flip direction 
