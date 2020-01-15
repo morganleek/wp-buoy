@@ -20,7 +20,7 @@
 			wp_register_script('google-charts', 'https://www.gstatic.com/charts/loader.js', array(), '1.0.0');
 	
 			// Theme Scripts
-			wp_register_script('scm_scripts', UWA__PLUGIN_URL . 'modules/views/js/theme-min.js', array('jquery', 'date-range-picker', 'google-charts', 'jquery-ui-core', 'jquery-ui-progressbar', 'jquery-ui-dialog'), '1.1.12');
+			wp_register_script('scm_scripts', UWA__PLUGIN_URL . 'modules/views/js/theme-min.js', array('jquery', 'date-range-picker', 'google-charts', 'jquery-ui-core', 'jquery-ui-progressbar', 'jquery-ui-dialog'), '1.1.20');
 	
 			// Enqueue Scripts
 			wp_enqueue_script('scm_scripts');
@@ -48,7 +48,7 @@
 			if($api = get_option('uwa_google_maps_api')) {
 				wp_register_script('google-maps', 'https://maps.googleapis.com/maps/api/js?v=3&key=' . $api, array(), '1.0.2', true); // &callback=initMap
 				wp_register_script('google-maps-marker-with-label', UWA__PLUGIN_URL . 'modules/views/js/v3-utility-library/markerwithlabel/src/markerwithlabel.js', array('google-maps'), '1.2.4', true);
-				wp_register_script('google-maps-init', UWA__PLUGIN_URL . 'modules/views/js/google-maps-init.js', array('google-maps', 'google-maps-marker-with-label'), '1.0.4', true);
+				wp_register_script('google-maps-init', UWA__PLUGIN_URL . 'modules/views/js/google-maps-init.js', array('google-maps', 'google-maps-marker-with-label'), '1.0.20', true);
 				wp_enqueue_script('google-maps-init');
 			}
 		}
