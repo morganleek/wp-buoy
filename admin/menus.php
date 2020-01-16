@@ -46,6 +46,14 @@
 							<td><input name="uwa_spoondrift_time_adjustment" type="text" id="uwa_spoondrift_time_adjustment" value="<?php echo esc_attr( get_option('uwa_spoondrift_time_adjustment') ); ?>" class="regular-text"></td>
 						</tr>
 						<tr>
+							<th scope="row"><label for="uwa_datawell_time_adjustment">Datawell Time Adjustment (GMT)</label></th>
+							<td><input name="uwa_datawell_time_adjustment" type="text" id="uwa_datawell_time_adjustment" value="<?php echo esc_attr( get_option('uwa_datawell_time_adjustment') ); ?>" class="regular-text"></td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="uwa_triaxy_time_adjustment">Triaxy Time Adjustment (GMT)</label></th>
+							<td><input name="uwa_triaxy_time_adjustment" type="text" id="uwa_triaxy_time_adjustment" value="<?php echo esc_attr( get_option('uwa_triaxy_time_adjustment') ); ?>" class="regular-text"></td>
+						</tr>
+						<tr>
 							<th scope="row"><label for="uwa_triaxy_ftps">Triaxy FTPs</label></th>
 							<td>
 								<textarea name="uwa_triaxy_ftps" rows="10" cols="100" id="uwa_triaxy_ftps" class="text-large code"><?php echo esc_attr( get_option('uwa_triaxy_ftps') ); ?></textarea>
@@ -78,6 +86,8 @@
 		register_setting( 'uwa-buoy-options', 'uwa_map_starting_position_lat' );
 		register_setting( 'uwa-buoy-options', 'uwa_map_starting_position_lng' );
 		register_setting( 'uwa-buoy-options', 'uwa_spoondrift_time_adjustment' );
+		register_setting( 'uwa-buoy-options', 'uwa_datawell_time_adjustment' );
+		register_setting( 'uwa-buoy-options', 'uwa_triaxy_time_adjustment' );
 		register_setting( 'uwa-buoy-options', 'uwa_triaxy_ftps');
 	}
 	

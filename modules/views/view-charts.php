@@ -53,14 +53,14 @@
 	  $html .= '</div>';
 	  
 	  $waveTicks = array();
-	  $waveTickMax = round($max_wave / 4) * 4;
+	  $waveTickMax = ceil($max_wave / 4) * 4;
 	  $waveTickDivider = $waveTickMax / 4;
 	  for($i = 0; $i <= 5; $i++) {
 			$waveTicks[] = $i * $waveTickDivider;
-	  }
+		}
 	  
 	  $peakTicks = array();
-	  $peakTickMax = round($max_peak / 4) * 4;
+	  $peakTickMax = ceil($max_peak / 4) * 4;
 	  $peakTickDivider = $peakTickMax / 4;
 	  for($i = 0; $i <= 5; $i++) {
 		  $peakTicks[] = $i * $peakTickDivider;
@@ -79,16 +79,7 @@
 			function ' . $callback . '() {
 			  var chartDiv = document.getElementById(\'' . $chart_id . '\');
 
-			  var data = new google.visualization.DataTable();
-			  data.addColumn(\'date\', \'Month\');
-			  data.addColumn(\'number\', "Significant Wave Height");
-			  data.addColumn({type: \'string\', role: \'tooltip\'});
-			  data.addColumn(\'number\', "Peak Period and Direction");
-			  data.addColumn({type: \'string\', role: \'tooltip\'});
-
-			  data.addRows([' . $data_points . ']);
-
-			  var chartOptions = {
+				var chartOptions = {
 			    title: \'\',
 	        height: 230,
 	        backgroundColor: { fill: "transparent" },
@@ -115,9 +106,10 @@
 		          	max: ' . $peakTickMax . '
 	          	},
 	          	ticks: [' . implode(', ', $peakTicks) . ']
-	          }
+						}
 	        },
 	        hAxis: {
+						title: \'Your Local Time\',
 		        gridlines: {
 						  count: -1,
 						  units: {
@@ -132,6 +124,14 @@
 						}
 	        }
 			  };
+
+			  var data = new google.visualization.DataTable();
+			  data.addColumn(\'date\', \'Month\');
+			  data.addColumn(\'number\', "Significant Wave Height");
+			  data.addColumn({type: \'string\', role: \'tooltip\'});
+			  data.addColumn(\'number\', "Peak Period and Direction");
+			  data.addColumn({type: \'string\', role: \'tooltip\'});
+			  data.addRows([' . $data_points . ']);
 
 			  function placeMarker(dataTable) {
 				  var cli = this.getChartLayoutInterface();

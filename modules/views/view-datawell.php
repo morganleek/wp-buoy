@@ -22,6 +22,9 @@
 				$b->buoy_id)
 			);
 
+			// Get offset
+      $uwa_datawell_time_adjustment = get_option('uwa_datawell_time_adjustment', '+8');
+
 			// Check for cached chart
 			$recent_option = get_option('datawell_recent_event_' . $b->buoy_id, 0);
 			if($recent_option == strtotime($recent->timestamp) && !isset($_GET['flush_charts'])) {
@@ -36,9 +39,15 @@
 				$title = (isset($uwa_buoy_details[$b->buoy_id])) ? $uwa_buoy_details[$b->buoy_id]['title'] : $b->buoy_id;
 				$last_observation = "";
 				if($recent) {
-					$date = date('d M, H:i', strtotime($recent->timestamp) + 28800);
-					$alert = (strtotime('-120 minutes') > strtotime($recent->timestamp)) ? 'warning' : '';
-					$last_observation = "Latest Observations at <span class='" . $alert . "'>" . $date . "</span>";
+					// $date = date('d M, H:i', strtotime($recent->timestamp) + 28800);
+					// $alert = (strtotime('-120 minutes') > strtotime($recent->timestamp)) ? 'warning' : '';
+					// $last_observation = "Latest Observations at <span class='" . $alert . "'>" . $date . "</span>";
+					$recent_time = strtotime($recent->timestamp);
+          $recent_time_adjusted = strtotime($uwa_datawell_time_adjustment . ' hours', $recent_time);
+          $recent_time_alert = strtotime('-120 minutes', strtotime($uwa_datawell_time_adjustment)); // strtotime('-120 minutes');
+          $date = date('d M, H:i', $recent_time_adjusted);
+          $alert = ($recent_time_alert > $recent_time) ? 'warning' : '';
+          $last_observation = "Latest Observations at <span class='" . $alert . "'>" . $date . " (" . $uwa_datawell_time_adjustment . ")</span>";
 				}
 				
 				$hide_location = ($b->hide_location === "1") ? true : false;
@@ -59,35 +68,36 @@
 
 						$waves = $wpdb->get_results(
 							$wpdb->prepare("
-								SELECT * FROM (
-									SELECT *, UNIX_TIMESTAMP(`timestamp`) AS time
-									FROM `{$wpdb->prefix}datawell_post_data_processed_waves`
-									WHERE `timestamp` < '%s'
-									AND `timestamp` > '%s'
-									AND (`peak_period` != 0 AND `peak_direction` != 0) # disclude empty values
-									ORDER BY `timestamp` DESC
-								) AS S # LIMIT 12",
+								SELECT *, UNIX_TIMESTAMP(`timestamp`) AS time
+								FROM `{$wpdb->prefix}datawell_post_data_processed_waves`
+								WHERE `timestamp` < '%s'
+								AND `timestamp` > '%s'
+								AND (`peak_period` != 0 AND `peak_direction` != 0) # disclude empty values
+								ORDER BY `timestamp` ASC",
 								$wave_from,
 								$wave_until
 							)
 						);
-						
-						foreach($waves as $k => $w) {
-							$direction_points[] = ((floor($w->peak_direction / 10) * 10) + 180) % 360; // Flip direction floor($w->peak_direction / 10) * 10;
-						}
 
 						$spotter_id = str_replace('-', '_', sanitize_title($b->buoy_id));
 						$chart_id = $spotter_id . '_chart_div';
 						$callback = $spotter_id . 'DrawChart';
 						
-						$data_points = ''; $max_wave = 0; $max_peak = 0;
-						foreach($waves as $w) {
-							$max_wave = ($w->significant_wave_height > $max_wave) ? $w->significant_wave_height : $max_wave;
-							$max_peak = ($w->peak_period > $max_peak) ? $w->peak_period : $max_peak;
-							$label = date('M d, Y G:i', strtotime($w->timestamp) + 28800) . '\nSignificant Wave Height: ' . $w->significant_wave_height . ' m\nPeak Period: ' . $w->peak_period . ' s';
-							$time = $w->time + 28800; // Add 8 Hours
-							$data_points .= '[new Date(' . $time . '000), ' . $w->significant_wave_height . ', "' . $label . '", ' . $w->peak_period . ', "' . $label . '"],';
-						}
+						$max_wave = 0; 
+						$max_peak = 0;
+						$data_points = ''; 
+						$direction_points = array();
+						foreach($waves as $k => $w) {
+              $direction_points[] = ((floor($w->peak_direction / 10) * 10) + 180) % 360; // Flip direction 
+              $max_wave = ($w->significant_wave_height > $max_wave) ? $w->significant_wave_height : $max_wave;
+              $max_peak = ($w->peak_period > $max_peak) ? $w->peak_period : $max_peak;
+              // Adjust time from GMT using offset
+              $wave_time = strtotime($w->timestamp); // GMT
+              $adjusted_time = strtotime($uwa_datawell_time_adjustment . ' hours', $wave_time);
+              $label = 'Location: ' . date('M d, Y g:iA', $adjusted_time) . ' (' . $uwa_datawell_time_adjustment . ')\nGMT: ' . date('M d, Y g:iA', $wave_time) . '\nSignificant Wave Height: ' . $w->significant_wave_height . ' m\nPeak Period: ' . $w->peak_period . ' s';
+              $data_points .= '[new Date(' . $wave_time . '000), ' . $w->significant_wave_height . ', "' . $label . '", ' . $w->peak_period . ', "' . $label . '"],';
+            }
+
 						$max_wave = round($max_wave * 2);
 						$max_peak = round($max_peak) + 2; // floor(round($max_peak) / $max_wave) * $max_wave + $max_wave;
 					

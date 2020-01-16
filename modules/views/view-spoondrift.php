@@ -19,6 +19,9 @@
 				LIMIT 1
 			");
 
+			// Get offset
+      $uwa_spoondrift_time_adjustment = get_option('uwa_spoondrift_time_adjustment', '+8');
+
 			// Check for cached chart
 			$recent_option = get_option('spoondrift_recent_event_' . $b->buoy_id, 0);
 			if($recent_option == strtotime($recent->timestamp) && !isset($_GET['flush_charts'])) {
@@ -34,17 +37,13 @@
 					
 				$last_observation = "";
 				if($recent) {
-					// Adjust time from GMT to current time
-					if(!$offset = get_option('uwa_spoondrift_time_adjustment')) {
-						$offset = '+8'; // Default to Perth +8 hours
-					}
-					$date = date('d M, H:i', strtotime($offset . ' hours', strtotime($recent->timestamp))); // Hours
-					// $date = date('d M, H:i', strtotime($recent->timestamp)); // Hours
-					
-					// Add Alert if in excess of 90 minutes
-					$alert = (strtotime('-90 minutes') > strtotime($recent->timestamp)) ? 'warning' : '';
-					$last_observation = "Latest Observations at <span class='" . $alert . "'>" . $date . "</span>";
-				}
+          $recent_time = strtotime($recent->timestamp);
+          $recent_time_adjusted = strtotime($uwa_spoondrift_time_adjustment . ' hours', $recent_time);
+          $recent_time_alert = strtotime('-120 minutes', strtotime($uwa_spoondrift_time_adjustment)); // strtotime('-120 minutes');
+          $date = date('d M, H:i', $recent_time_adjusted);
+          $alert = ($recent_time_alert > $recent_time) ? 'warning' : '';
+          $last_observation = "Latest Observations at <span class='" . $alert . "'>" . $date . " (" . $uwa_spoondrift_time_adjustment . ")</span>";
+        }
 				
 				$hide_location = ($b->hide_location === "1") ? true : false;
 				
@@ -80,32 +79,23 @@
 							$spotter_id = str_replace('-', '_', sanitize_title($b->buoy_id));
 							$chart_id = $spotter_id . '_chart_div';
 							$callback = $spotter_id . 'DrawChart';
-								
-							$direction_points = array();
-							foreach($waves as $k => $w) {
-								$direction_points[] = ((floor($w->mean_direction / 10) * 10) + 180) % 360; // Flip direction
-							}
 							
 							// Date GMT Offset
-							if($offset = get_option('uwa_spoondrift_time_adjustment')) {
-								$offset = floatval(str_replace('+', '', $offset));
-								$offset = $offset * 3600; // To seconds
-							}
-							else {
-								$offset = 28800;
-							}
-							
-							$data_points = ''; $max_wave = 0; $max_peak = 0; $time_previous = 0;
-							foreach($waves as $w) {
-								// if($time_previous < strtotime($w->timestamp)) {
-									$max_wave = ($w->significant_wave_height > $max_wave) ? $w->significant_wave_height : $max_wave;
-									$max_peak = ($w->peak_period > $max_peak) ? $w->peak_period : $max_peak;
-									$label = date('M d, Y G:i', strtotime($w->timestamp) + $offset) . '\nSignificant Wave Height: ' . $w->significant_wave_height . ' m\nPeak Period: ' . $w->peak_period . ' s';
+							$offset = get_option('uwa_spoondrift_time_adjustment', '+8');
 									
-									$time = strtotime($w->timestamp) + $offset; // 28800; // Add 8 Hours
-									$data_points .= '[new Date(' . $time . ' * 1000), ' . $w->significant_wave_height . ', "' . $label . '", ' . $w->peak_period . ', "' . $label . '"],';
-									//$time_previous = strtotime($w->timestamp);
-								// }
+							$direction_points = array();
+							$data_points = ''; 
+							$max_wave = 0; 
+							$max_peak = 0; 
+							foreach($waves as $k => $w) {
+								$direction_points[] = ((floor($w->mean_direction / 10) * 10) + 180) % 360; // Flip direction 
+								$max_wave = ($w->significant_wave_height > $max_wave) ? $w->significant_wave_height : $max_wave;
+								$max_peak = ($w->peak_period > $max_peak) ? $w->peak_period : $max_peak;
+								// Adjust time from GMT using offset
+								$wave_time = strtotime($w->timestamp); // GMT
+								$adjusted_time = strtotime($uwa_spoondrift_time_adjustment . ' hours', $wave_time);
+								$label = 'Location: ' . date('M d, Y g:iA', $adjusted_time) . ' (' . $uwa_spoondrift_time_adjustment . ')\nGMT: ' . date('M d, Y g:iA', $wave_time) . '\nSignificant Wave Height: ' . $w->significant_wave_height . ' m\nPeak Period: ' . $w->peak_period . ' s';
+								$data_points .= '[new Date(' . $wave_time . '000), ' . $w->significant_wave_height . ', "' . $label . '", ' . $w->peak_period . ', "' . $label . '"],';
 							}
 							$max_wave = round($max_wave * 2);
 							$max_peak = $max_peak + 3;
