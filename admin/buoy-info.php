@@ -344,7 +344,7 @@ class Buoy_Info_Plugin {
 												$_POST['tag-depth'],
 												$_POST['tag-wave-height-increments'],
 												$_POST['tag-buoy-order'],
-												$_POST['hidden-id'],
+												$_POST['hidden-id']
 											)
 										);
 									}	
