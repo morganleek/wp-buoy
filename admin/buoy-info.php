@@ -93,7 +93,13 @@ class Buoy_Info_List extends WP_List_Table {
 		switch ( $column_name ) {
 			case 'buoy_id':
 			case 'title':
+			case 'buoy_order':
 				return $item[ $column_name ];
+			case 'lat_lng':
+				if(!empty($item[ 'custom_lat' ]) && !empty($item['custom_lng'])) {
+					return $item[ 'custom_lat' ] . ' / ' . $item['custom_lng'];
+				}
+				return 'N/A';
 			case 'visible':
 			case 'hide_location':
 				return ($item[ $column_name ] == 1) ? 'Yes' : 'No';
@@ -148,7 +154,9 @@ class Buoy_Info_List extends WP_List_Table {
 			'cb'      => '<input type="checkbox" />',
 			'name'    => __( 'Buoy ID', 'uwa' ),
 			'title' => __( 'Title', 'uwa' ),
-			'visible'    => __( 'Visible', 'uwa' )
+			'visible'    => __( 'Visible', 'uwa' ),
+			'lat_lng'	=> __('LAT/LNG', 'uwa'),
+			'buoy_order'    => __( 'Order', 'uwa' )
 		];
 
 		return $columns;
@@ -315,7 +323,8 @@ class Buoy_Info_Plugin {
 												`image_url` = '%s',
 												`homepage_graph_event_limit` = '%s',
 												`depth` = '%s',
-												`wave_height_increments` = '%s'
+												`wave_height_increments` = '%s',
+												`buoy_order` = %d
 												WHERE `id` = %d
 											", 
 												$_POST['tag-buoy-id'], 
@@ -331,7 +340,8 @@ class Buoy_Info_Plugin {
 												$_POST['tag-intervals'],
 												$_POST['tag-depth'],
 												$_POST['tag-wave-height-increments'],
-												$_POST['hidden-id']
+												$_POST['tag-buoy-order'],
+												$_POST['hidden-id'],
 											)
 										);
 									}	
@@ -352,7 +362,8 @@ class Buoy_Info_Plugin {
 												'image_url' => $_POST['tag-image'], 
 												'homepage_graph_event_limit' => $_POST['tag-intervals'],
 												'depth' => $_POST['tag-depth'],
-												'wave_height_increments' => $_POST['tag-wave-height-increments']
+												'wave_height_increments' => $_POST['tag-wave-height-increments'],
+												'buoy_order' => $_POST['tag-buoy-order']
 											), 
 											array( 
 												'%s', 
@@ -367,7 +378,8 @@ class Buoy_Info_Plugin {
 												'%s', 
 												'%s', 
 												'%d',
-												'%s'
+												'%s',
+												'%d'
 											) 
 										);
 										
@@ -397,7 +409,8 @@ class Buoy_Info_Plugin {
 											'image_url' => $buoy->image_url,
 											'homepage_graph_event_limit' => $buoy->homepage_graph_event_limit,
 											'depth' => $buoy->depth,
-											'wave_height_increments' => $buoy->wave_height_increments
+											'wave_height_increments' => $buoy->wave_height_increments,
+											'buoy_order' => $buoy->buoy_order
 										);		
 										
 										$title = 'Edit Existing Buoy';
@@ -464,7 +477,6 @@ class Buoy_Info_Plugin {
 								<div class="form-field form-required term-wave-height-increments">
 									<label for="tag-wave-height-increments">Wave Height Increments (m) <small>Comma Separated</small></label>
 									<input name="tag-wave-height-increments" id="tag-wave-height-increments" type="text" value="<?php print (isset($form_data['wave_height_increments'])) ? $form_data['wave_height_increments'] : ''; ?>" size="40" aria-required="true">
-									<!-- <p></p> -->
 								</div>
 								<div class="form-field form-required term-intervals-wrap">
 									<label for="tag-intervals">Homepage Graph Event Limit</label>
@@ -474,6 +486,11 @@ class Buoy_Info_Plugin {
 								<div class="form-field form-required term-image-wrap">
 									<label for="tag-image">Image</label>
 									<input name="tag-image" id="tag-image" type="text" value="<?php print (isset($form_data['image_url'])) ? $form_data['image_url'] : ''; ?>" size="40" aria-required="true">
+								</div>
+								<div class="form-field form-required term-buoy-order-wrap">
+									<label for="tag-buoy-order">Buoy Order</label>
+									<input name="tag-buoy-order" id="tag-buoy-order" type="text" value="<?php print (isset($form_data['buoy_order'])) ? $form_data['buoy_order'] : ''; ?>" size="40" aria-required="true">
+									<p>Order of appearance on homepage listing</p>
 								</div>
 								<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="<?php print (isset($form_data['id'])) ? 'Update Buoy' : 'Add New Buoy'; ?>"></p>
 							</form>

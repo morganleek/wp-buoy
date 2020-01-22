@@ -195,6 +195,7 @@
 			image_url VARCHAR(255) NOT NULL,
 			homepage_graph_event_limit SMALLINT DEFAULT 0,
 			wave_height_increments VARCHAR(255),
+			buoy_order SMALLINT DEFAULT 0,
 			PRIMARY KEY (id)
 		) $charset_collate;";
 		dbDelta( $sql );

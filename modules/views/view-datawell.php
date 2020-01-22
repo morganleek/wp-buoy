@@ -5,7 +5,9 @@
 		global $uwa_buoy_details; 
 
 		// Get list of Buoys
-		$buoys = $wpdb->get_results(" SELECT `buoy_id` FROM `{$wpdb->prefix}buoy_info` WHERE `visible` = 1 AND `buoy_type` = 'datawell'");
+		$buoys = $wpdb->get_results("SELECT * FROM `{$wpdb->prefix}buoy_info` WHERE `visible` = 1 AND `buoy_type` = 'datawell'");
+
+		$html_buoys = array();
 		
 		foreach($buoys as $b) {
 			$html = '';
@@ -30,7 +32,7 @@
 			if($recent_option == strtotime($recent->timestamp) && !isset($_GET['flush_charts'])) {
 				// Grab Cached Version
 				$cached = get_option('datawell_recent_cache_' . $b->buoy_id, '<p>No cached version available</p>');
-				print $cached;
+				$html_buoys[$b->buoy_order . '-' . $b->buoy_id] = $cached;
 			}
 			else {
 				// Create new chart
@@ -135,10 +137,12 @@
 				$html .= '</div>';
 				
 				$return = '<div class="panel panel-primary buoy-' . $b->buoy_id . '">' . $html . '</div>';
-				print $return;
+				$html_buoys[$b->buoy_order . '-' . $b->buoy_id] = $return;
 				
 				// Save for Caching
 				update_option('datawell_recent_cache_' . $b->buoy_id, '<div class="panel panel-primary buoy-' . $b->buoy_id . ' cached">' . $html . '</div>');
 			}
 		}
+
+		return $html_buoys;
 	}

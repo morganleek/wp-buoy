@@ -1,9 +1,20 @@
 <?php
 	// Home Views List
 	function uwa_list_buoys() {
-		uwa_datawell_list_buoys();
-		uwa_spoondrift_list_buoys();
-		uwa_triaxy_list_buoys();
+		// Get Datawell 
+		$datawell = uwa_datawell_list_buoys();
+		// Get Spoondrift
+		$spoondrift = uwa_spoondrift_list_buoys();
+		// Get Triaxy
+		$triaxy = uwa_triaxy_list_buoys();
+		
+		// Sort by Key
+		$buoys = array_merge($datawell, $spoondrift, $triaxy);
+		ksort($buoys, SORT_NUMERIC);
+		
+		foreach($buoys as $b) {
+			print $b;
+		}
 	}
 
 	function uwa_global_header_scripts() {

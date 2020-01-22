@@ -13,6 +13,8 @@
       WHERE b.visible = 1 
       AND b.buoy_type = 'triaxy'
     ");
+
+    $html_buoys = array();
 		
 		foreach($buoys as $b) {
       $html = '';
@@ -37,7 +39,7 @@
       if($recent_option == strtotime($recent->timestamp) && !isset($_GET['flush_charts'])) {
         // Grab Cached Version
         $cached = get_option('triaxy_recent_cache_' . $b->buoy_serial_id, '<p>No cached version available</p>');
-        print $cached;
+        $html_buoys[$b->buoy_order . '-' . $b->buoy_id] =  $cached;
       }
       else {
         // Create new chart
@@ -154,12 +156,14 @@
         
 
         $return = '<div class="panel panel-primary buoy-' . $b->buoy_id . '">' . $html . '</div>';	
-        print $return;
+        $html_buoys[$b->buoy_order . '-' . $b->buoy_id] = $return;
 
         // Save for Caching
         update_option('triaxy_recent_cache_' . $b->buoy_serial_id, '<div class="panel panel-primary buoy-' . $b->buoy_id . ' cached">' . $html . '</div>');
       }
-		}
+    }
+    
+    return $html_buoys;
 	}
 
 	
