@@ -100,7 +100,8 @@ class Buoy_Info_List extends WP_List_Table {
 					return $item[ 'custom_lat' ] . ' / ' . $item['custom_lng'];
 				}
 				return 'N/A';
-			case 'visible':
+			case 'is_visible':
+				return ($item[ 'visible' ] == 1) ? 'Yes' : 'No';
 			case 'hide_location':
 				return ($item[ $column_name ] == 1) ? 'Yes' : 'No';
 			default:
@@ -154,7 +155,7 @@ class Buoy_Info_List extends WP_List_Table {
 			'cb'      => '<input type="checkbox" />',
 			'name'    => __( 'Buoy ID', 'uwa' ),
 			'title' => __( 'Title', 'uwa' ),
-			'visible'    => __( 'Visible', 'uwa' ),
+			'is_visible'    => __( 'Visible', 'uwa' ),
 			'lat_lng'	=> __('LAT/LNG', 'uwa'),
 			'buoy_order'    => __( 'Order', 'uwa' )
 		];
@@ -170,7 +171,9 @@ class Buoy_Info_List extends WP_List_Table {
 	 */
 	public function get_sortable_columns() {
 		$sortable_columns = array(
-			// 'name' => array( 'name', true ),
+			'name' => array('buoy_id', true),
+			'title' => array('title', true),
+			'buoy_order' => array( 'buoy_order', true )
 			// 'city' => array( 'city', false )
 		);
 
