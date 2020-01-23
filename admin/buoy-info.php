@@ -485,7 +485,6 @@ class Buoy_Info_Plugin {
 								<div class="form-field form-required term-true-north-offset">
 									<label for="tag-true-north-offset">True North Offset <small>Deg</small></label>
 									<input name="tag-true-north-offset" id="tag-true-north-offset" type="text" value="<?php print (isset($form_data['true_north_offset'])) ? $form_data['true_north_offset'] : ''; ?>" size="40" aria-required="true">
-									<p>Triaxy only</p>
 								</div>
 								<div class="form-field form-required term-wave-height-increments">
 									<label for="tag-wave-height-increments">Wave Height Increments (m) <small>Comma Separated</small></label>

@@ -111,7 +111,7 @@
 						$point['lat'] = $r->latitude;
 						$point['lng'] = $r->longitude;
 						$point['mean_direction'] = $r->mean_direction;
-						$point['url'] = get_bloginfo('url') . '/spoondrift?spotter_id=' . $b->buoy_id;
+						$point['url'] = get_bloginfo('url') . '/spoondrift?spotter_id=' . $b->buoy_id . '&buoy_info_id=' . $b->id;
 						// $point ['type'] = 'spoondrift';
 
 						break;
@@ -129,7 +129,7 @@
 							$point['lat'] = $r->latitude;
 							$point['lng'] = $r->longitude;
 							$point['mean_direction'] = 0;
-							$point['url'] = get_bloginfo('url') . '/datawell?buoy_id=' . $b->buoy_id;
+							$point['url'] = get_bloginfo('url') . '/datawell?buoy_id=' . $b->buoy_id . '&buoy_info_id=' . $b->id;
 						}
 
 						// $point ['type'] = 'datawell';
@@ -163,7 +163,7 @@
 								$point['lat'] = (!empty($r->latitude)) ? $r->latitude : 0;
 								$point['lng'] = (!empty($r->longitude)) ? $r->longitude : 0;
 								$point['mean_direction'] = 0;
-								$point['url'] = get_bloginfo('url') . '/triaxy?buoy_id=' . $s->id;
+								$point['url'] = get_bloginfo('url') . '/triaxy?buoy_id=' . $s->id . '&buoy_info_id=' . $b->id;
 							}
 
 							// $point ['type'] = 'triaxy';
@@ -197,6 +197,7 @@
 	function uwa_global_template_search($args = array()) {
 		$defaults = array(
 			'buoy_id' => 0,
+			'buoy_info_id' => 0,
 			'buoy_type' => '',
 			'dates' => true,
 			'csv_form' => false,
@@ -207,7 +208,7 @@
 
 		$_args = wp_parse_args($args, $defaults);
 
-		if($_args['buoy_id'] === 0 || $_args['buoy_type'] === '') {
+		if($_args['buoy_id'] === 0 || $_args['buoy_info_id'] === 0 || $_args['buoy_type'] === '') {
 			return;
 		}
 
@@ -294,6 +295,7 @@
 
 		$defaults = array(
 			'buoy_id' => '',
+			'buoy_info_id' => '',
 			'buoy_type' => '',
 			'dates' => true,
 			'csv_form' => false,
@@ -308,6 +310,7 @@
 			// Search form
 			$html .= uwa_global_template_search(array(
 				'buoy_id' => $_args['buoy_id'],
+				'buoy_info_id' => $_args['buoy_info_id'],
 				'buoy_type' => $_args['buoy_type'],
 				'dates' => $_args['dates'],
 				'csv_form' => $_args['csv_form'],
@@ -318,10 +321,11 @@
 
 			// Date range extracted
 			$date_range = uwa_global_template_date_range($_POST['dates']);
-			
+
 			// Layout Time Series & Model Results
 			$search_params = array(
 				'buoy_id' => $_args['buoy_id'], 
+				'buoy_info_id' => $_args['buoy_info_id'], 
 				'buoy_type' => $_args['buoy_type'],
 				'return' => true
 			);
@@ -357,6 +361,7 @@
 				
 		$defaults = array(
 			'buoy_id' => '', 
+			'buoy_info_id' => '',
 			'buoy_type' => '',
 			'from_date' => null, 
 			'until_date' => null,
@@ -364,18 +369,25 @@
 		);
 
 		$_args = wp_parse_args($args, $defaults);
-
-		// $_args['buoy_id'] = $_args['buoy_id'];
-		// $buoy_type = $_args['buoy_type'];
-		$from_date = $_args['from_date'];
-		$until_date = $_args['until_date'];
-
-		if($_args['buoy_id'] == '' || $_args['buoy_type'] == '') {
+		
+		if($_args['buoy_id'] == '' || $_args['buoy_type'] == '' || $_args['buoy_info_id'] === '') {
 			return $html;
 		}
-
+		
+		$from_date = $_args['from_date'];
+		$until_date = $_args['until_date'];
+		
 		global $wpdb;
 		global $uwa_buoy_details;
+
+		$buoy_info = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM {$wpdb->prefix}buoy_info
+				WHERE `id` = '%d'",
+				$_args['buoy_info_id']
+			)
+		);
+		$true_north_offset = $buoy_info->true_north_offset;
 
 		if($from_date == null) {
 			$from_date = Date('Y-m-d H:i:s', (time() - (60 * 60 * 24 * 7 * 8)));
@@ -402,26 +414,6 @@
 						$until_date
 					)
 				);
-				// [id] => 6826
-				// [post_data_id] => 3732
-				// [spotter_id] => SPOT-0093
-				// [spotter_name] => Perth Canyon
-				// [payload_type] => full
-				// [battery_voltage] => 0.00
-				// [solar_voltage] => 7.00
-				// [temperature] => 0.00
-				// [humidity] => 30.40
-				// [post_data_processed_id] => 3733
-				// [significant_wave_height] => 2.96
-				// [peak_period] => 12.80
-				// [mean_period] => 9.21
-				// [peak_direction] => 232.55
-				// [peak_directional_spread] => 17.80
-				// [mean_direction] => 229.41
-				// [mean_directional_spread] => 32.47
-				// [timestamp] => 2019-11-21 01:46:01
-				// [latitude] => -31.79666700
-				// [longitude] => 115.01825000
 				break;
 			case 'datawell':
 				$data = $wpdb->get_results(
@@ -504,8 +496,9 @@
 				
 				// // Peak Direction, Peak Spr
 				if($d->peak_direction > 0) {
+					$peak_direction = (floatval($d->peak_direction) + floatval($true_north_offset)) % 360;
 					array_push($peak_direction_x, $timestamp);
-					array_push($peak_direction_y, $d->peak_direction);
+					array_push($peak_direction_y, $peak_direction);
 				}
 				
 				if($d->peak_directional_spread > 0) {
@@ -515,8 +508,9 @@
 				
 				// // Mean Direction, Mean Spr
 				if($d->mean_direction > 0) {
+					$mean_direction = (floatval($d->mean_direction) + floatval($true_north_offset)) % 360;
 					array_push($mean_direction_x, $timestamp);
-					array_push($mean_direction_y, $d->mean_direction);
+					array_push($mean_direction_y, $mean_direction);
 				}
 				
 				if($d->mean_directional_spread > 0) {
@@ -584,6 +578,7 @@
 	function uwa_global_model_results_with_args($args) {
 		$defaults = array(
 			'buoy_id' => '',
+			'buoy_info_id' => '',
 			'buoy_type' => '', 
 			'from_date' => null, 
 			'until_date' => null,
@@ -593,13 +588,14 @@
 		$_args = wp_parse_args($args, $defaults);
 
 		$buoy_id = $_args['buoy_id'];
+		$buoy_info_id = $_args['buoy_info_id'];
 		$buoy_type = $_args['buoy_type'];
 		$from_date = $_args['from_date'];
 		$until_date = $_args['until_date'];
 
 		$html = '';
 
-		if($buoy_id == '' || $buoy_type == '') {
+		if($buoy_id == '' || $buoy_type == '' || $buoy_info_id == '') {
 			return $html;
 		}
 

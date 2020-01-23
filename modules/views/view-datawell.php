@@ -58,7 +58,7 @@
 					<h5 style="float: left;">' . $title . ' &mdash; ';
 					$html .= (!$hide_location) ? '[' . round($recent->latitude, 4) . '&deg;, ' . round($recent->longitude, 4) . '&deg;] &mdash; ' : '';
 					$html .= $last_observation . '</h5>
-					<a style="float: right;" href="/datawell?buoy_id=' . $b->buoy_id . '" class="btn btn-success" role="button">Go to ' . $title . ' Data Page</a>
+					<a style="float: right;" href="/datawell?buoy_id=' . $b->buoy_id . '&buoy_info_id=' . $b->id . '" class="btn btn-success" role="button">Go to ' . $title . ' Data Page</a>
 				</div>';
 				$html .= '<div class="panel-body">';
 			
@@ -90,7 +90,10 @@
 						$data_points = ''; 
 						$direction_points = array();
 						foreach($waves as $k => $w) {
-              $direction_points[] = ((floor($w->peak_direction / 10) * 10) + 180) % 360; // Flip direction 
+							// True North Offset
+              $true_north_offset = (!empty($b->true_north_offset)) ? $b->true_north_offset : 0;
+              $direction_points[] = (((floor($w->peak_direction / 10) * 10) + 180) + $true_north_offset) % 360; // Flip direction 
+							
               $max_wave = ($w->significant_wave_height > $max_wave) ? $w->significant_wave_height : $max_wave;
               $max_peak = ($w->peak_period > $max_peak) ? $w->peak_period : $max_peak;
               // Adjust time from GMT using offset
