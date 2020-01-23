@@ -147,7 +147,8 @@
                 $html .= '<tr>';
                   $html .= '<td><strong>' . $recent->significant_wave_height . ' m</strong></td>';
                   $html .= '<td>' . $recent->peak_period . ' s</td>';
-                  $html .= '<td>' . $recent->peak_direction . ' degrees</td>';
+                  $recent_peak_direction = (floatval($recent->peak_direction) + $true_north_offset) % 360;
+                  $html .= '<td>' . $recent_peak_direction . ' degrees</td>';
                   $html .= '<td>' . $recent->peak_directional_spread . ' degrees</td>';
                 $html .= '</tr>';
               $html .= '</tbody>';
