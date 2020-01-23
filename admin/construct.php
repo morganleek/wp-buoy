@@ -196,6 +196,7 @@
 			homepage_graph_event_limit SMALLINT DEFAULT 0,
 			wave_height_increments VARCHAR(255),
 			buoy_order SMALLINT DEFAULT 0,
+			true_north_offset DECIMAL(5,2) NOT NULL,
 			PRIMARY KEY (id)
 		) $charset_collate;";
 		dbDelta( $sql );
@@ -251,10 +252,10 @@
 			peak_directional_spread DECIMAL(5,2) NOT NULL,
 			tp5 DECIMAL(5,2) NOT NULL,
 			hm0 DECIMAL(5,2) NOT NULL,
-			mean_direction DECIMAL(5,2) NOT NULL, -- Mean Magnetic Direction
-			mean_directional_spread DECIMAL(5,2) NOT NULL, -- Mean Spread
+			mean_direction DECIMAL(5,2) NOT NULL, 
+			mean_directional_spread DECIMAL(5,2) NOT NULL, 
 			te DECIMAL(5,2) NOT NULL, 
-			wave_steepness DECIMAL(5,3) NOT NULL, -- Mean Magnetic Direction
+			wave_steepness DECIMAL(5,3) NOT NULL,
 			timestamp datetime NOT NULL,
 			latitude DECIMAL(10, 8) NOT NULL,
 			longitude DECIMAL(11, 8) NOT NULL,

@@ -107,7 +107,10 @@
 						$data_points = ''; 
             $direction_points = array();
             foreach($waves as $k => $w) {
-              $direction_points[] = ((floor($w->peak_direction / 10) * 10) + 180) % 360; // Flip direction 
+              // True North Offset
+              $true_north_offset = (!empty($b->true_north_offset)) ? $b->true_north_offset : 0;
+              $direction_points[] = (((floor($w->peak_direction / 10) * 10) + 180) + $true_north_offset) % 360; // Flip direction 
+
               $max_wave = ($w->significant_wave_height > $max_wave) ? $w->significant_wave_height : $max_wave;
               $max_peak = ($w->peak_period > $max_peak) ? $w->peak_period : $max_peak;
               // Adjust time from GMT using offset

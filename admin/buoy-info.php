@@ -327,7 +327,8 @@ class Buoy_Info_Plugin {
 												`homepage_graph_event_limit` = '%s',
 												`depth` = '%s',
 												`wave_height_increments` = '%s',
-												`buoy_order` = %d
+												`buoy_order` = %d,
+												`true_north_offset` = %f
 												WHERE `id` = %d
 											", 
 												$_POST['tag-buoy-id'], 
@@ -344,6 +345,7 @@ class Buoy_Info_Plugin {
 												$_POST['tag-depth'],
 												$_POST['tag-wave-height-increments'],
 												$_POST['tag-buoy-order'],
+												$_POST['tag-true-north-offset'],
 												$_POST['hidden-id']
 											)
 										);
@@ -366,7 +368,8 @@ class Buoy_Info_Plugin {
 												'homepage_graph_event_limit' => $_POST['tag-intervals'],
 												'depth' => $_POST['tag-depth'],
 												'wave_height_increments' => $_POST['tag-wave-height-increments'],
-												'buoy_order' => $_POST['tag-buoy-order']
+												'buoy_order' => $_POST['tag-buoy-order'],
+												'true_north_offset' => $_POST['tag-true-north-offset']
 											), 
 											array( 
 												'%s', 
@@ -382,7 +385,8 @@ class Buoy_Info_Plugin {
 												'%s', 
 												'%d',
 												'%s',
-												'%d'
+												'%d',
+												'%f'
 											) 
 										);
 										
@@ -413,7 +417,8 @@ class Buoy_Info_Plugin {
 											'homepage_graph_event_limit' => $buoy->homepage_graph_event_limit,
 											'depth' => $buoy->depth,
 											'wave_height_increments' => $buoy->wave_height_increments,
-											'buoy_order' => $buoy->buoy_order
+											'buoy_order' => $buoy->buoy_order,
+											'true_north_offset' => $buoy->true_north_offset
 										);		
 										
 										$title = 'Edit Existing Buoy';
@@ -476,6 +481,11 @@ class Buoy_Info_Plugin {
 									<input name="tag-custom-lat" id="tag-custom-lat" type="text" value="<?php print (isset($form_data['custom_lat'])) ? $form_data['custom_lat'] : ''; ?>" class="small-text" size="5" aria-required="true"> , 
 									<input name="tag-custom-lng" id="tag-custom-lng" type="text" value="<?php print (isset($form_data['custom_lng'])) ? $form_data['custom_lng'] : ''; ?>" class="small-text" size="5" aria-required="true">
 									<p>Override buoy info LAT/LNG</p>
+								</div>
+								<div class="form-field form-required term-true-north-offset">
+									<label for="tag-true-north-offset">True North Offset <small>Deg</small></label>
+									<input name="tag-true-north-offset" id="tag-true-north-offset" type="text" value="<?php print (isset($form_data['true_north_offset'])) ? $form_data['true_north_offset'] : ''; ?>" size="40" aria-required="true">
+									<p>Triaxy only</p>
 								</div>
 								<div class="form-field form-required term-wave-height-increments">
 									<label for="tag-wave-height-increments">Wave Height Increments (m) <small>Comma Separated</small></label>
