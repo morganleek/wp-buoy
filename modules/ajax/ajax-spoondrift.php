@@ -41,3 +41,12 @@
 	
 	add_action( 'wp_ajax_uwa_receive_spoondrift_data', 'uwa_receive_spoondrift_data' );
 	add_action( 'wp_ajax_nopriv_uwa_receive_spoondrift_data', 'uwa_receive_spoondrift_data' );
+
+	// // Removed from AJAX
+	// // Triggered internally after receiving new post data
+	// function uwa_fetch_spoondrift_wind_data() {
+	// 	uwa_fetch_spoondrift_wind_data_by_id('SPOT-0093');
+	// }
+
+	// add_action( 'wp_ajax_uwa_fetch_spoondrift_wind_data', 'uwa_fetch_spoondrift_wind_data' );
+	// add_action( 'wp_ajax_nopriv_uwa_fetch_spoondrift_wind_data', 'uwa_fetch_spoondrift_wind_data' );

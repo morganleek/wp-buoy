@@ -370,6 +370,139 @@
 						) 
 					);
 				}
+
+				// Check for new Wind Data
+				uwa_fetch_spoondrift_wind_data_by_id($data->data->spotterId);
 			}
 		}
+	}
+
+	// Info lookup for faster queries
+	function uwa_spoondrift_lookup_id($buoy_id = '', $buoy_label = '') {
+		global $wpdb;
+
+		if($buoy_id === '') {
+			return false;
+		}
+
+		$buoy_lookup_id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM {$wpdb->prefix}spoondrift_lookup
+				WHERE `buoy_id` = '%s'",
+				$buoy_id
+			)
+		);
+
+		if($wpdb->num_rows > 0) {
+			return $buoy_lookup_id;
+		}
+
+		// Create table reference
+		$wpdb->insert(
+			$wpdb->prefix . 'spoondrift_lookup',
+			array(
+				'bouy_id' => $buoy_id,
+				'bouy_label' => $buoy_label
+			),
+			array(
+				'%s',
+				'%s'
+			)
+		);
+
+		return $wpdb->insert_id;
+	}
+
+	function uwa_process_spoondrift_wind_json($result = '') {
+		global $wpdb;
+
+		$data = json_decode($result);
+		
+		$spotter_id = ($data->data->spotterId !== null) ? $data->data->spotterId : '';
+		$spotter_name = ($data->data->spotterName !== null) ? $data->data->spotterName : '';
+
+		if($spoondrift_lookup_id = uwa_spoondrift_lookup_id($spotter_id, $spotter_name)) {
+			if(!empty($data->data->wind)) {
+				foreach($data->data->wind as $w) {
+					// Add Each Wind Entry
+					$exists = $wpdb->get_results(
+						$wpdb->prepare(
+							"SELECT * FROM {$wpdb->prefix}spoondrift_post_data_processed_wind
+							WHERE `spoondrift_lookup_id` = %d
+							AND `timestamp` = '%s'",
+							$spoondrift_lookup_id,
+							$w->timestamp
+						)
+					);
+
+					if($wpdb->num_rows === 0) {
+						$wpdb->insert(
+							$wpdb->prefix . 'spoondrift_post_data_processed_wind', 
+							array( 
+								'spoondrift_lookup_id' => $spoondrift_lookup_id,
+								'speed' => ($w->speed == null) ? 0 : $w->speed,
+								'direction' => ($w->direction == null) ? 0 : $w->direction,
+								'surface_id' => ($w->seasurfaceId == null) ? 0 : $w->seasurfaceId,
+								'timestamp' => ($w->timestamp == null) ? '' : $w->timestamp,
+								'latitude' => ($w->latitude == null) ? 0 : $w->latitude,
+								'longitude' => ($w->longitude == null) ? 0 : $w->longitude,
+							), 
+							array( 
+								'%d',
+								'%f',
+								'%f',
+								'%d',
+								'%s',
+								'%f',
+								'%f'
+							) 
+						);
+					}
+				}
+			}
+		}
+	}
+
+	function uwa_fetch_spoondrift_wind_data_by_id($spotter_id = '') {
+		global $wpdb;
+	
+		$content = '';
+
+		if($spotter_id === '') {
+			return false;
+		}
+
+		$token = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT spotter_token FROM {$wpdb->prefix}buoy_info
+				WHERE `buoy_id` = '%s'
+				LIMIT 1",
+				$spotter_id
+			)
+		);
+		
+		if($wpdb->num_rows > 0 && $token !== '') {
+			$url = sprintf('https://api.sofarocean.com/api/wave-data?spotterId=%s&limit=1&includeWindData=true', $spotter_id);
+
+			//  Initiate curl
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_URL, $url); // Set the url
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+				'token: ' . $token
+			)); // Auth Header
+			
+			$result = curl_exec($ch); // Execute
+			
+			curl_close($ch); // Closing
+
+			// $result = '{"data":{"spotterId":"SPOT-0093","limit":1,"waves":[{"significantWaveHeight":1.552,"peakPeriod":11.378,"meanPeriod":7.148,"peakDirection":227.218,"peakDirectionalSpread":28.644,"meanDirection":229.092,"meanDirectionalSpread":32.385,"timestamp":"2020-01-29T05:46:01.000Z","latitude":-31.79065,"longitude":115.00783}],"wind":[{"speed":5.6,"direction":245,"seasurfaceId":2,"latitude":-31.79065,"longitude":115.0078333,"timestamp":"2020-01-29T05:46:01.000Z"}]}}';
+
+			uwa_process_spoondrift_wind_json($result);
+		}
+		else {
+			// No token
+		}
+
+		wp_die();
 	}

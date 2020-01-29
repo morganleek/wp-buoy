@@ -52,6 +52,20 @@
 		) $charset_collate;";
 		dbDelta( $sql );
 
+		$table_name = $wpdb->prefix . "spoondrift_post_data_processed_wind";
+		$sql = "CREATE TABLE $table_name (
+			id mediumint(9) NOT NULL AUTO_INCREMENT,
+			spoondrift_lookup_id mediumint(9) NOT NULL,
+			speed DECIMAL(5,2) NOT NULL,
+			direction DECIMAL(5,2) NOT NULL,
+			surface_id TINYINT(1) DEFAULT 0,
+			timestamp datetime NOT NULL,
+			latitude DECIMAL(10, 8) NOT NULL,
+			longitude DECIMAL(11, 8) NOT NULL,
+			PRIMARY KEY  (id)
+		) $charset_collate;";
+		dbDelta( $sql );
+
 		// Datawell Files
 		$table_name = $wpdb->prefix . "datawell_file_data";
 		$sql = "CREATE TABLE $table_name (
@@ -197,6 +211,7 @@
 			wave_height_increments VARCHAR(255),
 			buoy_order SMALLINT DEFAULT 0,
 			true_north_offset DECIMAL(5,2) NOT NULL,
+			spotter_token varchar(100) NOT NULL,
 			PRIMARY KEY (id)
 		) $charset_collate;";
 		dbDelta( $sql );

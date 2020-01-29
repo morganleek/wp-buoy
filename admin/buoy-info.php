@@ -328,7 +328,8 @@ class Buoy_Info_Plugin {
 												`depth` = '%s',
 												`wave_height_increments` = '%s',
 												`buoy_order` = %d,
-												`true_north_offset` = %f
+												`true_north_offset` = %f,
+												`spotter_token` = '%s'
 												WHERE `id` = %d
 											", 
 												$_POST['tag-buoy-id'], 
@@ -346,6 +347,7 @@ class Buoy_Info_Plugin {
 												$_POST['tag-wave-height-increments'],
 												$_POST['tag-buoy-order'],
 												$_POST['tag-true-north-offset'],
+												$_POST['tag-spotter-token'],
 												$_POST['hidden-id']
 											)
 										);
@@ -369,7 +371,8 @@ class Buoy_Info_Plugin {
 												'depth' => $_POST['tag-depth'],
 												'wave_height_increments' => $_POST['tag-wave-height-increments'],
 												'buoy_order' => $_POST['tag-buoy-order'],
-												'true_north_offset' => $_POST['tag-true-north-offset']
+												'true_north_offset' => $_POST['tag-true-north-offset'], 
+												'spotter_token' => $_POST['tag-spotter-token']
 											), 
 											array( 
 												'%s', 
@@ -386,7 +389,8 @@ class Buoy_Info_Plugin {
 												'%d',
 												'%s',
 												'%d',
-												'%f'
+												'%f',
+												'%s'
 											) 
 										);
 										
@@ -418,7 +422,8 @@ class Buoy_Info_Plugin {
 											'depth' => $buoy->depth,
 											'wave_height_increments' => $buoy->wave_height_increments,
 											'buoy_order' => $buoy->buoy_order,
-											'true_north_offset' => $buoy->true_north_offset
+											'true_north_offset' => $buoy->true_north_offset,
+											'spotter_token' => $buoy->spotter_token
 										);		
 										
 										$title = 'Edit Existing Buoy';
@@ -465,6 +470,11 @@ class Buoy_Info_Plugin {
 										<option value="triaxy" <?php selected($form_data['buoy_type'], 'triaxy'); ?>>Triaxy</option>
 									</select>
 									<!-- <p></p> -->
+								</div>
+								<div class="form-field form-required term-spotter-token-wrap">
+									<label for="tag-spotter-token">Spotter Token</label>
+									<input name="tag-spotter-token" id="tag-spotter-token" type="text" value="<?php print (isset($form_data['spotter_token'])) ? $form_data['spotter_token'] : ''; ?>"  size="40" aria-required="true">
+									<p><strong>Spotter only</strong>. This allows the site to request buoy wind data from the Spotter API.</p>
 								</div>
 								<div class="form-field form-required term-enabled-wrap">
 									<label for="tag-enabled">Enabled</label>
