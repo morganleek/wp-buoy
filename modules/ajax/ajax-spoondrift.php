@@ -55,5 +55,5 @@
 		wp_die();
 	}
 
-	add_action( 'wp_ajax_uwa_fetch_spoondrift_wind_data', 'uwa_fetch_spoondrift_wind_data' );
-	add_action( 'wp_ajax_nopriv_uwa_fetch_spoondrift_wind_data', 'uwa_fetch_spoondrift_wind_data' );
+	add_action( 'wp_ajax_uwa_fetch_spoondrift_wind_data_tester', 'uwa_fetch_spoondrift_wind_data_tester' );
+	add_action( 'wp_ajax_nopriv_uwa_fetch_spoondrift_wind_data_tester', 'uwa_fetch_spoondrift_wind_data_tester' );
