@@ -42,11 +42,18 @@
 	add_action( 'wp_ajax_uwa_receive_spoondrift_data', 'uwa_receive_spoondrift_data' );
 	add_action( 'wp_ajax_nopriv_uwa_receive_spoondrift_data', 'uwa_receive_spoondrift_data' );
 
-	// // Removed from AJAX
-	// // Triggered internally after receiving new post data
-	// function uwa_fetch_spoondrift_wind_data() {
-	// 	uwa_fetch_spoondrift_wind_data_by_id('SPOT-0093');
-	// }
+	// Removed from AJAX
+	// Triggered internally after receiving new post data
+	function uwa_fetch_spoondrift_wind_data_tester() {
+		if(isset($_POST['spotter_id'])) {
+			uwa_fetch_spoondrift_wind_data_by_id($_POST['spotter_id']);
+		}
+		else {
+			print 'No spotter set';
+		}
 
-	// add_action( 'wp_ajax_uwa_fetch_spoondrift_wind_data', 'uwa_fetch_spoondrift_wind_data' );
-	// add_action( 'wp_ajax_nopriv_uwa_fetch_spoondrift_wind_data', 'uwa_fetch_spoondrift_wind_data' );
+		wp_die();
+	}
+
+	add_action( 'wp_ajax_uwa_fetch_spoondrift_wind_data', 'uwa_fetch_spoondrift_wind_data' );
+	add_action( 'wp_ajax_nopriv_uwa_fetch_spoondrift_wind_data', 'uwa_fetch_spoondrift_wind_data' );
