@@ -45,8 +45,8 @@
 	// Removed from AJAX
 	// Triggered internally after receiving new post data
 	function uwa_fetch_spoondrift_wind_data_tester() {
-		if(isset($_POST['spotter_id'])) {
-			uwa_fetch_spoondrift_wind_data_by_id($_POST['spotter_id']);
+		if(isset($_REQUEST['spotter_id'])) {
+			uwa_fetch_spoondrift_wind_data_by_id($_REQUEST['spotter_id']);
 		}
 		else {
 			print 'No spotter set';
