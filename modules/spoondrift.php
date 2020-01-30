@@ -401,8 +401,8 @@
 		$wpdb->insert(
 			$wpdb->prefix . 'spoondrift_lookup',
 			array(
-				'bouy_id' => $buoy_id,
-				'bouy_label' => $buoy_label
+				'buoy_id' => $buoy_id,
+				'buoy_label' => $buoy_label
 			),
 			array(
 				'%s',
