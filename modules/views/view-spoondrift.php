@@ -63,6 +63,10 @@
 							$wave_from = $recent->timestamp;
 							$wave_until = date('Y-m-d H:i:s', strtotime('-3 days', strtotime($recent->timestamp)));
 
+							// Spotter ID Lookup
+							$spoondrift_lookup_id = uwa_spoondrift_lookup_id($b->buoy_id, '');
+
+							// Recent Waves
 							$waves = $wpdb->get_results(
 								$wpdb->prepare("	
 									SELECT * FROM 
@@ -119,12 +123,27 @@
 								)
 							);
 
+							// Recent Wind
+							$wave = $wpdb->get_row(
+								$wpdb->prepare("
+									SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed_wind` 
+									WHERE `spoondrift_lookup_id` = %d 
+									ORDER BY `timestamp` DESC LIMIT 1
+									",
+									$spoondrift_lookup_id
+								)
+							);
+							$wind_speed = ($wpdb->num_rows > 0) ? floatval($wave->speed) : '-';
+							$direction = ($wpdb->num_rows > 0) ? floatval($wave->direction) % 360 : '-';
+
 							$html .= '<table class="table">';
 								$html .= '<thead><tr>';
 									$html .= '<th>Significant Wave Height</th>';
 									$html .= '<th>Peak Period</th>';
 									$html .= '<th>Peak Direction</th>';
 									$html .= '<th>Directional spreading</th>';
+									$html .= '<th>Wind Speed</th>';
+									$html .= '<th>Wind Direction</th>';
 								$html .= '</tr></thead>';
 								$html .= '<tbody>';
 									$html .= '<tr>';
@@ -133,6 +152,8 @@
 										$recent_peak_direction = (floatval($recent->peak_direction) + $true_north_offset) % 360;
 										$html .= '<td>' . $recent_peak_direction . ' degrees</td>';
 										$html .= '<td>' . $recent->peak_directional_spread . ' degrees</td>';
+										$html .= '<td>' . $wind_speed . ' m/s</td>';
+										$html .= '<td>' . $direction . ' degrees</td>';
 									$html .= '</tr>';
 								$html .= '</tbody>';
 							$html .= '</table>';
