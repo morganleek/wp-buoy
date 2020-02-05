@@ -290,6 +290,12 @@
 	function uwa_update_db_check() {
     global $uwa_db_version;
     if ( get_site_option( 'uwa_db_version' ) != $uwa_db_version ) {
+			// // .htaccess Create/Update
+			// $htaccess = get_home_path() . ".htaccess";
+			// $redirect = array('RewriteRule ^index\.php$ - [L]')
+			// insert_with_markers();
+
+			// DB Install/Update
       uwa_install();
     }
 	}

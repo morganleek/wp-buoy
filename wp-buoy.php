@@ -66,4 +66,7 @@
 	require_once( UWA__PLUGIN_DIR . 'modules/spoondrift.php' );
 	require_once( UWA__PLUGIN_DIR . 'modules/datawell.php' );
 	require_once( UWA__PLUGIN_DIR . 'modules/triaxy.php' );
+
+	// Universal AJAX
+	require_once( UWA__PLUGIN_DIR . 'modules/ajax/ajax-request.php' );
 	
