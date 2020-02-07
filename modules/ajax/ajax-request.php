@@ -167,25 +167,25 @@
 
     switch($buoy_info->buoy_type) {
       case 'spoondrift':
-        $spoondrift_lookup_id = uwa_spoondrift_lookup_id($_args['buoy_id'], '');
-        // Recent Waves
-        $waves = $wpdb->get_results(
-          $wpdb->prepare("	
-            SELECT * FROM 
-            (SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed` WHERE spotter_id = '%s') AS P
-            INNER JOIN
-            (SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed_waves` WHERE `timestamp` < '%s' AND `timestamp` > '%s') AS W
-            ON P.id = W.post_data_processed_id
-            ORDER BY W.`timestamp`
-            max_results %d
-            ", 
-            $_args['buoy_id'],
-            $_args['end_date'],
-            $_args['start_date'],
-            $_args['max_results']
-          )
-        );
-        print json_encode($waves);
+        // $spoondrift_lookup_id = uwa_spoondrift_lookup_id($_args['buoy_id'], '');
+        // // Recent Waves
+        // $waves = $wpdb->get_results(
+        //   $wpdb->prepare("	
+        //     SELECT * FROM 
+        //     (SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed` WHERE spotter_id = '%s') AS P
+        //     INNER JOIN
+        //     (SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed_waves` WHERE `timestamp` < '%s' AND `timestamp` > '%s') AS W
+        //     ON P.id = W.post_data_processed_id
+        //     ORDER BY W.`timestamp`
+        //     max_results %d
+        //     ", 
+        //     $_args['buoy_id'],
+        //     $_args['end_date'],
+        //     $_args['start_date'],
+        //     $_args['max_results']
+        //   )
+        // );
+        // print json_encode($waves);
         break;
       case 'datawell':
         break;

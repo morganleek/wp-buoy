@@ -136,26 +136,28 @@
 							$wind_speed = ($wpdb->num_rows > 0) ? floatval($wave->speed) : '-';
 							$direction = ($wpdb->num_rows > 0) ? floatval($wave->direction) % 360 : '-';
 
+							// $html .= uwa_global_get_label('');
+
+							$table_values = array(
+								'significant_wave_height' => array('Significant Wave Height', '<strong>' . $recent->significant_wave_height . ' m</strong>'),
+								'peak_period' => array('Peak Period', $recent->peak_period . ' s'),
+								'peak_direction' => array('Peak Direction', strval((floatval($recent->peak_direction) + $true_north_offset) % 360) . ' degrees'),
+								'directional_spreading' => array('Directional spreading', $recent->peak_directional_spread . ' degrees'),
+								'wind_speed' => array('Wind Speed', $wind_speed . ' m/s'),
+								'wind_direction' => array('Wind Direction', $direction . ' degrees')
+							);
+
 							$html .= '<table class="table">';
 								$html .= '<thead><tr>';
-									$html .= '<th>Significant Wave Height</th>';
-									$html .= '<th>Peak Period</th>';
-									$html .= '<th>Peak Direction</th>';
-									$html .= '<th>Directional spreading</th>';
-									$html .= '<th>Wind Speed</th>';
-									$html .= '<th>Wind Direction</th>';
+								foreach($table_values as $k => $v) {
+									$html .= '<th class="' . sanitize_title($k) . '">' . uwa_global_get_label($k, $v[0]) . '</th>';
+								}
 								$html .= '</tr></thead>';
-								$html .= '<tbody>';
-									$html .= '<tr>';
-										$html .= '<td><strong>' . $recent->significant_wave_height . ' m</strong></td>';
-										$html .= '<td>' . $recent->peak_period . ' s</td>';
-										$recent_peak_direction = (floatval($recent->peak_direction) + $true_north_offset) % 360;
-										$html .= '<td>' . $recent_peak_direction . ' degrees</td>';
-										$html .= '<td>' . $recent->peak_directional_spread . ' degrees</td>';
-										$html .= '<td>' . $wind_speed . ' m/s</td>';
-										$html .= '<td>' . $direction . ' degrees</td>';
-									$html .= '</tr>';
-								$html .= '</tbody>';
+								$html .= '<tbody><tr>';
+								foreach($table_values as $k => $v) {
+									$html .= '<td>' . $v[1] . '</th>';
+								}
+								$html .= '</tr></tbody>';
 							$html .= '</table>';
 						}
 					$html .= '</div>';

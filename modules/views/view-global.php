@@ -826,3 +826,15 @@
 
 		uwa_sql_results_to_table($data, $_args['buoy_id']);
 	}
+
+	function uwa_global_get_label($class = '', $label = '') {
+		if(empty($class)) {
+			return $label;
+		}
+		
+		$overrides = json_decode(get_option('uwa_label_overrides', '{}'));
+		if(isset($overrides->$class) && !empty($overrides->$class)) {
+			return $overrides->$class;
+		}
+		return $label;
+	}
