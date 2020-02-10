@@ -136,8 +136,6 @@
 							$wind_speed = ($wpdb->num_rows > 0) ? floatval($wave->speed) : '-';
 							$direction = ($wpdb->num_rows > 0) ? floatval($wave->direction) % 360 : '-';
 
-							// $html .= uwa_global_get_label('');
-
 							$table_values = array(
 								'significant_wave_height' => array('Significant Wave Height', '<strong>' . $recent->significant_wave_height . ' m</strong>'),
 								'peak_period' => array('Peak Period', $recent->peak_period . ' s'),

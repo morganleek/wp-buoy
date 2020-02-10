@@ -67,6 +67,6 @@
 	require_once( UWA__PLUGIN_DIR . 'modules/datawell.php' );
 	require_once( UWA__PLUGIN_DIR . 'modules/triaxy.php' );
 
-	// Universal AJAX
-	require_once( UWA__PLUGIN_DIR . 'modules/ajax/ajax-request.php' );
+	// API
+	require_once( UWA__PLUGIN_DIR . 'api/api.php' );
 	
