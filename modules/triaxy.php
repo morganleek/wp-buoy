@@ -71,30 +71,21 @@
     return array();
   }
 
-  function triaxy_test($atts, $content = '') {
-    // $count = 0;
-    // $limit = 5;
-    // $ftp_array = uwa_triaxy_fetch_servers();
-    // foreach($ftp_array as $ftp) {
-    //   if($count >= $limit) {
-    //     return;
-    //   }
-    //   $count = uwa_triaxy_fetch_wave_file_list($ftp->serial, $ftp->url, $ftp->user, $ftp->pass, $limit, $count);
-    // }
+  // function triaxy_test($atts, $content = '') {
+  //   $exhausted = uwa_triaxy_check_folder(array(
+  //     'folder' => "/G3-13844157117119177437/2019/",
+  //     'folder_size' => 3
+  //   ));
+  //   var_dump($exhausted);
+  // }
 
-    $exhausted = uwa_triaxy_check_folder(array(
-      'folder' => "/G3-13844157117119177437/2019/",
-      'folder_size' => 3
-    ));
-    var_dump($exhausted);
-  }
+  // add_shortcode('triaxy_test', 'triaxy_test');
 
-  add_shortcode('triaxy_test', 'triaxy_test');
-
-  function uwa_triaxy_check_folder($args = array()) {
+  function uwa_triaxy_check_folder($args = array(), &$log) {
     global $wpdb;
 
     $defaults = array(
+      'root' => '',
 			'folder' => '', 
       'folder_size' => 0,
       'offset' => '+31 days' // 1 day for waves, 32 days for folders
@@ -115,10 +106,14 @@
       );
       $rows = $wpdb->num_rows;
 
+      if($rows > 0 && $this_month->complete == '1') {
+        $log[] = time() . ": " . "Already marked complete " . $folder;
+      }
+
       if($rows > 0 && (strtotime($this_month->timestamp) < time()) && $this_month->total_files == $folder_size) {
-        // This folder has had one day without updates
+        // This folder has had n day(s) without updates
         // Complete this folder
-        $triaxy_ftp_log .= time() . ":" . "Mark complete " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/ $_br";
+        $log[] = time() . ": " . "Mark complete " . $folder;
         $wpdb->update(
           $wpdb->prefix . "triaxy_ftp_folder",
           array('complete' => 1),
@@ -132,7 +127,7 @@
       else if($rows > 0 && (strtotime($this_month->timestamp) < time())) {
         // This folder has been checked within the last day but the files have changed
         // Update the date
-        $triaxy_ftp_log .= time() . ":" . "File number changed " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/ $_br";
+        $log[] = time() . ": " . "File number changed " . $folder;
         $wpdb->update(
           $wpdb->prefix . "triaxy_ftp_folder",
           array(
@@ -148,7 +143,7 @@
       if($rows === 0) {
         // Wait to ensure limit has been reached
         // before adding folder record
-        $triaxy_ftp_log .= time() . ":" . "Folder added to watch " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/ $_br";
+        $log[] = time() . ": " . "Folder added to watch " . $folder;
 
         $wpdb->insert(
           $wpdb->prefix . "triaxy_ftp_folder",
@@ -172,12 +167,28 @@
   }
 
   // Grabs the next 'n' files that haven't been previously read and stores them
-  function uwa_triaxy_fetch_wave_file_list($serial = '', $ftp_server = '', $ftp_user_name = '', $ftp_user_pass = '', $limit = 5, $count = 0) {
+  function uwa_triaxy_fetch_wave_file_list($args = array()) {
+    $defaults = array(
+      'serial' => '',
+      'ftp_server' => '', 
+      'ftp_user_name' => '', 
+      'ftp_user_pass' => '',
+      'limit' => 5,
+      'count' => 0,
+      'verbose' => false
+    );
+    $_args = wp_parse_args($args, $defaults);
+    extract($_args);
+
     if(!empty($serial) && !empty($ftp_server) && !empty($ftp_user_name) && !empty($ftp_user_pass)) {
       global $wpdb;
 
       $_br = "&#13;&#10;";
-      $triaxy_ftp_log = get_option('triaxy_ftp_log', ''); // implode($_br, array_slice(explode($_br, get_option('triaxy_ftp_log', '')), 0, 500));
+      // $triaxy_ftp_log = get_option('triaxy_ftp_log', ''); // implode($_br, array_slice(explode($_br, get_option('triaxy_ftp_log', '')), 0, 500));
+
+      $log = array();
+      $log[] = ''; // Empty space
+      $log[] = time() . ": Initiating " . $ftp_server;
 
       // Fetch Buoy ID from Serial
       $serial_id = $wpdb->get_var(
@@ -194,7 +205,8 @@
           $serial_id = $wpdb->insert_id;
         }
         else {
-          $triaxy_ftp_log .= time() . ":" . "Failed to insert serial $_br";
+          // $triaxy_ftp_log .= time() . ":" . "Failed to insert serial $_br";
+          $log[] = time() . ": Failed to insert serial";
         }
       }
 
@@ -208,33 +220,42 @@
 
       // check connection
       if ((!$conn_id) || (!$login_result)) { 
-        $triaxy_ftp_log .= time() . ":" . "FTP connection has failed! $_br";
-        $triaxy_ftp_log .= time() . ":" . "Attempted to connect to $ftp_server for user $ftp_user_name $_br";
-        exit; 
+        // $triaxy_ftp_log .= time() . ":" . "FTP connection has failed! $_br";
+        $log[] = time() . ": FTP connection has failed!";
+        // $triaxy_ftp_log .= time() . ":" . "Attempted to connect to $ftp_server for user $ftp_user_name $_br";
+        $log[] = time() . ": Attempted to connect to $ftp_server for user $ftp_user_name";
+        if($verbose) {
+          print implode('<br>', $log);
+        }
+        return;
       } else {
-        $triaxy_ftp_log .= time() . ":" . "Connected to $ftp_server, for user $ftp_user_name $_br";
+        // $triaxy_ftp_log .= time() . ":" . "Connected to $ftp_server, for user $ftp_user_name $_br";
+        $log[] = time() . ": Connected to $ftp_server, for user $ftp_user_name";
       }
 
       // $fullWaves = array();
 
       // Read contents
-      $triaxy_ftp_log .= time() . ":" . "Reading " . $root . "/ $_br";
+      // $triaxy_ftp_log .= time() . ":" . "Reading " . $root . "/ $_br";
+      $log[] = time() . ": Reading " . $root . "/";
       $rawYears = ftp_rawlist($conn_id, $root . "/"); // 
       if($rawYears) {
         // Fetch Years
         $years = uwa_process_raw_list($rawYears);
         foreach($years as $year) {
-          $triaxy_ftp_log .= time() . ":" . "Reading " . $root . "/" . $year['link'] . "/ $_br";
+          // $triaxy_ftp_log .= time() . ":" . "Reading Year " . $root . "/" . $year['link'] . "/ $_br";
+          $log[] = time() . ": Reading Year " . $root . "/" . $year['link'] . "/";
           $rawMonths = ftp_rawlist($conn_id, $root . "/" . $year['link'] . "/");
           if($rawMonths) {
             // Fetch Months
             $months = uwa_process_raw_list($rawMonths);
 
             $y_exhausted = uwa_triaxy_check_folder(array(
+              'root' => $root,
               'folder' => $root . "/" . $year['link'] . "/",
               'folder_size' => count($year),
               'offset' => '+31 days'
-            ));
+            ), $log);
 
             if(!$y_exhausted) {
               foreach($months as $month) {
@@ -252,17 +273,20 @@
 
                 // Check if completed already
                 if($months_check->total == 0) {
-                  $triaxy_ftp_log .= time() . ":" . "Reading " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/ $_br";
+                  // $triaxy_ftp_log .= time() . ":" . "Reading Month " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/ $_br";
+                  $log[] = time() . ": Reading Month " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/";
                   $rawWaves = ftp_rawlist($conn_id, $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/");
                   if($rawWaves) {
                     $waves = uwa_process_raw_list($rawWaves);
 
                     // Check if folders exhausted
+                    // +2 days as buoys can sometimes stop sending data for prolonged periods
                     $m_exhausted = uwa_triaxy_check_folder(array(
+                      'root' => $root,
                       'folder' => $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/",
                       'folder_size' => count($waves),
-                      'offset' => '+6 hours'
-                    ));
+                      'offset' => '+2 days' 
+                    ), $log);
 
                     if(!$m_exhausted) {
                       // Do the fetch
@@ -270,13 +294,18 @@
                       foreach($waves as $wave) {
                         if(strlen($wave['link']) > 14) {
                           if($count > $limit) {
-                            $triaxy_ftp_log .= time() . ":" . "Count Limit Reached $_br";
+                            // $triaxy_ftp_log .= time() . ":" . "Count Limit Reached $_br";
+                            $log[] = time() . ": Count Limit Reached";
                             ftp_close($conn_id); 
-                            update_option( 'triaxy_ftp_log', $triaxy_ftp_log);
+                            update_option( 'triaxy_ftp_log', $triaxy_ftp_log . $_br . implode($_br, $log));
+                            if($verbose) {
+                              print implode('<br>', $log);
+                            }
                             return 0;
                           }
 
-                          $triaxy_ftp_log .= time() . ":" . "Checking if scanned " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/" . $wave['link'] . " $_br";
+                          // $triaxy_ftp_log .= time() . ":" . "Checking if scanned " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/" . $wave['link'] . " $_br";
+                          $log[] = time() . ": Checking if scanned " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/" . $wave['link'];
 
                           $w = array(
                             'serial' => $serial,
@@ -297,7 +326,8 @@
                           );
 
                           if($wpdb->num_rows === 0) {
-                            $triaxy_ftp_log .= time() . ":" . "Not scanned ... downloading $_br";
+                            // $triaxy_ftp_log .= time() . ":" . "Not scanned ... downloading $_br";
+                            $log[] = time() . ": Not scanned ... downloading";
 
                             $cache = "cache.wave";
                             $remote = $w['path'];
@@ -306,11 +336,13 @@
 
                             if(ftp_fget($conn_id, $handle, $remote, FTP_ASCII, 0)) {
                               // Success
-                              $triaxy_ftp_log .= time() . ":" . "Downloaded $_br";
+                              // $triaxy_ftp_log .= time() . ":" . "Downloaded $_br";
+                              $log[] = time() . ": Downloaded";
                             }
                             else {
-                              $triaxy_ftp_log .= time() . ":" . "Download failed $_br";
-                              update_option( 'triaxy_ftp_log', $triaxy_ftp_log);
+                              // $triaxy_ftp_log .= time() . ":" . "Download failed $_br";
+                              $log[] = time() . ": Download failed";
+                              update_option( 'triaxy_ftp_log', $triaxy_ftp_log . $_br . implode($_br, $log));
                               return -2;
                             }
 
@@ -328,10 +360,12 @@
                                 )
                               );
 
-                              $triaxy_ftp_log .= time() . ":" . "Exists? $_br";
+                              // $triaxy_ftp_log .= time() . ":" . "Exists? $_br";
+                              $log[] = time() . ": Exists?";
 
                               if($wpdb->num_rows === 0) {
-                                $triaxy_ftp_log .= time() . ":" . "No, inserting and marking as read $_br";
+                                // $triaxy_ftp_log .= time() . ":" . "No, inserting and marking as read $_br";
+                                $log[] = time() . ": No, inserting and marking as read";
                                 // Insert it
                                 $wpdb->insert($wpdb->prefix . "triaxy_post_data_processed_waves",
                                   array(
@@ -377,36 +411,53 @@
                                 );
                               }
                               else {
-                                $triaxy_ftp_log .= time() . ":" . "Exists $_br";
+                                // $triaxy_ftp_log .= time() . ":" . "Exists $_br";
+                                $log[] = time() . ": Exists";
                               }
                             }
 
                             $count++;
                           }
                           else {
-                            $triaxy_ftp_log .= time() . ":" . "Already scanned $_br";
+                            // $triaxy_ftp_log .= time() . ":" . "Already scanned $_br";
+                            $log[] = time() . ": Already scanned";
                           }
                         }
                       }
                     }
+                    else {
+                      $log[] = time() . ': Month has been exhausted';
+                    }
                   }
                 }
                 else {
-                  $triaxy_ftp_log .= time() . ":" . "Skipping " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/ $_br";
+                  // $triaxy_ftp_log .= time() . ":" . "Skipping " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/ $_br";
+                  $log[] = time() . ": Skipping " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/";
                 }
               }
             }
+            else {
+              $log[] = time() . ': Year folder has been exhausted';
+            }
           } 
+          else {
+            $log[] = time() . ": Directory is empty";
+          }
         }
       }
       else {
-        $triaxy_ftp_log .= time() . ":" . "Failed $_br";
+        // $triaxy_ftp_log .= time() . ":" . "Failed $_br";
+        $log[] = time() . ": Failed";
       }
 
       // close the FTP stream 
       ftp_close($conn_id); 
 
-      update_option( 'triaxy_ftp_log', $triaxy_ftp_log);
+      update_option( 'triaxy_ftp_log', $triaxy_ftp_log . $_br . implode($_br, $log));
+
+      if($verbose) {
+        print implode('<br>', $log);
+      }
 
       return $count; // $fullWaves;
     }
@@ -417,25 +468,35 @@
  	// */ 
  	
    // Cron Job Hook
-  function uwa_update_triaxy() {
+  function uwa_update_triaxy($verbose = false) {
     update_option('triaxy_ftp_log', ''); // Clear log
 
 		// Update run option	
 		$count = 0;
-    $limit = 24;
+    $limit = 24; // Days worth
     $ftp_array = uwa_triaxy_fetch_servers();
     foreach($ftp_array as $ftp) {
       if($count >= $limit) {
         return;
       }
-      $count = uwa_triaxy_fetch_wave_file_list($ftp->serial, $ftp->url, $ftp->user, $ftp->pass, $limit, $count);
+      $count = uwa_triaxy_fetch_wave_file_list( 
+        array(
+          'serial' => $ftp->serial, 
+          'ftp_server' => $ftp->url, 
+          'ftp_user_name' => $ftp->user, 
+          'ftp_user_pass' => $ftp->pass, 
+          'limit' => $limit, 
+          'count' => $count,
+          'verbose' => $verbose
+        )
+      );
     }
   }
 
  	function cron_update_triaxy() {
-    uwa_update_triaxy();
-		
-		print 1;
+    $verbose = isset($_GET['verbose']) ?: false;
+
+    uwa_update_triaxy($verbose);
 		
 		wp_die();
  	}
