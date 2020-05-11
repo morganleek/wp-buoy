@@ -96,7 +96,7 @@
 
     if($folder != '') {
       // See if this folder is listed
-      $this_month = $wpdb->get_row(
+      $this_folder = $wpdb->get_row(
         $wpdb->prepare(
           "SELECT * FROM " . $wpdb->prefix . "triaxy_ftp_folder 
           WHERE `file_path` = '%s'
@@ -106,41 +106,69 @@
       );
       $rows = $wpdb->num_rows;
 
-      if($rows > 0 && $this_month->complete == '1') {
+      // Already complete
+      if($rows > 0 && $this_folder->complete == '1') {
         $log[] = time() . ": " . "Already marked complete " . $folder;
       }
 
-      if($rows > 0 && (strtotime($this_month->timestamp) < time()) && $this_month->total_files == $folder_size) {
-        // This folder has had n day(s) without updates
-        // Complete this folder
-        $log[] = time() . ": " . "Mark complete " . $folder;
-        $wpdb->update(
-          $wpdb->prefix . "triaxy_ftp_folder",
-          array('complete' => 1),
-          array('id' => $this_month->id),
-          array('%d'),
-          array('%d')
-        );
+      // if($rows > 0 && (strtotime($this_folder->timestamp) < time()) && $this_folder->total_files == $folder_size) {
+      //   // This folder has had n day(s) without updates
+      //   // Complete this folder
+      //   $log[] = time() . ": " . "Mark complete " . $folder;
+      //   $wpdb->update(
+      //     $wpdb->prefix . "triaxy_ftp_folder",
+      //     array('complete' => 1),
+      //     array('id' => $this_folder->id),
+      //     array('%d'),
+      //     array('%d')
+      //   );
 
-        return true;
-      }
-      else if($rows > 0 && (strtotime($this_month->timestamp) < time())) {
-        // This folder has been checked within the last day but the files have changed
-        // Update the date
-        $log[] = time() . ": " . "File number changed " . $folder;
-        $wpdb->update(
-          $wpdb->prefix . "triaxy_ftp_folder",
-          array(
-            'total_files' => $folder_size,
-            'timestamp' => date('Y-m-d H:i:s', strtotime($offset))
-          ),
-          array('id' => $this_month->id),
-          array('%d', '%s'),
-          array('%d')
-        );
-      }
+      //   return true;
+      // }
+      // else if($rows > 0 && (strtotime($this_folder->timestamp) < time())) {
+      //   // This folder has been checked within the last day but the files have changed
+      //   // Update the date
+      //   $log[] = time() . ": " . "File number changed " . $folder;
+      //   $wpdb->update(
+      //     $wpdb->prefix . "triaxy_ftp_folder",
+      //     array(
+      //       'total_files' => $folder_size,
+      //       'timestamp' => date('Y-m-d H:i:s', strtotime($offset))
+      //     ),
+      //     array('id' => $this_folder->id),
+      //     array('%d', '%s'),
+      //     array('%d')
+      //   );
+      // }
 
-      if($rows === 0) {
+      if($rows > 0) {
+        // Check if timestamp has expired and mark complete
+        if(strtotime($this_folder->timestamp) < time()) {
+          // Complete this folder
+          $log[] = time() . ": " . "Mark complete " . $folder;
+          $wpdb->update(
+            $wpdb->prefix . "triaxy_ftp_folder",
+            array('complete' => 1),
+            array('id' => $this_folder->id),
+            array('%d'),
+            array('%d')
+          );
+        }
+        else {
+          // Check for new files and update numbers
+          $log[] = time() . ": " . "File number changed " . $folder;
+          $wpdb->update(
+            $wpdb->prefix . "triaxy_ftp_folder",
+            array(
+              'total_files' => $folder_size
+            ),
+            array('id' => $this_folder->id),
+            array('%d'),
+            array('%d')
+          );
+        }
+      }
+      else if($rows === 0) {
         // Wait to ensure limit has been reached
         // before adding folder record
         $log[] = time() . ": " . "Folder added to watch " . $folder;
@@ -246,6 +274,7 @@
           // $triaxy_ftp_log .= time() . ":" . "Reading Year " . $root . "/" . $year['link'] . "/ $_br";
           $log[] = time() . ": Reading Year " . $root . "/" . $year['link'] . "/";
           $rawMonths = ftp_rawlist($conn_id, $root . "/" . $year['link'] . "/");
+
           if($rawMonths) {
             // Fetch Months
             $months = uwa_process_raw_list($rawMonths);
@@ -254,7 +283,7 @@
               'root' => $root,
               'folder' => $root . "/" . $year['link'] . "/",
               'folder_size' => count($year),
-              'offset' => '+31 days'
+              'offset' => '+366 days'
             ), $log);
 
             if(!$y_exhausted) {
@@ -285,7 +314,7 @@
                       'root' => $root,
                       'folder' => $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/",
                       'folder_size' => count($waves),
-                      'offset' => '+2 days' 
+                      'offset' => '+32 days' 
                     ), $log);
 
                     if(!$m_exhausted) {
@@ -502,7 +531,13 @@
  	}
  	
  	add_action( 'wp_ajax_update_triaxy', 'cron_update_triaxy' );
-	add_action( 'wp_ajax_nopriv_update_triaxy', 'cron_update_triaxy' );
+  add_action( 'wp_ajax_nopriv_update_triaxy', 'cron_update_triaxy' );
+  
+  // function shortcode_cron_update_triaxy($atts, $content = null) {
+  //   cron_update_triaxy();
+  // }
+
+  // add_shortcode( 'tiaxy_test', 'shortcode_cron_update_triaxy');
  	
 	class Triaxy_Plugin {
 		static $instance;
