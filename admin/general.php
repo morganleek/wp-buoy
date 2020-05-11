@@ -89,11 +89,6 @@
 	}
 	
 	function uwa_grab_and_fill_csv($bucket, $type, $parent_db, $type_db, $date_sep) {
-	 	// $bucket = 'DatawellBuoys'
-	 	// $type = 'Spec1D'
-	 	// $parent_db = 'datawell'
-	 	// $type_db = '_spec_1D_'
-	 	// $date_sep = '_Spec1D_'
 	 	global $wpdb;
 			
 		$prefix = '';
@@ -107,24 +102,12 @@
 			
 			$prefix = $bucket . '/' . $buoy_id . '/' . date('Y') . '/'; // This date('Y') won't always be accurate
 			
-			
 			$query = array(
 				'action=uwa_datawell_aws', // Global AWS Fetch
 				'do=fetch_after_prefix', 
 				'max-keys=48',
 				'prefix=' . $prefix
 			);
-			
-			// print $wpdb->prefix . $parent_db . "_" . $type_db;
-			
-			// Check for last file 
-			/*$previous = $wpdb->get_row(
-				$wpdb->prepare(
-					"SELECT * FROM " . $wpdb->prefix . $parent_db . "_" . $type_db . " 
-					WHERE buoy_id = '%s' ORDER BY timestamp DESC LIMIT 1",
-					$buoy_id
-				)
-			);*/
 			
 			// Needs to regrab other articles from current month 'LIMIT 11, 1' - the 11th last item
 			$previous = $wpdb->get_row(

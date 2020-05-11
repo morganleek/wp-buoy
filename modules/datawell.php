@@ -329,13 +329,6 @@
 						<tr class="user-rich-editing-wrap">
 							<th scope="row">S3 CSV Files</th>
 							<td>
-								<?php 
-									$total_csv = $wpdb->get_var('SELECT COUNT(*) FROM `wp_datawell_file_data`');
-									$processed_csv = $wpdb->get_var('SELECT COUNT(*) FROM `wp_datawell_file_data` WHERE `processed` = 1');
-									
-									print $total_csv . ' (' . $processed_csv . ' Processed)';
-								?>
-								<br><br>
 								<form method="post" action="">
 									<input type="hidden" name="refetch-csvs" value="refetch-csvs" />
 									<input type="submit" name="submit" id="submit" class="button button-primary" value="Refetch CSVs from S3">

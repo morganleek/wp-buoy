@@ -278,12 +278,98 @@
 		) $charset_collate;";
 		dbDelta( $sql );
 
+		//
+		//
+		// New Database Layout
+
+		// Buoys
+		$table_name = $wpdb->prefix . "wpw_buoys";
+		$sql = "CREATE TABLE $table_name (
+			id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+			buoy_serial VARCHAR(100),
+			type VARCHAR(100),
+			enabled TINYINT(1) DEFAULT 0,
+			menu_order MEDIUMINT(9),
+			data TEXT,
+			PRIMARY KEY (id)
+		) $charset_collate;";
+		dbDelta( $sql );
+
+		// Files
+		$table_name = $wpdb->prefix . "wpw_files";
+		$sql = "CREATE TABLE $table_name (
+			id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+			buoy_id MEDIUMINT(9) NOT NULL,
+			service_id MEDIUMINT(9) NOT NULL,
+			path VARCHAR(255),
+			state TINYINT(1) DEFAULT 0,
+			timestamp DATETIME,
+			PRIMARY KEY (id)
+		) $charset_collate;";
+		dbDelta( $sql );
+
+		// Services
+		$table_name = $wpdb->prefix . "wpw_services";
+		$sql = "CREATE TABLE $table_name (
+			id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+			title VARCHAR(255),
+			type VARCHAR(255),
+			data TEXT,
+			PRIMARY KEY (id)
+		) $charset_collate;";
+		dbDelta( $sql );
+		
+		// Wind
+		$table_name = $wpdb->prefix . "wpw_wind";
+		$sql = "CREATE TABLE $table_name (
+			id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+			buoy_id MEDIUMINT(9) NOT NULL,
+			wind_speed DECIMAL(5,3),
+			wind_direction DECIMAL(5,3),
+			latitude DECIMAL(9,6),
+			longitude DECIMAL(9,6),
+			data TEXT,
+			timestamp DATETIME,
+			PRIMARY KEY (id)
+		) $charset_collate;";
+		dbDelta( $sql );
+
+		// Waves
+		$table_name = $wpdb->prefix . "wpw_waves";
+		$sql = "CREATE TABLE $table_name (
+			id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+			buoy_id MEDIUMINT(9) NOT NULL,
+			wave_height_significant DECIMAL(5,3),
+			wave_height_max DECIMAL(5,3),
+			wave_height_avg DECIMAL(5,3),
+			wave_steepness DECIMAL(5,3),
+			period_peak DECIMAL(5,3),
+			period_mean DECIMAL(5,3),
+			period_significant DECIMAL(5,3),
+			direction_peak DECIMAL(5,3),
+			direction_mean DECIMAL(5,3),
+			directional_spread_peak DECIMAL(5,3),
+			directional_spread_mean DECIMAL(5,3),
+			crest_peak DECIMAL(5,3),
+			number_of_zero_crossings MEDIUMINT(9),
+			t_avg DECIMAL(5,3),
+			t_max DECIMAL(5,3),
+			tp5 DECIMAL(5,3),
+			te DECIMAL(5,3),
+			t10 DECIMAL(5,3),
+			h10 DECIMAL(5,3),
+			hm0 DECIMAL(5,3),
+			latitude DECIMAL(9,6),
+			longitude DECIMAL(9,6),
+			data TEXT,
+			timestamp DATETIME,
+			PRIMARY KEY (id)
+		) $charset_collate;";
+		dbDelta( $sql );
+
 		update_option( 'uwa_db_version', $uwa_db_version );
 		
 		add_action( 'admin_notices', function() { print '<div class="notice notice-success is-dismissible"><p>UWA Buoy DB Updated</p></div>'; } );
-		// Rewrites
-		// uwa_rewrite_add_rewrites();
-		// flush_rewrite_rules();
 	}
 	register_activation_hook( __FILE__, 'uwa_install' );
 
