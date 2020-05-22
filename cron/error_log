@@ -1,2 +1,0 @@
-[16-Dec-2019 16:15:50 Australia/Sydney] PHP Warning:  file_get_contents(http://wawaves.org/wp-admin/admin-ajax.php?action=update_datawell): failed to open stream: HTTP request failed!  in /home/wacoastl/wawaves.org/wp-content/plugins/uwa-buoy/cron/datawell-refresh.php on line 5
-[16-Dec-2019 16:21:20 Australia/Sydney] PHP Warning:  file_get_contents(http://wawaves.org/wp-admin/admin-ajax.php?action=update_datawell): failed to open stream: HTTP request failed!  in /home/wacoastl/wawaves.org/wp-content/plugins/uwa-buoy/cron/datawell-refresh.php on line 5

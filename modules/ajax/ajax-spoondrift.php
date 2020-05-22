@@ -4,9 +4,17 @@
 		global $wpdb;
 	
 		$content = '';
-		
+
+		// Received Data
 		$file_contents = file_get_contents('php://input');
 		$data = json_decode($file_contents, true);
+
+		// Debug Dump
+		$uwa_spoondrift_post_logging = get_option( 'uwa_spoondrift_post_logging' );
+		if($uwa_spoondrift_post_logging === "1") {
+			file_put_contents(UWA__PLUGIN_DIR . 'modules/ajax/raw/spotter-' . time(), $file_contents);
+		}
+
 		if($data != null) {
 			
 			// Check for SpotterID

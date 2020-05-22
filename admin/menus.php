@@ -13,8 +13,13 @@
 					settings_fields( 'uwa-buoy-options' ); 
 					do_settings_sections( 'uwa-buoy-options' );
 				?>
+				<h2>Global</h2>
 				<table class="form-table">
 					<tbody>
+						<tr>
+							<th scope="row"><label for="uwa_map_starting_position_lat">Map Starting Position<br><small>(LAT, LNG)</small></label></th>
+							<td><input name="uwa_map_starting_position_lat" type="text" id="uwa_map_starting_position_lat" value="<?php echo esc_attr( get_option('uwa_map_starting_position_lat') ); ?>" class="small-text"> <input name="uwa_map_starting_position_lng" type="text" id="uwa_map_starting_position_lng" value="<?php echo esc_attr( get_option('uwa_map_starting_position_lng') ); ?>" class="small-text"></td>
+						</tr>
 						<tr>
 							<th scope="row"><label for="uwa_copyright_message">Download Copyright Message</label></th>
 							<td>
@@ -31,6 +36,11 @@
 							<th scope="row"><label for="uwa_google_maps_api">Google Maps API Key</label></th>
 							<td><input name="uwa_google_maps_api" type="text" id="uwa_google_maps_api" value="<?php echo esc_attr( get_option('uwa_google_maps_api') ); ?>" class="regular-text"></td>
 						</tr>
+					</tbody>
+				</table>
+				<h2>Datawell</h2>
+				<table class="form-table">
+					<tbody>
 						<tr>
 							<th scope="row"><label for="uwa_datawell_s3_key">AWS S3 Key</label></th>
 							<td><input name="uwa_datawell_s3_key" type="text" id="uwa_datawell_s3_key" value="<?php echo esc_attr( get_option('uwa_datawell_s3_key') ); ?>" class="regular-text"></td>
@@ -48,13 +58,14 @@
 							<td><input name="uwa_datawell_s3_bucket" type="text" id="uwa_datawell_s3_bucket" value="<?php echo esc_attr( get_option('uwa_datawell_s3_bucket') ); ?>" class="regular-text"></td>
 						</tr>
 						<tr>
-							<th scope="row"><label for="uwa_spoondrift_time_adjustment">Spoondrift Time Adjustment (GMT)</label></th>
-							<td><input name="uwa_spoondrift_time_adjustment" type="text" id="uwa_spoondrift_time_adjustment" value="<?php echo esc_attr( get_option('uwa_spoondrift_time_adjustment') ); ?>" class="regular-text"></td>
-						</tr>
-						<tr>
 							<th scope="row"><label for="uwa_datawell_time_adjustment">Datawell Time Adjustment (GMT)</label></th>
 							<td><input name="uwa_datawell_time_adjustment" type="text" id="uwa_datawell_time_adjustment" value="<?php echo esc_attr( get_option('uwa_datawell_time_adjustment') ); ?>" class="regular-text"></td>
 						</tr>
+					</tbody>
+				</table>
+				<h2>Triaxy</h2>
+				<table class="form-table">
+					<tbody>
 						<tr>
 							<th scope="row"><label for="uwa_triaxy_time_adjustment">Triaxy Time Adjustment (GMT)</label></th>
 							<td><input name="uwa_triaxy_time_adjustment" type="text" id="uwa_triaxy_time_adjustment" value="<?php echo esc_attr( get_option('uwa_triaxy_time_adjustment') ); ?>" class="regular-text"></td>
@@ -69,9 +80,23 @@
 								</p>
 							</td>
 						</tr>
+					</tbody>
+				</table>
+				<h2>Spotter (Spoondrift)</h2>
+				<table class="form-table">
+					<tbody>
 						<tr>
-							<th scope="row"><label for="uwa_map_starting_position_lat">Map Starting Position<br><small>(LAT, LNG)</small></label></th>
-							<td><input name="uwa_map_starting_position_lat" type="text" id="uwa_map_starting_position_lat" value="<?php echo esc_attr( get_option('uwa_map_starting_position_lat') ); ?>" class="small-text"> <input name="uwa_map_starting_position_lng" type="text" id="uwa_map_starting_position_lng" value="<?php echo esc_attr( get_option('uwa_map_starting_position_lng') ); ?>" class="small-text"></td>
+							<th scope="row"><label for="uwa_spoondrift_time_adjustment">Spoondrift Time Adjustment (GMT)</label></th>
+							<td><input name="uwa_spoondrift_time_adjustment" type="text" id="uwa_spoondrift_time_adjustment" value="<?php echo esc_attr( get_option('uwa_spoondrift_time_adjustment') ); ?>" class="regular-text"></td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="uwa_spoondrift_post_logging">Spoondrift POST Receieved File Logging</label></th>
+							<td>
+								<label for="uwa_spoondrift_post_logging"><input name="uwa_spoondrift_post_logging" type="checkbox" id="uwa_spoondrift_post_logging" value="1" <?php checked( get_option( 'uwa_spoondrift_post_logging' ) ); ?> class="regular-text"> Enabled</label>
+								<p class="description">
+									This will dump all received POST data into a file in <code><?php print UWA__PLUGIN_DIR; ?>modules/ajax/</code>
+								</p>	
+							</td>
 						</tr>
 					</tbody>
 				</table>
@@ -93,6 +118,7 @@
 		register_setting( 'uwa-buoy-options', 'uwa_map_starting_position_lat' );
 		register_setting( 'uwa-buoy-options', 'uwa_map_starting_position_lng' );
 		register_setting( 'uwa-buoy-options', 'uwa_spoondrift_time_adjustment' );
+		register_setting( 'uwa-buoy-options', 'uwa_spoondrift_post_logging' );
 		register_setting( 'uwa-buoy-options', 'uwa_datawell_time_adjustment' );
 		register_setting( 'uwa-buoy-options', 'uwa_triaxy_time_adjustment' );
 		register_setting( 'uwa-buoy-options', 'uwa_triaxy_ftps');
