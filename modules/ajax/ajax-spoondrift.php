@@ -35,7 +35,7 @@
 				$wpdb->insert( 
 					$wpdb->prefix . 'spoondrift_post_data', 
 					array( 
-						'data' => '$content'
+						'data' => $content
 					), 
 					array( 
 						'%s'
