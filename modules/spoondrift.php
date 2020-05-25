@@ -504,5 +504,5 @@
 			// No token
 		}
 
-		wp_die();
+		return;
 	}

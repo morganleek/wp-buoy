@@ -12,20 +12,30 @@
 		// Debug Dump
 		$uwa_spoondrift_post_logging = get_option( 'uwa_spoondrift_post_logging' );
 		if($uwa_spoondrift_post_logging === "1") {
-			file_put_contents(UWA__PLUGIN_DIR . 'modules/ajax/raw/spotter-' . time(), $file_contents);
+			file_put_contents(UWA__PLUGIN_DIR . 'modules/ajax/raw/spotter-' . time() . '.json', $file_contents);
 		}
 
-		if($data != null) {
-			
+		uwa_receive_spoondrift_process_json($data, $file_contents);
+		
+		wp_die();
+	}
+	
+	add_action( 'wp_ajax_uwa_receive_spoondrift_data', 'uwa_receive_spoondrift_data' );
+	add_action( 'wp_ajax_nopriv_uwa_receive_spoondrift_data', 'uwa_receive_spoondrift_data' );
+
+	function uwa_receive_spoondrift_process_json($data = null, $raw = null) {
+		global $wpdb;
+
+		if($data != null && $raw != null) {
 			// Check for SpotterID
 			if(isset($data['data']['spotterId'])) {
 				$spotter_id = $data['data']['spotterId'];
-				$content = print_r($file_contents, true);
+				$content = print_r($raw, true);
 				
 				$wpdb->insert( 
 					$wpdb->prefix . 'spoondrift_post_data', 
 					array( 
-						'data' => $content
+						'data' => '$content'
 					), 
 					array( 
 						'%s'
@@ -43,12 +53,7 @@
 		else {
 			print 'Invalid JSON';
 		}
-		
-		wp_die();
 	}
-	
-	add_action( 'wp_ajax_uwa_receive_spoondrift_data', 'uwa_receive_spoondrift_data' );
-	add_action( 'wp_ajax_nopriv_uwa_receive_spoondrift_data', 'uwa_receive_spoondrift_data' );
 
 	// Removed from AJAX
 	// Triggered internally after receiving new post data
@@ -65,3 +70,33 @@
 
 	add_action( 'wp_ajax_uwa_fetch_spoondrift_wind_data_tester', 'uwa_fetch_spoondrift_wind_data_tester' );
 	add_action( 'wp_ajax_nopriv_uwa_fetch_spoondrift_wind_data_tester', 'uwa_fetch_spoondrift_wind_data_tester' );
+
+	// Read one file a time
+	// Receive JSON Data
+	function uwa_process_directory_spoondrift_data() {
+		global $wpdb;
+	
+		$content = '';
+
+		$path = UWA__PLUGIN_DIR . 'modules/ajax/raw/';
+		$raw = scandir($path);
+		foreach($raw as $r) {
+			if(strpos($r, '.json') !== false) {
+				if(file_exists($path . $r)) {
+					$raw = file_get_contents($path . $r);
+					$json = json_decode($raw, true);
+
+					uwa_receive_spoondrift_process_json($json, $raw);
+					
+					// Rename processed file
+					$s = str_replace('.json', '.processed', $r);
+					rename($path . $r, $path . $s);
+				}
+			}
+		}
+		
+		wp_die();
+	}
+
+	add_action( 'wp_ajax_uwa_process_directory_spoondrift_data', 'uwa_process_directory_spoondrift_data' );
+	add_action( 'wp_ajax_nopriv_uwa_process_directory_spoondrift_data', 'uwa_process_directory_spoondrift_data' );
