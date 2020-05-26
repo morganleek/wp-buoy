@@ -145,99 +145,104 @@
 					'key' => $key
 				));
 				
-				uwa_datawell_log('... Content length: ' . strlen($contents));
-				
-				 // Split with line endings
-	 			$csv_content = str_getcsv($contents, "\n");
-	 			
-	 			$inserts = array();
-	 			switch ($case) {
- 					case '0xF20':
- 					case '0xF21':
-					case '0xF23':
- 						break;
- 					case '0xF25': 
-	 					foreach($csv_content as $j => $csv_row) {
-	 						$inserts[$j]['buoy_id'] = "'" . $csv->buoy_id . "'";
-							$columns = explode("\t", $csv_row);
-							$time = round($columns[0] / 900) * 900; // Round time to cloest 30 minutes
-							$inserts[$j]['timestamp'] = "'" . date('Y-m-d H:i:s', $time) . "'";
-							// Significant Wave Height
-							$inserts[$j]['significant_wave_height'] = "'" . round($columns[3], 2) . "'";
-							// Peak Period
-							$inserts[$j]['peak_period'] = "'" . round($columns[11], 2) . "'";
-							// Mean Period
-							$inserts[$j]['mean_period'] = "'" . round($columns[6], 2) . "'";
-							// Peak Direction + Peak Spread
-							$peak_direction = round($columns[13] * 180 / M_PI, 2);
-							$inserts[$j]['peak_direction'] = "'" . $peak_direction . "'";
-							$peak_directional_spread = round($columns[14] * 180 / M_PI, 2);
-							$inserts[$j]['peak_directional_spread'] = "'" . $peak_directional_spread . "'";
-							// Mean Direction + Mean Spread
-							// $inserts[$j]['mean_direction'] = "'" . $columns[] . "'";
-							// $inserts[$j]['mean_directional_spread'] = "'" . $columns[] . "'";
+				if(!isset($contents['html'])) {
+					uwa_datawell_log('... Content returned empty');
+				}
+				else {
+					uwa_datawell_log('... Content length: ' . strlen($contents['html']));
+					
+					// Split with line endings
+					$csv_content = str_getcsv($contents['html'], "\n");
+					
+					$inserts = array();
+					switch ($case) {
+						case '0xF20':
+						case '0xF21':
+						case '0xF23':
+							break;
+						case '0xF25': 
+							foreach($csv_content as $j => $csv_row) {
+								$inserts[$j]['buoy_id'] = "'" . $csv->buoy_id . "'";
+								$columns = explode("\t", $csv_row);
+								$time = round($columns[0] / 900) * 900; // Round time to cloest 30 minutes
+								$inserts[$j]['timestamp'] = "'" . date('Y-m-d H:i:s', $time) . "'";
+								// Significant Wave Height
+								$inserts[$j]['significant_wave_height'] = "'" . round($columns[3], 2) . "'";
+								// Peak Period
+								$inserts[$j]['peak_period'] = "'" . round($columns[11], 2) . "'";
+								// Mean Period
+								$inserts[$j]['mean_period'] = "'" . round($columns[6], 2) . "'";
+								// Peak Direction + Peak Spread
+								$peak_direction = round($columns[13] * 180 / M_PI, 2);
+								$inserts[$j]['peak_direction'] = "'" . $peak_direction . "'";
+								$peak_directional_spread = round($columns[14] * 180 / M_PI, 2);
+								$inserts[$j]['peak_directional_spread'] = "'" . $peak_directional_spread . "'";
+								// Mean Direction + Mean Spread
+								// $inserts[$j]['mean_direction'] = "'" . $columns[] . "'";
+								// $inserts[$j]['mean_directional_spread'] = "'" . $columns[] . "'";
+							}
+							break;
+						case '0xF26': 
+							foreach($csv_content as $j => $csv_row) {
+								$inserts[$j]['buoy_id'] = "'" . $csv->buoy_id . "'";
+								$columns = explode("\t", $csv_row);
+								$time = round($columns[0] / 900) * 900; // Round time to cloest 30 minutes
+								$inserts[$j]['timestamp'] = "'" . date('Y-m-d H:i:s', $time) . "'";
+								$inserts[$j]['max_wave_height'] = "'" . round($columns[2], 2) . "'";
+							}
+						case '0xF28':
+						case '0xF29':
+							break;
+						case '0xF80': 
+							foreach($csv_content as $j => $csv_row) {
+								$inserts[$j]['buoy_id'] = "'" . $csv->buoy_id . "'";
+								$columns = explode("\t", $csv_row);
+								$time = round($columns[0] / 900) * 900; // Round time to cloest 30 minutes
+								$inserts[$j]['timestamp'] = "'" . date('Y-m-d H:i:s', $time) . "'";
+								$latitude = round($columns[2] * 180 / M_PI, 10);
+								$inserts[$j]['latitude'] = "'" . $latitude . "'";
+								$longitude = round($columns[3] * 180 / M_PI, 10);
+								$inserts[$j]['longitude'] = "'" . $longitude . "'";
+							}
+							break;
+						case '0xF81':
+						case '0xF82':
+						case '0xFC1':
+						case '0xFC3':
+							break;
+						default:
+							break;
+					}
+					
+					foreach($inserts as $insert) {
+						// Check if exists
+						$exists = $wpdb->get_results("SELECT * 
+							FROM " . $wpdb->prefix . "datawell_post_data_processed_waves
+							WHERE `buoy_id` = " . $insert['buoy_id'] . "
+							AND `timestamp` = " . $insert['timestamp']);
+
+						if($wpdb->num_rows > 0) {
+							// Update
+							$key_value = '';
+							foreach($insert as $k => $i) {
+								if($key_value !== '') {
+									$key_value .= ', ';
+								}
+								$key_value .= ' ' . $k . '=' . $i . ' ';
+							}
+
+							$wpdb->query("UPDATE " . $wpdb->prefix . "datawell_post_data_processed_waves SET " . $key_value . " WHERE `buoy_id` = " . $insert['buoy_id'] . " AND `timestamp` = " . $insert['timestamp']);
 						}
- 						break;
- 					case '0xF26': 
- 						foreach($csv_content as $j => $csv_row) {
-	 						$inserts[$j]['buoy_id'] = "'" . $csv->buoy_id . "'";
-	 						$columns = explode("\t", $csv_row);
-	 						$time = round($columns[0] / 900) * 900; // Round time to cloest 30 minutes
- 							$inserts[$j]['timestamp'] = "'" . date('Y-m-d H:i:s', $time) . "'";
-	 						$inserts[$j]['max_wave_height'] = "'" . round($columns[2], 2) . "'";
- 						}
- 					case '0xF28':
- 					case '0xF29':
- 						break;
- 					case '0xF80': 
- 						foreach($csv_content as $j => $csv_row) {
- 							$inserts[$j]['buoy_id'] = "'" . $csv->buoy_id . "'";
- 							$columns = explode("\t", $csv_row);
- 							$time = round($columns[0] / 900) * 900; // Round time to cloest 30 minutes
- 							$inserts[$j]['timestamp'] = "'" . date('Y-m-d H:i:s', $time) . "'";
- 							$latitude = round($columns[2] * 180 / M_PI, 10);
- 							$inserts[$j]['latitude'] = "'" . $latitude . "'";
- 							$longitude = round($columns[3] * 180 / M_PI, 10);
- 							$inserts[$j]['longitude'] = "'" . $longitude . "'";
- 						}
- 						break;
- 					case '0xF81':
- 					case '0xF82':
- 					case '0xFC1':
- 					case '0xFC3':
- 						break;
- 					default:
- 						break;
- 				}
- 				
- 				foreach($inserts as $insert) {
-	 				// Check if exists
-	 				$exists = $wpdb->get_results("SELECT * 
-	 					FROM " . $wpdb->prefix . "datawell_post_data_processed_waves
-	 					WHERE `buoy_id` = " . $insert['buoy_id'] . "
-	 					AND `timestamp` = " . $insert['timestamp']);
+						else {
+							$keys = implode(',', array_keys($insert));
+							$values = implode(',', $insert);
 
-	 				if($wpdb->num_rows > 0) {
-	 					// Update
-	 					$key_value = '';
-	 					foreach($insert as $k => $i) {
-	 						if($key_value !== '') {
-	 							$key_value .= ', ';
-	 						}
-	 						$key_value .= ' ' . $k . '=' . $i . ' ';
-	 					}
+							// Insert
+							$wpdb->query("INSERT INTO " . $wpdb->prefix . "datawell_post_data_processed_waves ($keys) VALUES ($values)");
+						}
 
-	 					$wpdb->query("UPDATE " . $wpdb->prefix . "datawell_post_data_processed_waves SET " . $key_value . " WHERE `buoy_id` = " . $insert['buoy_id'] . " AND `timestamp` = " . $insert['timestamp']);
-	 				}
-	 				else {
-	 					$keys = implode(',', array_keys($insert));
-		 				$values = implode(',', $insert);
-
-	 					// Insert
-	 					$wpdb->query("INSERT INTO " . $wpdb->prefix . "datawell_post_data_processed_waves ($keys) VALUES ($values)");
-	 				}
-
-	 			}
+					}
+				}
 	 		}
  		}
  	}

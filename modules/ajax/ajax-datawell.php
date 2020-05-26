@@ -5,6 +5,7 @@
 	use Aws\S3\Exception\S3Exception;
 
 	function uwa_datawell_aws_direct($args, $return = false) {
+		$header = [];
 		$html = '';
 
 		if(isset($args['do'])) {
@@ -49,10 +50,10 @@
 							}
 						
 						} catch (S3Exception $e) {
-							print $e->getMessage() . PHP_EOL;
+							$html .= $e->getMessage() . PHP_EOL;
 						}
 
-						print json_encode($files);
+						$html .= json_encode($files);
 						break;
 					// 
 					// Fetch After (New files only)
@@ -76,10 +77,10 @@
 							}
 						
 						} catch (S3Exception $e) {
-							print $e->getMessage() . PHP_EOL;
+							$html .= $e->getMessage() . PHP_EOL;
 						}
 
-						print json_encode($files);
+						$html .= json_encode($files);
 						break;
 					// 
 					// Fetch After with Prefix (New files only)
@@ -109,10 +110,10 @@
 							}
 						
 						} catch (S3Exception $e) {
-							print $e->getMessage() . PHP_EOL;
+							$html .= $e->getMessage() . PHP_EOL;
 						}
 
-						print json_encode($files);
+						$html .= json_encode($files);
 						break;
 					//
 					// Fetch Single CSV
@@ -129,11 +130,13 @@
 								]);
 							
 								// Display the object in the browser.
-								header("Content-Type:application/csv"); 
-								header("Content-Disposition:attachment;filename=datawell-csv.csv"); 
-								print $result['Body'];
+								// header("Content-Type:application/csv"); 
+								// header("Content-Disposition:attachment;filename=datawell-csv.csv"); 
+								$header[] = "Content-Type:application/csv";
+								$header[] = "Content-Disposition:attachment;filename=datawell-csv.csv";
+								$html .= $result['Body'];
 							} catch (S3Exception $e) {
-								print $e->getMessage() . PHP_EOL;
+								$html .= $e->getMessage() . PHP_EOL;
 							}
 						}
 						break;
@@ -162,15 +165,17 @@
 									]);
 							
 									// Display the object in the browser.
-									header("Content-Type:application/csv"); 
-									header("Content-Disposition:attachment;filename=datawell-csv.csv"); 
-									print $result['Body'];
+									// header("Content-Type:application/csv"); 
+									// header("Content-Disposition:attachment;filename=datawell-csv.csv"); 
+									$header[] = "Content-Type:application/csv";
+									$header[] = "Content-Disposition:attachment;filename=datawell-csv.csv";
+									$html .= $result['Body'];
 								} catch (S3Exception $e) {
-									print $e->getMessage() . PHP_EOL;
+									$html .= $e->getMessage() . PHP_EOL;
 								}
 							} catch (S3Exception $e) {
 								// File doesn't exist
-								print '';	
+								$html .= '';	
 							}
 						}
 						break;
@@ -190,13 +195,13 @@
 									'Key'		=> $keyname
 								]);
 
-								print $id;
+								$html .= $id;
 							} catch (S3Exception $e) {
-								print -1;
+								$html .= -1;
 							}
 						}
 						else {
-							print -1;
+							$html .= -1;
 						}
 						break;
 					//
@@ -214,11 +219,12 @@
 								]);
 						
 								// Display the object in the browser.
-								header("Content-Type: {$result['ContentType']}");
-								print $result['Body'];
+								// header("Content-Type: {$result['ContentType']}");
+								header[] = "Content-Type: {$result['ContentType']}";
+								$html .= $result['Body'];
 
 							} catch (S3Exception $e) {
-								print $e->getMessage() . PHP_EOL;
+								$html .= $e->getMessage() . PHP_EOL;
 							}
 						}
 						break;
@@ -267,14 +273,14 @@
 										$file_list[] = $m->url;
 									}
 									
-									print json_encode($file_list);
+									$html .= json_encode($file_list);
 								}
 								else {
-									print 0;
+									$html .= 0;
 								}
 							}
 							else {
-								print 'Incorrect Date Format';
+								$html .= 'Incorrect Date Format';
 							}
 						}
 						
@@ -288,10 +294,14 @@
 			}
 		}
 
-		// if($return) {
-		// 	return $html;
-		// }
-		// print $html;
+		if($return) {
+			return array($header, $html);
+		}
+		// Print Header and HTML
+		foreach($header as $head) {
+			header($head);
+		}
+		print $html;
 	}
 
 	function uwa_datawell_aws() {
