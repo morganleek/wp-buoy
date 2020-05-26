@@ -132,7 +132,7 @@
 								]);
 
 								uwa_datawell_log('... Bucket => ' . $uwa_datawell_s3_bucket);
-								uwa_datawell_log('... AWS Result: ' . print_r($result['Body'], true));
+								// uwa_datawell_log('... AWS Result: ' . print_r($result['Body'], true));
 							
 								// Display the object in the browser.
 								// header("Content-Type:application/csv"); 
