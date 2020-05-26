@@ -49,10 +49,10 @@
 							}
 						
 						} catch (S3Exception $e) {
-							$html .= $e->getMessage() . PHP_EOL;
+							print $e->getMessage() . PHP_EOL;
 						}
 
-						$html .= json_encode($files);
+						print json_encode($files);
 						break;
 					// 
 					// Fetch After (New files only)
@@ -76,10 +76,10 @@
 							}
 						
 						} catch (S3Exception $e) {
-							$html .= $e->getMessage() . PHP_EOL;
+							print $e->getMessage() . PHP_EOL;
 						}
 
-						$html .= json_encode($files);
+						print json_encode($files);
 						break;
 					// 
 					// Fetch After with Prefix (New files only)
@@ -109,10 +109,10 @@
 							}
 						
 						} catch (S3Exception $e) {
-							$html .= $e->getMessage() . PHP_EOL;
+							print $e->getMessage() . PHP_EOL;
 						}
 
-						$html .= json_encode($files);
+						print json_encode($files);
 						break;
 					//
 					// Fetch Single CSV
@@ -131,9 +131,9 @@
 								// Display the object in the browser.
 								header("Content-Type:application/csv"); 
 								header("Content-Disposition:attachment;filename=datawell-csv.csv"); 
-								$html .= $result['Body'];
+								print $result['Body'];
 							} catch (S3Exception $e) {
-								$html .= $e->getMessage() . PHP_EOL;
+								print $e->getMessage() . PHP_EOL;
 							}
 						}
 						break;
@@ -164,13 +164,13 @@
 									// Display the object in the browser.
 									header("Content-Type:application/csv"); 
 									header("Content-Disposition:attachment;filename=datawell-csv.csv"); 
-									$html .= $result['Body'];
+									print $result['Body'];
 								} catch (S3Exception $e) {
-									$html .= $e->getMessage() . PHP_EOL;
+									print $e->getMessage() . PHP_EOL;
 								}
 							} catch (S3Exception $e) {
 								// File doesn't exist
-								$html .= '';	
+								print '';	
 							}
 						}
 						break;
@@ -190,13 +190,13 @@
 									'Key'		=> $keyname
 								]);
 
-								$html .= $id;
+								print $id;
 							} catch (S3Exception $e) {
-								$html .= -1;
+								print -1;
 							}
 						}
 						else {
-							$html .= -1;
+							print -1;
 						}
 						break;
 					//
@@ -215,10 +215,10 @@
 						
 								// Display the object in the browser.
 								header("Content-Type: {$result['ContentType']}");
-								$html .= $result['Body'];
+								print $result['Body'];
 
 							} catch (S3Exception $e) {
-								$html .= $e->getMessage() . PHP_EOL;
+								print $e->getMessage() . PHP_EOL;
 							}
 						}
 						break;
@@ -267,14 +267,14 @@
 										$file_list[] = $m->url;
 									}
 									
-									$html .= json_encode($file_list);
+									print json_encode($file_list);
 								}
 								else {
-									$html .= 0;
+									print 0;
 								}
 							}
 							else {
-								$html .= 'Incorrect Date Format';
+								print 'Incorrect Date Format';
 							}
 						}
 						
@@ -288,10 +288,10 @@
 			}
 		}
 
-		if($return) {
-			return $html;
-		}
-		print $html;
+		// if($return) {
+		// 	return $html;
+		// }
+		// print $html;
 	}
 
 	function uwa_datawell_aws() {
