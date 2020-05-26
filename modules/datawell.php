@@ -136,9 +136,25 @@
 		 		
 		 		// Download
 		 		$key = $csv->url;
-	 			$url = get_bloginfo('url') . '/wp-admin/admin-ajax.php?action=uwa_datawell_aws&do=csv_fetch&key=' . $key; // 
-	 			$contents = file_get_contents($url);
-	 			// Split with line endings
+				$url = get_bloginfo('url') . '/wp-admin/admin-ajax.php?action=uwa_datawell_aws&do=csv_fetch&key=' . $key; // 
+				uwa_datawell_log('Fetching ' . $url);
+				 
+				// $contents = file_get_contents($url);
+				// CURL Ajax POST Request (Stop 418 Errors)
+				$contents = uwa_curl_post(
+					get_bloginfo('url') . '/wp-admin/admin-ajax.php',
+					array(
+						'action' => 'uwa_datawell_aws',
+						'do' => 'csv_fetch',
+						'key' => $key
+					)
+				);
+				
+				
+				
+				
+				
+				 // Split with line endings
 	 			$csv_content = str_getcsv($contents, "\n");
 	 			
 	 			$inserts = array();
