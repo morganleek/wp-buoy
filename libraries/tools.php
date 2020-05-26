@@ -69,3 +69,14 @@
     curl_close($ch);
     return $result;
 }
+
+function uwa_query_array_to_key_value($query_array = array()) {
+	$return = [];
+	foreach($query_array as $q) {
+		$q_temp = explode('=', $q);
+		if(sizeof($q_temp) == 2) {
+			$return[$q_temp[0]] = $q_temp[1];
+		}
+	}
+	return $return;
+}

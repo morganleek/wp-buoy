@@ -39,10 +39,15 @@
 				$query[] = 'previous=' . $previous->url;
 			}
 			
-			$url = get_bloginfo('url') . '/wp-admin/admin-ajax.php?' . implode('&', $query);
-			$context = stream_context_create(array('http' => array('header'=>'Connection: close\r\n')));
-			$json = file_get_contents($url, false, $context);
-			$files = json_decode($json);
+			// $url = get_bloginfo('url') . '/wp-admin/admin-ajax.php?' . implode('&', $query);
+			// $context = stream_context_create(array('http' => array('header'=>'Connection: close\r\n')));
+			// $json = file_get_contents($url, false, $context);
+			// $files = json_decode($json);
+			$json = uwa_datawell_aws_direct(
+				uwa_query_array_to_key_value($query), 
+				true
+			);
+			$files = json_decode($json[1]);
 			
 			if(!empty($files)) {
 				foreach($files as $file_a) {
@@ -89,12 +94,16 @@
 	}
 	
 	function uwa_grab_and_fill_csv($bucket, $type, $parent_db, $type_db, $date_sep) {
-	 	global $wpdb;
+		global $wpdb;
+		 
+		$is_datawell = ($parent_db == "datawell") ? true : false;
 			
 		$prefix = '';
 
 		$buoys = $wpdb->get_results("SELECT * FROM `wp_buoy_info` WHERE `buoy_type` = '" . $parent_db . "'");
-		
+		if($is_datawell) {
+			uwa_datawell_log("Datawell buoys found " . $wpdb->num_rows);
+		}
 
 		foreach($buoys as $buoy) {
 			$buoy_id = $buoy->buoy_id;
@@ -120,13 +129,18 @@
 			if($wpdb->num_rows !== 0) {
 				$query[] = 'previous=' . $previous->url;
 			}
-			
-			$url = get_bloginfo('url') . '/wp-admin/admin-ajax.php?' . implode('&', $query);
-			$context = stream_context_create(array('http' => array('header'=>'Connection: close\r\n')));
-			$json = file_get_contents($url, false, $context);
-			$files = json_decode($json);
+
+			// $url = get_bloginfo('url') . '/wp-admin/admin-ajax.php?' . implode('&', $query);
+			// $context = stream_context_create(array('http' => array('header'=>'Connection: close\r\n')));
+			// $json = file_get_contents($url, false, $context);
+			$json = uwa_datawell_aws_direct(
+				uwa_query_array_to_key_value($query), 
+				true
+			);
+			$files = json_decode($json[1]);
+
+			if($is_datawell) { uwa_datawell_log("Files found " . sizeof($files)); }
 		
-			
 			if(!empty($files)) {
 				foreach($files as $file_a) {
 					$url = $file_a[0];
@@ -145,6 +159,15 @@
 								$url
 							)
 						);
+
+						if($is_datawell) { 
+							if($wpdb->num_rows === 0) {
+								uwa_datawell_log("New file: " . $url); 
+							}
+							else {
+								uwa_datawell_log("File exists: " . $url);
+							}
+						}
 						
 						if($wpdb->num_rows === 0) {
 							$wpdb->insert(

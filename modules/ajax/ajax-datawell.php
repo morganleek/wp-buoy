@@ -50,10 +50,10 @@
 							}
 						
 						} catch (S3Exception $e) {
-							$html .= $e->getMessage() . PHP_EOL;
+							$html = $e->getMessage() . PHP_EOL;
 						}
 
-						$html .= json_encode($files);
+						$html = json_encode($files);
 						break;
 					// 
 					// Fetch After (New files only)
@@ -77,10 +77,10 @@
 							}
 						
 						} catch (S3Exception $e) {
-							$html .= $e->getMessage() . PHP_EOL;
+							$html = $e->getMessage() . PHP_EOL;
 						}
 
-						$html .= json_encode($files);
+						$html = json_encode($files);
 						break;
 					// 
 					// Fetch After with Prefix (New files only)
@@ -110,33 +110,38 @@
 							}
 						
 						} catch (S3Exception $e) {
-							$html .= $e->getMessage() . PHP_EOL;
+							$html = $e->getMessage() . PHP_EOL;
 						}
 
-						$html .= json_encode($files);
+						$html = json_encode($files);
 						break;
 					//
 					// Fetch Single CSV
 					//
 					case 'csv_fetch':
 						uwa_datawell_log('... Action "CSV Fetch"');
+						uwa_datawell_log('... Args: ' . print_r($args, true));
 						if(isset($args['key'])) {
 							$keyname = $args['key'];
+							uwa_datawell_log('... Keyname: ' . $keyname);
 							try {
 								// Get the object.
 								$result = $s3->getObject([
 									'Bucket' => $uwa_datawell_s3_bucket,
 									'Key'		=> $keyname
 								]);
+
+								uwa_datawell_log('... Bucket => ' . $uwa_datawell_s3_bucket);
+								uwa_datawell_log('... AWS Result: ' . print_r($result['Body'], true));
 							
 								// Display the object in the browser.
 								// header("Content-Type:application/csv"); 
 								// header("Content-Disposition:attachment;filename=datawell-csv.csv"); 
 								$header[] = "Content-Type:application/csv";
 								$header[] = "Content-Disposition:attachment;filename=datawell-csv.csv";
-								$html .= $result['Body'];
+								$html = $result['Body'];
 							} catch (S3Exception $e) {
-								$html .= $e->getMessage() . PHP_EOL;
+								$html = $e->getMessage() . PHP_EOL;
 							}
 						}
 						break;
@@ -169,13 +174,13 @@
 									// header("Content-Disposition:attachment;filename=datawell-csv.csv"); 
 									$header[] = "Content-Type:application/csv";
 									$header[] = "Content-Disposition:attachment;filename=datawell-csv.csv";
-									$html .= $result['Body'];
+									$html = $result['Body'];
 								} catch (S3Exception $e) {
-									$html .= $e->getMessage() . PHP_EOL;
+									$html = $e->getMessage() . PHP_EOL;
 								}
 							} catch (S3Exception $e) {
 								// File doesn't exist
-								$html .= '';	
+								$html = '';	
 							}
 						}
 						break;
@@ -195,13 +200,13 @@
 									'Key'		=> $keyname
 								]);
 
-								$html .= $id;
+								$html = $id;
 							} catch (S3Exception $e) {
-								$html .= -1;
+								$html = -1;
 							}
 						}
 						else {
-							$html .= -1;
+							$html = -1;
 						}
 						break;
 					//
@@ -221,10 +226,10 @@
 								// Display the object in the browser.
 								// header("Content-Type: {$result['ContentType']}");
 								$header[] = "Content-Type: {$result['ContentType']}";
-								$html .= $result['Body'];
+								$html = $result['Body'];
 
 							} catch (S3Exception $e) {
-								$html .= $e->getMessage() . PHP_EOL;
+								$html = $e->getMessage() . PHP_EOL;
 							}
 						}
 						break;
@@ -273,14 +278,14 @@
 										$file_list[] = $m->url;
 									}
 									
-									$html .= json_encode($file_list);
+									$html = json_encode($file_list);
 								}
 								else {
-									$html .= 0;
+									$html = 0;
 								}
 							}
 							else {
-								$html .= 'Incorrect Date Format';
+								$html = 'Incorrect Date Format';
 							}
 						}
 						
@@ -295,7 +300,7 @@
 		}
 
 		if($return) {
-			return array($header, $html);
+			return array('header' => $header, 'html' => $html);
 		}
 		// Print Header and HTML
 		foreach($header as $head) {
