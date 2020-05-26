@@ -4,15 +4,20 @@
 	use Aws\S3\S3Client;
 	use Aws\S3\Exception\S3Exception;
 
-	function uwa_datawell_aws() {
-		
-		if(isset($_GET['do'])) {
+	function uwa_datawell_aws_direct($args, $return = false) {
+		$html = '';
+
+		if(isset($args['do'])) {
 			$uwa_datawell_s3_key = get_option('uwa_datawell_s3_key');
 			$uwa_datawell_s3_secret = get_option('uwa_datawell_s3_secret');
 			$uwa_datawell_s3_region = get_option('uwa_datawell_s3_region');
 			$uwa_datawell_s3_bucket = get_option('uwa_datawell_s3_bucket');
+
+			uwa_datawell_log('... Fetching S3 credentials');
 			
 			if($uwa_datawell_s3_key && $uwa_datawell_s3_secret && $uwa_datawell_s3_region && $uwa_datawell_s3_bucket) {
+				uwa_datawell_log('... Intiating S3 client');
+				
 				// Instantiate the client.
 				$s3 = new S3Client([
 					'credentials' => array(
@@ -23,11 +28,12 @@
 					'region'	=> $uwa_datawell_s3_region
 				]);
 				
-				switch($_GET['do']) {
+				switch($args['do']) {
 					//
 					// Fetch All Files
 					//
 					case 'fetch_all':
+						uwa_datawell_log('... Action "Fetch All"');
 						$files = [];
 						
 						// Use the high-level iterators (returns ALL of your objects).
@@ -43,17 +49,18 @@
 							}
 						
 						} catch (S3Exception $e) {
-							echo $e->getMessage() . PHP_EOL;
+							$html .= $e->getMessage() . PHP_EOL;
 						}
 
-						print json_encode($files);
+						$html .= json_encode($files);
 						break;
 					// 
 					// Fetch After (New files only)
 					//
 					case 'fetch_after':
-						$start_after = $_GET['previous'];
-						$max_keys = isset($_GET['max-keys']) ? $_GET['max-keys'] : 1000;
+						uwa_datawell_log('... Action "Fetch After"');
+						$start_after = $args['previous'];
+						$max_keys = isset($args['max-keys']) ? $args['max-keys'] : 1000;
 						
 						$files = [];
 						
@@ -69,26 +76,27 @@
 							}
 						
 						} catch (S3Exception $e) {
-							echo $e->getMessage() . PHP_EOL;
+							$html .= $e->getMessage() . PHP_EOL;
 						}
 
-						print json_encode($files);
+						$html .= json_encode($files);
 						break;
 					// 
 					// Fetch After with Prefix (New files only)
 					//
 					case 'fetch_after_prefix':
-						// $start_after = $_GET['previous'];
-						$max_keys = isset($_GET['max-keys']) ? $_GET['max-keys'] : 1000; // Max limit 1000
-						$prefix = $_GET['prefix'];
+						uwa_datawell_log('... Action "Fetch After Prefix"');
+						// $start_after = $args['previous'];
+						$max_keys = isset($args['max-keys']) ? $args['max-keys'] : 1000; // Max limit 1000
+						$prefix = $args['prefix'];
 						$items = array(
 							'Bucket' => $uwa_datawell_s3_bucket,
 							'MaxKeys' => $max_keys,
 							'Prefix' => $prefix
 						);
 						
-						if(isset($_GET['previous'])) {
-							$items['StartAfter'] = $_GET['previous'];
+						if(isset($args['previous'])) {
+							$items['StartAfter'] = $args['previous'];
 						}
 						
 						$files = [];
@@ -101,17 +109,18 @@
 							}
 						
 						} catch (S3Exception $e) {
-							echo $e->getMessage() . PHP_EOL;
+							$html .= $e->getMessage() . PHP_EOL;
 						}
 
-						print json_encode($files);
+						$html .= json_encode($files);
 						break;
 					//
 					// Fetch Single CSV
 					//
 					case 'csv_fetch':
-						if(isset($_GET['key'])) {
-							$keyname = $_GET['key'];
+						uwa_datawell_log('... Action "CSV Fetch"');
+						if(isset($args['key'])) {
+							$keyname = $args['key'];
 							try {
 								// Get the object.
 								$result = $s3->getObject([
@@ -122,9 +131,9 @@
 								// Display the object in the browser.
 								header("Content-Type:application/csv"); 
 								header("Content-Disposition:attachment;filename=datawell-csv.csv"); 
-								print $result['Body'];
+								$html .= $result['Body'];
 							} catch (S3Exception $e) {
-								print $e->getMessage() . PHP_EOL;
+								$html .= $e->getMessage() . PHP_EOL;
 							}
 						}
 						break;
@@ -132,8 +141,9 @@
 					// Download CSV
 					//
 					case 'csv_download':
-						if(isset($_GET['key'])) {
-							$keyname = $_GET['key'];
+						uwa_datawell_log('... Action "CSV Download"');
+						if(isset($args['key'])) {
+							$keyname = $args['key'];
 							
 							// Ensure File Exists
 							try {
@@ -154,13 +164,13 @@
 									// Display the object in the browser.
 									header("Content-Type:application/csv"); 
 									header("Content-Disposition:attachment;filename=datawell-csv.csv"); 
-									print $result['Body'];
+									$html .= $result['Body'];
 								} catch (S3Exception $e) {
-									print $e->getMessage() . PHP_EOL;
+									$html .= $e->getMessage() . PHP_EOL;
 								}
 							} catch (S3Exception $e) {
 								// File doesn't exist
-								print '';	
+								$html .= '';	
 							}
 						}
 						break;
@@ -168,9 +178,10 @@
 					// CSV Exists
 					//
 					case 'csv_exists':
-						if(isset($_GET['key']) && isset($_GET['id'])) {
-							$keyname = $_GET['key'];
-							$id = $_GET['id'];
+						uwa_datawell_log('... Action "CSV Exists"');
+						if(isset($args['key']) && isset($args['id'])) {
+							$keyname = $args['key'];
+							$id = $args['id'];
 					
 							try {
 								// Get the object.
@@ -179,21 +190,22 @@
 									'Key'		=> $keyname
 								]);
 
-								print $id;
+								$html .= $id;
 							} catch (S3Exception $e) {
-								print -1;
+								$html .= -1;
 							}
 						}
 						else {
-							print -1;
+							$html .= -1;
 						}
 						break;
 					//
 					// Get Image
 					//
 					case 'image_fetch':
-						if(isset($_GET['key'])) {
-							$keyname = $_GET['key'];
+						uwa_datawell_log('... Action "Image Fetch"');
+						if(isset($args['key'])) {
+							$keyname = $args['key'];
 							try {
 								// Get the object.
 								$result = $s3->getObject([
@@ -203,10 +215,10 @@
 						
 								// Display the object in the browser.
 								header("Content-Type: {$result['ContentType']}");
-								print $result['Body'];
+								$html .= $result['Body'];
 
 							} catch (S3Exception $e) {
-								print $e->getMessage() . PHP_EOL;
+								$html .= $e->getMessage() . PHP_EOL;
 							}
 						}
 						break;
@@ -217,13 +229,13 @@
 					// REMOVE
 					///
 					case 'spectrum_csvs':
-					
-						if(isset($_GET['buoy_id']) && isset($_GET['dates']) && isset($_GET['spectrum'])) { // && isset($_GET['csv-type'])
+						uwa_datawell_log('... Action "Spectrum CSVs"');
+						if(isset($args['buoy_id']) && isset($args['dates']) && isset($args['spectrum'])) { // && isset($args['csv-type'])
 							global $wpdb;
 							
-							$database = '_spec_' . $_GET['spectrum'];
+							$database = '_spec_' . $args['spectrum'];
 
-							$dates = urldecode($_GET['dates']);
+							$dates = urldecode($args['dates']);
 							$dates = explode(' - ', $dates);
 							
 							if(sizeof($dates) == 2) {
@@ -234,7 +246,7 @@
 								$date_set = true;
 								
 								// Get CSV List
-								$buoy_id = isset($_GET['buoy_id']) ? $_GET['buoy_id'] : 'Dev_site';
+								$buoy_id = isset($args['buoy_id']) ? $args['buoy_id'] : 'Dev_site';
 	
 								$memplot = $wpdb->get_results(
 									$wpdb->prepare(
@@ -255,14 +267,14 @@
 										$file_list[] = $m->url;
 									}
 									
-									print json_encode($file_list);
+									$html .= json_encode($file_list);
 								}
 								else {
-									print 0;
+									$html .= 0;
 								}
 							}
 							else {
-								print 'Incorrect Date Format';
+								$html .= 'Incorrect Date Format';
 							}
 						}
 						
@@ -271,7 +283,21 @@
 						break;
 				}
 			}
+			else {
+				uwa_datawell_log('...S3 credentials are not set');
+			}
 		}
+
+		if($return) {
+			return $html;
+		}
+		print $html;
+	}
+
+	function uwa_datawell_aws() {
+		$args = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+
+		uwa_datawell_aws_direct($args);
 		
 		wp_die();
 	}

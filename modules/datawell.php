@@ -19,11 +19,11 @@
 	 function uwa_datawell_log($message) {
 		$_br = "&#13;&#10;";
 		// Add newline and timestamp
-		$message =  $_br . date('Y-m-d H:i:s') . ': ' . $message;
+		$message =  date('Y-m-d H:i:s') . ': ' . $message . $_br;
 		// Limit log to 2000 lines
 		$history = implode($_br, explode($_br, get_option('datawell_log', ''), 2000));
 		// Update
-		update_option( 'datawell_log', $history . $message);
+		update_option( 'datawell_log', $message . $history);
 	 }
  	
  	// Process Datawell JPGs
@@ -140,20 +140,12 @@
 				uwa_datawell_log('Fetching ' . $url);
 				 
 				// $contents = file_get_contents($url);
-				// CURL Ajax POST Request (Stop 418 Errors)
-				$contents = uwa_curl_post(
-					get_bloginfo('url') . '/wp-admin/admin-ajax.php',
-					array(
-						'action' => 'uwa_datawell_aws',
-						'do' => 'csv_fetch',
-						'key' => $key
-					)
-				);
+				$contents = uwa_datawell_aws_direct(array(
+					'do' => 'csv_fetch',
+					'key' => $key
+				));
 				
 				uwa_datawell_log('... Content length: ' . strlen($contents));
-				
-				
-				
 				
 				 // Split with line endings
 	 			$csv_content = str_getcsv($contents, "\n");

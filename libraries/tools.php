@@ -47,6 +47,9 @@
 	}
 
 	function uwa_curl_post($url, array $post = NULL, array $options = array()) {
+		// curl/7.29.0
+		// Mozilla/5.0 (Windows; U;Windows NT 5.1; ru; rv:1.8.0.9) Gecko/20061206 Firefox/1.5.0.9
+
     $defaults = array(
 			CURLOPT_POST => 1,
 			CURLOPT_HEADER => 0,
