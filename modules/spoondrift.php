@@ -6,8 +6,9 @@
 	require_once( UWA__PLUGIN_DIR . 'modules/ajax/ajax-spoondrift.php' );
 	
 	function uwa_spoondrift_grab_and_fill($type, $type_db, $date_sep) {
+		uwa_log('spoondrift', 'Grad and Fill: SpoondriftBuoys, ' . $type . ', spoondrift, ' . ', ' . $type_db . ', ' . $date_sep);
 		uwa_grab_and_fill('SpoondriftBuoys', $type, 'spoondrift', $type_db, $date_sep);
- 	}
+	}
  	
  	/* 
  	** AJAX
@@ -248,8 +249,29 @@
 	
 	
 		public function plugin_settings_page() {
+			if(isset($_POST['clear-transfer-log'])) {
+				uwa_log_clear('datawell');
+			}
+			
 			?>
 			<div class="wrap">
+				<h2>Spoondrift Log</h2>
+
+				<table class="form-table">
+					<tbody>
+						<tr class="user-rich-editing-wrap">
+							<th scope="row">Transfer Log<br><em>(Last 2000 lines)</em></th>
+							<td>
+                <textarea name="spoondrift_log" rows="10" cols="100" id="spoondrift_log" class="text-large code"><?php print uwa_log('spoondrift'); ?></textarea>
+								<form method="post" action="">
+									<input type="hidden" name="clear-transfer-log" value="clear-transfer-log" />
+									<input type="submit" name="submit" id="submit" class="button button-primary" value="Clear Log">
+								</form>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
 				<h2>Spoondrift Events</h2>
 	
 				<div id="spoondrift-events">
@@ -258,8 +280,9 @@
 							<div class="meta-box-sortables ui-sortable">
 								<form method="post">
 									<?php
-									$this->spoondrift_obj->prepare_items();
-									$this->spoondrift_obj->display(); ?>
+										$this->spoondrift_obj->prepare_items();
+										$this->spoondrift_obj->display(); 
+									?>
 								</form>
 							</div>
 						</div>

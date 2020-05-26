@@ -14,10 +14,10 @@
 			$uwa_datawell_s3_region = get_option('uwa_datawell_s3_region');
 			$uwa_datawell_s3_bucket = get_option('uwa_datawell_s3_bucket');
 
-			uwa_datawell_log('... Fetching S3 credentials');
+			uwa_log('datawell', '... Fetching S3 credentials');
 			
 			if($uwa_datawell_s3_key && $uwa_datawell_s3_secret && $uwa_datawell_s3_region && $uwa_datawell_s3_bucket) {
-				uwa_datawell_log('... Intiating S3 client');
+				uwa_log('datawell', '... Intiating S3 client');
 				
 				// Instantiate the client.
 				$s3 = new S3Client([
@@ -34,7 +34,7 @@
 					// Fetch All Files
 					//
 					case 'fetch_all':
-						uwa_datawell_log('... Action "Fetch All"');
+						uwa_log('datawell', '... Action "Fetch All"');
 						$files = [];
 						
 						// Use the high-level iterators (returns ALL of your objects).
@@ -59,7 +59,7 @@
 					// Fetch After (New files only)
 					//
 					case 'fetch_after':
-						uwa_datawell_log('... Action "Fetch After"');
+						uwa_log('datawell', '... Action "Fetch After"');
 						$start_after = $args['previous'];
 						$max_keys = isset($args['max-keys']) ? $args['max-keys'] : 1000;
 						
@@ -86,7 +86,7 @@
 					// Fetch After with Prefix (New files only)
 					//
 					case 'fetch_after_prefix':
-						uwa_datawell_log('... Action "Fetch After Prefix"');
+						uwa_log('datawell', '... Action "Fetch After Prefix"');
 						// $start_after = $args['previous'];
 						$max_keys = isset($args['max-keys']) ? $args['max-keys'] : 1000; // Max limit 1000
 						$prefix = $args['prefix'];
@@ -102,7 +102,7 @@
 						
 						$files = [];
 
-						uwa_datawell_log('... Items => ' . print_r($items, true));
+						uwa_log('datawell', '... Items => ' . print_r($items, true));
 						
 						try {
 							$objects = $s3->listObjectsV2($items);
@@ -121,11 +121,11 @@
 					// Fetch Single CSV
 					//
 					case 'csv_fetch':
-						uwa_datawell_log('... Action "CSV Fetch"');
-						uwa_datawell_log('... Args: ' . print_r($args, true));
+						uwa_log('datawell', '... Action "CSV Fetch"');
+						uwa_log('datawell', '... Args: ' . print_r($args, true));
 						if(isset($args['key'])) {
 							$keyname = $args['key'];
-							uwa_datawell_log('... Keyname: ' . $keyname);
+							uwa_log('datawell', '... Keyname: ' . $keyname);
 							try {
 								// Get the object.
 								$result = $s3->getObject([
@@ -133,8 +133,8 @@
 									'Key'		=> $keyname
 								]);
 
-								uwa_datawell_log('... Bucket => ' . $uwa_datawell_s3_bucket);
-								// uwa_datawell_log('... AWS Result: ' . print_r($result['Body'], true));
+								uwa_log('datawell', '... Bucket => ' . $uwa_datawell_s3_bucket);
+								// uwa_log('datawell', '... AWS Result: ' . print_r($result['Body'], true));
 							
 								// Display the object in the browser.
 								// header("Content-Type:application/csv"); 
@@ -151,7 +151,7 @@
 					// Download CSV
 					//
 					case 'csv_download':
-						uwa_datawell_log('... Action "CSV Download"');
+						uwa_log('datawell', '... Action "CSV Download"');
 						if(isset($args['key'])) {
 							$keyname = $args['key'];
 							
@@ -190,7 +190,7 @@
 					// CSV Exists
 					//
 					case 'csv_exists':
-						uwa_datawell_log('... Action "CSV Exists"');
+						uwa_log('datawell', '... Action "CSV Exists"');
 						if(isset($args['key']) && isset($args['id'])) {
 							$keyname = $args['key'];
 							$id = $args['id'];
@@ -215,7 +215,7 @@
 					// Get Image
 					//
 					case 'image_fetch':
-						uwa_datawell_log('... Action "Image Fetch"');
+						uwa_log('datawell', '... Action "Image Fetch"');
 						if(isset($args['key'])) {
 							$keyname = $args['key'];
 							try {
@@ -242,7 +242,7 @@
 					// REMOVE
 					///
 					case 'spectrum_csvs':
-						uwa_datawell_log('... Action "Spectrum CSVs"');
+						uwa_log('datawell', '... Action "Spectrum CSVs"');
 						if(isset($args['buoy_id']) && isset($args['dates']) && isset($args['spectrum'])) { // && isset($args['csv-type'])
 							global $wpdb;
 							
@@ -297,7 +297,7 @@
 				}
 			}
 			else {
-				uwa_datawell_log('...S3 credentials are not set');
+				uwa_log('datawell', '...S3 credentials are not set');
 			}
 		}
 

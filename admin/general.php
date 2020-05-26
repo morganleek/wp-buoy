@@ -13,6 +13,8 @@
 
 		// $buoys = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . $parent_db . "_lookup");	
 		$buoys = $wpdb->get_results("SELECT * FROM `wp_buoy_info` WHERE `buoy_type` = '" . $parent_db . "'");
+
+		uwa_log($type, 'Buoys found: ' . $wpdb->num_rows);
 		
 		foreach($buoys as $buoy) {
 			$buoy_id = $buoy->buoy_id;
@@ -39,6 +41,7 @@
 				$query[] = 'previous=' . $previous->url;
 			}
 			
+			uwa_log($type, 'AWS query prefix: ' . implode('&', $query));
 			// $url = get_bloginfo('url') . '/wp-admin/admin-ajax.php?' . implode('&', $query);
 			// $context = stream_context_create(array('http' => array('header'=>'Connection: close\r\n')));
 			// $json = file_get_contents($url, false, $context);
@@ -48,6 +51,8 @@
 				true
 			);
 			$files = json_decode($json[1]);
+
+			uwa_log($type, 'Files found: ' . sizeof($files));
 			
 			if(!empty($files)) {
 				foreach($files as $file_a) {
@@ -101,9 +106,9 @@
 		$prefix = '';
 
 		$buoys = $wpdb->get_results("SELECT * FROM `wp_buoy_info` WHERE `buoy_type` = '" . $parent_db . "'");
-		if($is_datawell) {
-			uwa_datawell_log("Datawell buoys found " . $wpdb->num_rows);
-		}
+		// if($is_datawell) {
+		uwa_log($parent_db, "Buoys found " . $wpdb->num_rows);
+		// }
 
 		foreach($buoys as $buoy) {
 			$buoy_id = $buoy->buoy_id;
@@ -139,15 +144,15 @@
 			);
 			$files = json_decode($json['html']);
 
-			if($is_datawell) { uwa_datawell_log("Files found " . sizeof($files)); }
+			uwa_log($parent_db, "Files found " . sizeof($files));
 		
 			if(!empty($files)) {
 				foreach($files as $file_a) {
 					$url = $file_a[0];
 					$date = $file_a[1];
-					if($is_datawell) { uwa_datawell_log("Processing " . $url); }
+					uwa_log($parent_db, "Processing " . $url);
 					if(strpos($url, '.csv') > 0 || strpos($url, '.jpg') > 0) {
-						if($is_datawell) { uwa_datawell_log("Is CSV or JPG"); }
+						uwa_log($parent_db, "Is CSV or JPG");
 						$timestamp = str_replace('+00:00', '', $date);
 						$timestamp = str_replace('T', ' ', $timestamp);
 											
@@ -162,15 +167,13 @@
 							)
 						);
 
-						if($is_datawell) { 
-							if($wpdb->num_rows === 0) {
-								uwa_datawell_log("New file: " . $url); 
-							}
-							else {
-								uwa_datawell_log("File exists: " . $url);
-							}
+						if($wpdb->num_rows === 0) {
+							uwa_log($parent_db, "New file: " . $url); 
 						}
-						
+						else {
+							uwa_log($parent_db, "File exists: " . $url);
+						}
+					
 						if($wpdb->num_rows === 0) {
 							$wpdb->insert(
 								$wpdb->prefix . $parent_db . "_" . $type_db, 
@@ -188,12 +191,12 @@
 						}
 					}
 					else {
-						if($is_datawell) { uwa_datawell_log("Not CSV or JPG"); }
+						uwa_log($parent_db, "Not CSV or JPG");
 					}
 				}
 			}
 			else {
-				if($is_datawell) { uwa_datawell_log("Empty files"); }
+				uwa_log($parent_db, "Empty files");
 			}
 		}
 	}

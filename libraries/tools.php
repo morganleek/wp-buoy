@@ -80,3 +80,24 @@ function uwa_query_array_to_key_value($query_array = array()) {
 	}
 	return $return;
 }
+ 
+function uwa_log($buoy, $message = '') {
+	if($message === '') {
+		// Get
+		return get_option($buoy . '_log', '...');
+	}
+	else {
+		// Set
+		$_br = "&#13;&#10;";
+		// Add newline and timestamp
+		$message =  date('Y-m-d H:i:s') . ': ' . $message . $_br;
+		// Limit log to 2000 lines
+		$history = implode($_br, explode($_br, get_option($buoy . '_log', ''), 2000));
+		// Update
+		update_option( $buoy . '_log', $message . $history);
+	}
+}
+
+function uwa_log_clear($buoy) {
+	update_option( $buoy . '_log', '');
+}

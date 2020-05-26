@@ -15,20 +15,14 @@
 	 		uwa_datawell_time_series_data($_GET['buoy_id'], null, null);
 	 	}
 	}
-	 
-	function uwa_datawell_log($message) {
-		$_br = "&#13;&#10;";
-		// Add newline and timestamp
-		$message =  date('Y-m-d H:i:s') . ': ' . $message . $_br;
-		// Limit log to 2000 lines
-		$history = implode($_br, explode($_br, get_option('datawell_log', ''), 2000));
-		// Update
-		update_option( 'datawell_log', $message . $history);
-	}
+	
+	// function uwa_datawell_log($message) {
+	// 	uwa_log('datawell', $message);
+	// }
 
-	function uwa_datawell_log_clear() {
-		update_option( 'datawell_log', '');
-	}
+	// function uwa_datawell_log_clear() {
+	// 	uwa_log_clear('datawell');
+	// }
  	
  	// Process Datawell JPGs
 	/*
@@ -131,7 +125,7 @@
  			OR `url` LIKE '%{0xF80}$like' 
 		 ");
 		 
-		uwa_datawell_log($wpdb->num_rows . ' CSVs found');
+		uwa_log('datawell', $wpdb->num_rows . ' CSVs found');
  		
  		foreach($csvs as $csv) {
 	 		preg_match('/{(.*?)}/', $csv->url, $matches, PREG_OFFSET_CAPTURE);
@@ -141,7 +135,7 @@
 		 		// Download
 		 		$key = $csv->url;
 				// $url = get_bloginfo('url') . '/wp-admin/admin-ajax.php?action=uwa_datawell_aws&do=csv_fetch&key=' . $key; // 
-				uwa_datawell_log('Fetching ' . $key);
+				uwa_log('datawell', 'Fetching ' . $key);
 				 
 				// $contents = file_get_contents($url);
 				$contents = uwa_datawell_aws_direct(array(
@@ -150,10 +144,10 @@
 				), true);
 				
 				if(!isset($contents['html'])) {
-					uwa_datawell_log('... Content returned empty');
+					uwa_log('datawell', '... Content returned empty');
 				}
 				else {
-					uwa_datawell_log('... Content length: ' . strlen($contents['html']));
+					uwa_log('datawell', '... Content length: ' . strlen($contents['html']));
 					
 					// Split with line endings
 					$csv_content = str_getcsv($contents['html'], "\n");
@@ -165,7 +159,7 @@
 						case '0xF23':
 							break;
 						case '0xF25': 
-							uwa_datawell_log('... CSV 0xF25');
+							uwa_log('datawell', '... CSV 0xF25');
 							foreach($csv_content as $j => $csv_row) {
 								$inserts[$j]['buoy_id'] = "'" . $csv->buoy_id . "'";
 								$columns = explode("\t", $csv_row);
@@ -188,7 +182,7 @@
 							}
 							break;
 						case '0xF26': 
-							uwa_datawell_log('... CSV 0xF26');
+							uwa_log('datawell', '... CSV 0xF26');
 							foreach($csv_content as $j => $csv_row) {
 								$inserts[$j]['buoy_id'] = "'" . $csv->buoy_id . "'";
 								$columns = explode("\t", $csv_row);
@@ -200,7 +194,7 @@
 						case '0xF29':
 							break;
 						case '0xF80': 
-							uwa_datawell_log('... CSV 0xF80');
+							uwa_log('datawell', '... CSV 0xF80');
 							foreach($csv_content as $j => $csv_row) {
 								$inserts[$j]['buoy_id'] = "'" . $csv->buoy_id . "'";
 								$columns = explode("\t", $csv_row);
@@ -255,7 +249,7 @@
 
  	// Fetch AWS S3 File List
  	function uwa_datawell_fetch_s3_file_list($return = false) {
-		uwa_datawell_log("Grab and Fill CSV: 'waved', 'csv', 'datawell', 'csv'");
+		uwa_log('datawell', "Grab and Fill CSV: 'waved', 'csv', 'datawell', 'csv'");
 		// This will grab all the current CSVs.
  		uwa_grab_and_fill_csv('waved', 'csv', 'datawell', 'csv', '');
  		
@@ -302,21 +296,21 @@
 			global $wpdb;
 			
 			if(isset($_POST['refetch-csvs'])) {
-				uwa_datawell_log('Manual CSV Refetch');
+				uwa_log('datawell', 'Manual CSV Refetch');
 				uwa_datawell_fetch_s3_file_list();
 				print '<div class="notice notice-success is-dismissible">';
 	        print '<p>Refetched CSVs from S3</p>';
 		    print '</div>';
 			}
 			if(isset($_POST['force-manual-processing'])) {
-				uwa_datawell_log('Manual Force Processing');
+				uwa_log('datawell', 'Manual Force Processing');
 				uwa_datawell_process_csvs();
 				print '<div class="notice notice-success is-dismissible">';
 	        print '<p>Processed All CSVs</p>';
 		    print '</div>';
 			}
 			if(isset($_POST['cron-update-datawell'])) {
-				uwa_datawell_log('Activate/Deactive Cron');
+				uwa_log('datawell', 'Activate/Deactive Cron');
 				if(!wp_next_scheduled('cron_update_datawell')) {
 					wp_schedule_event( time(), 'hourly', 'cron_update_datawell' );
 				}
@@ -325,7 +319,7 @@
 				}
 			}
 			if(isset($_POST['clear-transfer-log'])) {
-				uwa_datawell_log_clear();
+				uwa_log_clear('datawell');
 			}
 			//
 			// cron_update_datawell
@@ -381,7 +375,7 @@
 						<tr class="user-rich-editing-wrap">
 							<th scope="row">Transfer Log<br><em>(Last 2000 lines)</em></th>
 							<td>
-                <textarea name="datawell_log" rows="10" cols="100" id="datawell_log" class="text-large code"><?php print get_option('datawell_log', '...'); ?></textarea>
+                <textarea name="datawell_log" rows="10" cols="100" id="datawell_log" class="text-large code"><?php print uwa_log('datawell'); ?></textarea>
 								<form method="post" action="">
 									<input type="hidden" name="clear-transfer-log" value="clear-transfer-log" />
 									<input type="submit" name="submit" id="submit" class="button button-primary" value="Clear Log">
