@@ -150,6 +150,7 @@
 					)
 				);
 				
+				uwa_datawell_log('... Content length: ' . strlen($contents));
 				
 				
 				
