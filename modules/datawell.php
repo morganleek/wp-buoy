@@ -14,7 +14,17 @@
  		if(isset($_GET['buoy_id'])) {
 	 		uwa_datawell_time_series_data($_GET['buoy_id'], null, null);
 	 	}
- 	}
+	 }
+	 
+	 function uwa_datawell_log($message) {
+		$_br = "&#13;&#10;";
+		// Add newline and timestamp
+		$message =  $_br . date('Y-m-d H:i:s') . ': ' . $message;
+		// Limit log to 2000 lines
+		$history = implode($_br, explode($_br, get_option('datawell_log', ''), 2000));
+		// Update
+		update_option( 'datawell_log', $history . $message);
+	 }
  	
  	// Process Datawell JPGs
 	/*
@@ -115,7 +125,9 @@
  			WHERE `url` LIKE '%{0xF25}$like' 
  			OR `url` LIKE '%{0xF26}$like' 
  			OR `url` LIKE '%{0xF80}$like' 
- 		");
+		 ");
+		 
+		uwa_datawell_log($wpdb->num_rows . ' CSVs found');
  		
  		foreach($csvs as $csv) {
 	 		preg_match('/{(.*?)}/', $csv->url, $matches, PREG_OFFSET_CAPTURE);
@@ -269,18 +281,21 @@
 			global $wpdb;
 			
 			if(isset($_POST['refetch-csvs'])) {
+				uwa_datawell_log('Manual CSV Refetch');
 				uwa_datawell_fetch_s3_file_list();
 				print '<div class="notice notice-success is-dismissible">';
 	        print '<p>Refetched CSVs from S3</p>';
 		    print '</div>';
 			}
 			if(isset($_POST['force-manual-processing'])) {
+				uwa_datawell_log('Manual Force Processing');
 				uwa_datawell_process_csvs();
 				print '<div class="notice notice-success is-dismissible">';
 	        print '<p>Processed All CSVs</p>';
 		    print '</div>';
 			}
 			if(isset($_POST['cron-update-datawell'])) {
+				uwa_datawell_log('Activate/Deactive Cron');
 				if(!wp_next_scheduled('cron_update_datawell')) {
 					wp_schedule_event( time(), 'hourly', 'cron_update_datawell' );
 				}
@@ -337,6 +352,12 @@
 									<input type="hidden" name="force-manual-processing" value="force-manual-processing" />
 									<input type="submit" name="submit" id="submit" class="button button-primary" value="Force Manual Processing">
 								</form>
+							</td>
+						</tr>
+						<tr class="user-rich-editing-wrap">
+							<th scope="row">Transfer Log<br><em>(Last 2000 lines)</em></th>
+							<td>
+                <textarea name="datawell_log" rows="10" cols="100" id="datawell_log" class="text-large code"><?php print get_option('datawell_log', '...'); ?></textarea>
 							</td>
 						</tr>
 					</tbody>

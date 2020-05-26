@@ -34,13 +34,13 @@
 				
 				$wpdb->insert( 
 					$wpdb->prefix . 'spoondrift_post_data', 
-					array( 
+					array(
 						'data' => $content
-					), 
+					),
 					array( 
 						'%s'
-					) 
-				);	
+					)
+				);
 				
 				// Run Process to process all unprocessed submissions
 				uwa_process_spoondrift();
