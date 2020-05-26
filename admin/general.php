@@ -14,7 +14,7 @@
 		// $buoys = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . $parent_db . "_lookup");	
 		$buoys = $wpdb->get_results("SELECT * FROM `wp_buoy_info` WHERE `buoy_type` = '" . $parent_db . "'");
 
-		uwa_log($type, 'Buoys found: ' . $wpdb->num_rows);
+		uwa_log($parent_db, 'Buoys found: ' . $wpdb->num_rows);
 		
 		foreach($buoys as $buoy) {
 			$buoy_id = $buoy->buoy_id;
@@ -41,7 +41,7 @@
 				$query[] = 'previous=' . $previous->url;
 			}
 			
-			uwa_log($type, 'AWS query prefix: ' . implode('&', $query));
+			uwa_log($parent_db, 'AWS query prefix: ' . implode('&', $query));
 			// $url = get_bloginfo('url') . '/wp-admin/admin-ajax.php?' . implode('&', $query);
 			// $context = stream_context_create(array('http' => array('header'=>'Connection: close\r\n')));
 			// $json = file_get_contents($url, false, $context);
@@ -52,7 +52,7 @@
 			);
 			$files = json_decode($json[1]);
 
-			uwa_log($type, 'Files found: ' . sizeof($files));
+			uwa_log($parent_db, 'Files found: ' . sizeof($files));
 			
 			if(!empty($files)) {
 				foreach($files as $file_a) {
