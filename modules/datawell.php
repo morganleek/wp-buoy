@@ -220,8 +220,6 @@
 						default:
 							break;
 					}
-
-					// uwa_datawell_log('... Inserts ' . print_r($inserts, true));
 					
 					foreach($inserts as $insert) {
 						// Check if exists
