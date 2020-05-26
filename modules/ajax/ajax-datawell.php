@@ -220,7 +220,7 @@
 						
 								// Display the object in the browser.
 								// header("Content-Type: {$result['ContentType']}");
-								header[] = "Content-Type: {$result['ContentType']}";
+								$header[] = "Content-Type: {$result['ContentType']}";
 								$html .= $result['Body'];
 
 							} catch (S3Exception $e) {

@@ -240,7 +240,6 @@
 							// Insert
 							$wpdb->query("INSERT INTO " . $wpdb->prefix . "datawell_post_data_processed_waves ($keys) VALUES ($values)");
 						}
-
 					}
 				}
 	 		}
