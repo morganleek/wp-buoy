@@ -137,7 +137,7 @@
 				uwa_query_array_to_key_value($query), 
 				true
 			);
-			$files = json_decode($json[1]);
+			$files = json_decode($json['html']);
 
 			if($is_datawell) { uwa_datawell_log("Files found " . sizeof($files)); }
 		

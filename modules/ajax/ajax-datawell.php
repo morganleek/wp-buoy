@@ -101,6 +101,8 @@
 						}
 						
 						$files = [];
+
+						uwa_datawell_log('... Items => ' . print_r($items, true));
 						
 						try {
 							$objects = $s3->listObjectsV2($items);
