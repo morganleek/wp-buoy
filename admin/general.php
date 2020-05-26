@@ -145,7 +145,9 @@
 				foreach($files as $file_a) {
 					$url = $file_a[0];
 					$date = $file_a[1];
+					if($is_datawell) { uwa_datawell_log("Processing " . $url); }
 					if(strpos($url, '.csv') > 0 || strpos($url, '.jpg') > 0) {
+						if($is_datawell) { uwa_datawell_log("Is CSV or JPG"); }
 						$timestamp = str_replace('+00:00', '', $date);
 						$timestamp = str_replace('T', ' ', $timestamp);
 											
@@ -185,7 +187,13 @@
 							);
 						}
 					}
+					else {
+						if($is_datawell) { uwa_datawell_log("Not CSV or JPG"); }
+					}
 				}
+			}
+			else {
+				if($is_datawell) { uwa_datawell_log("Empty files"); }
 			}
 		}
 	}
