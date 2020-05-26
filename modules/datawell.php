@@ -143,7 +143,7 @@
 				$contents = uwa_datawell_aws_direct(array(
 					'do' => 'csv_fetch',
 					'key' => $key
-				));
+				), true);
 				
 				if(!isset($contents['html'])) {
 					uwa_datawell_log('... Content returned empty');
