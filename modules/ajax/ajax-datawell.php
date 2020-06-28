@@ -111,8 +111,8 @@
 						uwa_log($args['buoy_type'], '... Items => ' . print_r($items, true));
 						
 						try {
-							uwa_log($args['buoy_type'], '... Query success');
 							$objects = $s3->listObjectsV2($items);
+							uwa_log($args['buoy_type'], '... Query success');
 							// uwa_log($args['buoy_type'], '... Objects output: &#13;&#10;' . print_r($objects, true));
 							if(isset($objects['Contents'])) {
 								foreach ($objects['Contents'] as $object) {
@@ -128,6 +128,8 @@
 							uwa_log($args['buoy_type'], 'ERROR: ' . $e->getMessage());
 							$html = $e->getMessage() . PHP_EOL;
 						}
+
+						uwa_log($args['buoy_type'], '... Finished fetch');
 
 						$html = json_encode($files);
 						break;
