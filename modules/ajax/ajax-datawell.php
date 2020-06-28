@@ -1,12 +1,18 @@
 <?php
+	// var_dump(function_exists('GuzzleHttp\uri_template'));
+	// var_dump(function_exists('S3Client'));
+	// print 1; die();
+
 	require_once(UWA__PLUGIN_DIR . 'libraries/aws/aws-autoloader.php'); // 'libraries/aws.phar'); // 
 				
 	use Aws\S3\S3Client;
 	use Aws\S3\Exception\S3Exception;
 
-	function uwa_datawell_aws_direct($args, $return = false) {
+	function uwa_aws_direct($args, $return = false) {
 		$header = [];
 		$html = '';
+
+		uwa_log($args['buoy_type'], 'Preparing AWS fetch');
 
 		if(isset($args['do'])) {
 			$uwa_datawell_s3_key = get_option('uwa_datawell_s3_key');
@@ -14,10 +20,10 @@
 			$uwa_datawell_s3_region = get_option('uwa_datawell_s3_region');
 			$uwa_datawell_s3_bucket = get_option('uwa_datawell_s3_bucket');
 
-			uwa_log('datawell', '... Fetching S3 credentials');
+			uwa_log($args['buoy_type'], '... Fetching S3 credentials');
 			
 			if($uwa_datawell_s3_key && $uwa_datawell_s3_secret && $uwa_datawell_s3_region && $uwa_datawell_s3_bucket) {
-				uwa_log('datawell', '... Intiating S3 client');
+				uwa_log($args['buoy_type'], '... Intiating S3 client');
 				
 				// Instantiate the client.
 				$s3 = new S3Client([
@@ -34,7 +40,7 @@
 					// Fetch All Files
 					//
 					case 'fetch_all':
-						uwa_log('datawell', '... Action "Fetch All"');
+						uwa_log($args['buoy_type'], '... Action "Fetch All"');
 						$files = [];
 						
 						// Use the high-level iterators (returns ALL of your objects).
@@ -59,7 +65,7 @@
 					// Fetch After (New files only)
 					//
 					case 'fetch_after':
-						uwa_log('datawell', '... Action "Fetch After"');
+						uwa_log($args['buoy_type'], '... Action "Fetch After"');
 						$start_after = $args['previous'];
 						$max_keys = isset($args['max-keys']) ? $args['max-keys'] : 1000;
 						
@@ -86,7 +92,7 @@
 					// Fetch After with Prefix (New files only)
 					//
 					case 'fetch_after_prefix':
-						uwa_log('datawell', '... Action "Fetch After Prefix"');
+						uwa_log($args['buoy_type'], '... Action "Fetch After Prefix"');
 						// $start_after = $args['previous'];
 						$max_keys = isset($args['max-keys']) ? $args['max-keys'] : 1000; // Max limit 1000
 						$prefix = $args['prefix'];
@@ -102,16 +108,24 @@
 						
 						$files = [];
 
-						uwa_log('datawell', '... Items => ' . print_r($items, true));
+						uwa_log($args['buoy_type'], '... Items => ' . print_r($items, true));
 						
 						try {
+							uwa_log($args['buoy_type'], '... Query success');
 							$objects = $s3->listObjectsV2($items);
-							
-							foreach ($objects['Contents'] as $object) {
-								array_push($files, array($object['Key'], $object['LastModified']->__toString()));
+							// uwa_log($args['buoy_type'], '... Objects output: &#13;&#10;' . print_r($objects, true));
+							if(isset($objects['Contents'])) {
+								foreach ($objects['Contents'] as $object) {
+									uwa_log($args['buoy_type'], '... Object found: ' . $object['Key'], $object['LastModified']->__toString());
+									array_push($files, array($object['Key'], $object['LastModified']->__toString()));
+								}
+							}
+							else {
+								uwa_log($args['buoy_type'], '... Objects[content] is not set');
 							}
 						
 						} catch (S3Exception $e) {
+							uwa_log($args['buoy_type'], 'ERROR: ' . $e->getMessage());
 							$html = $e->getMessage() . PHP_EOL;
 						}
 
@@ -121,11 +135,11 @@
 					// Fetch Single CSV
 					//
 					case 'csv_fetch':
-						uwa_log('datawell', '... Action "CSV Fetch"');
-						uwa_log('datawell', '... Args: ' . print_r($args, true));
+						uwa_log($args['buoy_type'], '... Action "CSV Fetch"');
+						uwa_log($args['buoy_type'], '... Args: ' . print_r($args, true));
 						if(isset($args['key'])) {
 							$keyname = $args['key'];
-							uwa_log('datawell', '... Keyname: ' . $keyname);
+							uwa_log($args['buoy_type'], '... Keyname: ' . $keyname);
 							try {
 								// Get the object.
 								$result = $s3->getObject([
@@ -133,8 +147,8 @@
 									'Key'		=> $keyname
 								]);
 
-								uwa_log('datawell', '... Bucket => ' . $uwa_datawell_s3_bucket);
-								// uwa_log('datawell', '... AWS Result: ' . print_r($result['Body'], true));
+								uwa_log($args['buoy_type'], '... Bucket => ' . $uwa_datawell_s3_bucket);
+								// uwa_log($args['buoy_type'], '... AWS Result: ' . print_r($result['Body'], true));
 							
 								// Display the object in the browser.
 								// header("Content-Type:application/csv"); 
@@ -151,7 +165,7 @@
 					// Download CSV
 					//
 					case 'csv_download':
-						uwa_log('datawell', '... Action "CSV Download"');
+						uwa_log($args['buoy_type'], '... Action "CSV Download"');
 						if(isset($args['key'])) {
 							$keyname = $args['key'];
 							
@@ -190,7 +204,7 @@
 					// CSV Exists
 					//
 					case 'csv_exists':
-						uwa_log('datawell', '... Action "CSV Exists"');
+						uwa_log($args['buoy_type'], '... Action "CSV Exists"');
 						if(isset($args['key']) && isset($args['id'])) {
 							$keyname = $args['key'];
 							$id = $args['id'];
@@ -215,7 +229,7 @@
 					// Get Image
 					//
 					case 'image_fetch':
-						uwa_log('datawell', '... Action "Image Fetch"');
+						uwa_log($args['buoy_type'], '... Action "Image Fetch"');
 						if(isset($args['key'])) {
 							$keyname = $args['key'];
 							try {
@@ -242,7 +256,7 @@
 					// REMOVE
 					///
 					case 'spectrum_csvs':
-						uwa_log('datawell', '... Action "Spectrum CSVs"');
+						uwa_log($args['buoy_type'], '... Action "Spectrum CSVs"');
 						if(isset($args['buoy_id']) && isset($args['dates']) && isset($args['spectrum'])) { // && isset($args['csv-type'])
 							global $wpdb;
 							
@@ -297,8 +311,11 @@
 				}
 			}
 			else {
-				uwa_log('datawell', '...S3 credentials are not set');
+				uwa_log($args['buoy_type'], '...S3 credentials are not set');
 			}
+		}
+		else {
+			uwa_log($args['buoy_type'], 'No "do" argument set');
 		}
 
 		if($return) {
@@ -310,6 +327,13 @@
 		}
 		print $html;
 	}
+
+	// datawell version replaced by global above
+	function uwa_datawell_aws_direct($args, $return = false) {
+		$args['buoy_type'] = 'datawell';
+		uwa_aws_direct($args, $return);
+	}
+	
 
 	function uwa_datawell_aws() {
 		$args = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);

@@ -373,7 +373,7 @@
 							</td>
 						</tr>
 						<tr class="user-rich-editing-wrap">
-							<th scope="row">Transfer Log<br><em>(Last 2000 lines)</em></th>
+							<th scope="row">Transfer Log<br><em>(Last 500 lines)</em></th>
 							<td>
                 <textarea name="datawell_log" rows="10" cols="100" id="datawell_log" class="text-large code"><?php print uwa_log('datawell'); ?></textarea>
 								<form method="post" action="">

@@ -20,12 +20,13 @@
 			$buoy_id = $buoy->buoy_id;
 			$label = $buoy->aws_label;
 			
-			$prefix = $bucket . '/' . $label . '/' . $type;
+			$prefix = trailingslashit($bucket) . trailingslashit($label) . $type;
 			
 			$query = array(
 				'action=uwa_datawell_aws', // Global AWS Fetch
 				'do=fetch_after_prefix', 
 				'max-keys=48',
+				'buoy_type=' . $parent_db,
 				'prefix=' . $prefix
 			);
 			
@@ -46,11 +47,11 @@
 			// $context = stream_context_create(array('http' => array('header'=>'Connection: close\r\n')));
 			// $json = file_get_contents($url, false, $context);
 			// $files = json_decode($json);
-			$json = uwa_datawell_aws_direct(
+			$json = uwa_aws_direct(
 				uwa_query_array_to_key_value($query), 
 				true
 			);
-			$files = json_decode($json[1]);
+			$files = json_decode($json['html']);
 
 			uwa_log($parent_db, 'Files found: ' . sizeof($files));
 			
@@ -135,17 +136,17 @@
 				$query[] = 'previous=' . $previous->url;
 			}
 
-			// $url = get_bloginfo('url') . '/wp-admin/admin-ajax.php?' . implode('&', $query);
-			// $context = stream_context_create(array('http' => array('header'=>'Connection: close\r\n')));
-			// $json = file_get_contents($url, false, $context);
+			// grab files from aws
 			$json = uwa_datawell_aws_direct(
 				uwa_query_array_to_key_value($query), 
 				true
 			);
 			$files = json_decode($json['html']);
 
+			// number of files found
 			uwa_log($parent_db, "Files found " . sizeof($files));
 		
+			// if there are files process them
 			if(!empty($files)) {
 				foreach($files as $file_a) {
 					$url = $file_a[0];

@@ -6,7 +6,7 @@
 	require_once( UWA__PLUGIN_DIR . 'modules/ajax/ajax-spoondrift.php' );
 	
 	function uwa_spoondrift_grab_and_fill($type, $type_db, $date_sep) {
-		uwa_log('spoondrift', 'Grad and Fill: SpoondriftBuoys, ' . $type . ', spoondrift, ' . ', ' . $type_db . ', ' . $date_sep);
+		uwa_log('spoondrift', 'Grad and Fill: "SpoondriftBuoys", "' . $type . '", "spoondrift", "' . $type_db . '", "' . $date_sep . '"');
 		uwa_grab_and_fill('SpoondriftBuoys', $type, 'spoondrift', $type_db, $date_sep);
 	}
  	
@@ -16,9 +16,12 @@
  	
 	// Cron Second Memplot, 1d and 2d
  	function cron_rev_update_spoondrift() {
-		uwa_spoondrift_grab_and_fill('Spec1D', 'spec_1d', '_Spec1D_');
+		// Log
+		uwa_log('spoondrift', 'Cron Rev Update Spoondrift');
+
+		// uwa_spoondrift_grab_and_fill('Spec1D', 'spec_1d', '_Spec1D_');
 		
-		uwa_spoondrift_grab_and_fill('Spec2D', 'spec_2d', '_Spec2D_');
+		// uwa_spoondrift_grab_and_fill('Spec2D', 'spec_2d', '_Spec2D_');
 		
 		uwa_spoondrift_grab_and_fill('MEMplot', 'memplot', '_MEMplot_');
 		
@@ -249,8 +252,8 @@
 	
 	
 		public function plugin_settings_page() {
-			if(isset($_POST['clear-transfer-log'])) {
-				uwa_log_clear('datawell');
+			if(isset($_REQUEST['clear-transfer-log'])) {
+				uwa_log_clear('spoondrift');
 			}
 			
 			?>
@@ -260,7 +263,7 @@
 				<table class="form-table">
 					<tbody>
 						<tr class="user-rich-editing-wrap">
-							<th scope="row">Transfer Log<br><em>(Last 2000 lines)</em></th>
+							<th scope="row">Transfer Log<br><em>(Last 500 lines)</em></th>
 							<td>
                 <textarea name="spoondrift_log" rows="10" cols="100" id="spoondrift_log" class="text-large code"><?php print uwa_log('spoondrift'); ?></textarea>
 								<form method="post" action="">
@@ -280,8 +283,8 @@
 							<div class="meta-box-sortables ui-sortable">
 								<form method="post">
 									<?php
-										$this->spoondrift_obj->prepare_items();
-										$this->spoondrift_obj->display(); 
+										// $this->spoondrift_obj->prepare_items();
+										// $this->spoondrift_obj->display(); 
 									?>
 								</form>
 							</div>
