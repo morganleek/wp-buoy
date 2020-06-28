@@ -53,6 +53,7 @@
 			);
 			$files = json_decode($json['html']);
 
+			// log the number of files
 			uwa_log($parent_db, 'Files found: ' . sizeof($files));
 			
 			if(!empty($files)) {
