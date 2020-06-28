@@ -90,7 +90,7 @@ function uwa_log($buoy, $message = '') {
 		// Set
 		$_br = "&#13;&#10;";
 		// Add newline and timestamp
-		$message =  date('Y-m-d H:i:s') . ': ' . $message . $_br . $_br;
+		$message =  date('Y-m-d H:i:s.v') . ': ' . $message . $_br . $_br;
 		// Limit log to 500 lines
 		$history = implode($_br, explode($_br, get_option($buoy . '_log', ''), 500));
 		// Update
