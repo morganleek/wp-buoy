@@ -19,9 +19,9 @@
 		// Log
 		uwa_log('spoondrift', 'Cron Rev Update Spoondrift');
 
-		// uwa_spoondrift_grab_and_fill('Spec1D', 'spec_1d', '_Spec1D_');
+		uwa_spoondrift_grab_and_fill('Spec1D', 'spec_1d', '_Spec1D_');
 		
-		// uwa_spoondrift_grab_and_fill('Spec2D', 'spec_2d', '_Spec2D_');
+		uwa_spoondrift_grab_and_fill('Spec2D', 'spec_2d', '_Spec2D_');
 		
 		uwa_spoondrift_grab_and_fill('MEMplot', 'memplot', '_MEMplot_');
 		
