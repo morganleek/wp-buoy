@@ -24,11 +24,11 @@
 			wp_register_script('jquery', get_template_directory_uri() . '/bower_components/jquery/dist/jquery.min.js', array(), '2.2.3');
 			
 			// Date Ranage Picker
-			wp_register_script('moment', "https://cdn.jsdelivr.net/momentjs/latest/moment.min.js", array(), '1.0.0');
-			wp_register_script('date-range-picker', "https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js", array('moment'), '1.0.0');
+			wp_register_script('moment', "https://cdn.jsdelivr.net/momentjs/latest/moment.min.js", array(), '1.0.1593588250014');
+			wp_register_script('date-range-picker', "https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js", array('moment'), '1.0.1593588250014');
 	
 			// Google Charts
-			// wp_register_script('google-charts', 'https://www.gstatic.com/charts/loader.js', array(), '1.0.0');
+			// wp_register_script('google-charts', 'https://www.gstatic.com/charts/loader.js', array(), '1.0.1593588250014');
 	
 			// Theme Scripts
 			wp_register_script('scm_scripts', UWA__PLUGIN_URL . 'modules/views/js/theme.js', array('jquery', 'date-range-picker', 'jquery-ui-core', 'jquery-ui-progressbar', 'jquery-ui-dialog'), '1.1.20');
@@ -64,16 +64,16 @@
 			}
 
 			// Replacement bundled scripts
-			wp_register_script('scm_scripts_bundled', UWA__PLUGIN_URL . 'dist/js/bundle.js', array(), '1.0.0');
+			wp_register_script('scm_scripts_bundled', UWA__PLUGIN_URL . 'dist/js/bundle.js', array(), '1.0.1593588250014');
 			wp_enqueue_script('scm_scripts_bundled');
 
 			// Bundled style
-			wp_register_style( 'scm_styles_bundled',  UWA__PLUGIN_URL . 'dist/css/bundle.css', array(), '1.0.0', 'all' );
+			wp_register_style( 'scm_styles_bundled',  UWA__PLUGIN_URL . 'dist/css/bundle.css', array(), '1.0.1593588250014', 'all' );
 			wp_enqueue_style( 'scm_styles_bundled' );
 		}
 		if ($GLOBALS['pagenow'] != 'wp-login.php' && !is_admin() && !is_page('home')) {
 			// Conditional script(s)
-			wp_register_script('plotly', 'https://cdn.plot.ly/plotly-latest.min.js', array(), '1.0.0');
+			wp_register_script('plotly', 'https://cdn.plot.ly/plotly-latest.min.js', array(), '1.0.1593588250014');
 			wp_enqueue_script('plotly');
 		}
 	}
