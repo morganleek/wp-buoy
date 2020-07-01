@@ -23,17 +23,24 @@ $(function() {
         dataPoints = ($ticksData.attr('data-data-points') !== undefined) ? eval('[' + JSON.parse($ticksData.attr('data-data-points')) + ']') : '';
       }
 
+      // local time label
+      const offset = new Date().getTimezoneOffset() / 60 * -1; // hours from GMT
+      const timeLabel = (offset === 0) ? "Time (GMT)" : (offset > 0) ? "Time (GMT+" + offset + ")" : "Time (GMT" + offset + ")";
+
       // push to chart array
       if(id !== undefined && buoyID.length > 0 && waveTicks.length > 0 && waveTickMax.length > 0 && peakTicks.length > 0 && peakTickMax.length > 0 && dataPoints.length > 0) {
         chartsArray.push({id: id, buoyID: buoyID, dataPoints: dataPoints.slice(0, -1), options: {
           title: '',
-          height: 230,
+          height: 280,
           backgroundColor: { fill: "transparent" },
-          chartArea: {left: 45, top: 30, right: 45, bottom: 30},
+          // chartArea: {left: 45, top: 30, right: 45, bottom: 30},
           series: {
             0: {targetAxisIndex: 0, color: '#449d44', type: 'area'},
             1: {targetAxisIndex: 1, color: 'transparent', visibleInLegend: true}
           },
+          // hAxis: {
+          //   'title': timeLabel
+          // },
           vAxes: {
             0: {
               title: 'Wave Height (m)',
@@ -53,21 +60,21 @@ $(function() {
             }
           },
           hAxis: {
-            1: {
-              title: 'Your Local Time',
-              interval: 5,
-              gridlines: {
-                units: {
-                  days: {format: ['MMM d']},
-                  hours: {format: ['ha', 'ha']},
-                }
-              },
-              minorGridlines: {
-                units: {
-                  hours: {format: ['ha', 'ha']}
-                }
+            // 1: {
+            title: timeLabel,
+            interval: 1,
+            gridlines: {
+              units: {
+                days: {format: ['MMM d']},
+                hours: {format: ['ha']},
+              }
+            },
+            minorGridlines: {
+              units: {
+                hours: {format: ['ha']}
               }
             }
+            // }
           }
         }});
       }
@@ -99,6 +106,8 @@ function drawChart() {
       const dataChart = new GoogleCharts.api.visualization.LineChart(document.getElementById(chartsArray[i].id));
       GoogleCharts.api.visualization.events.addListener(dataChart, "ready", drawMarkers.bind(dataChart, chartsArray[i]));
       dataChart.draw(data, chartsArray[i].options);
+      
+      console.log(dataChart);
     }
   }
 }
