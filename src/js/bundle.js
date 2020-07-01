@@ -106,8 +106,6 @@ function drawChart() {
       const dataChart = new GoogleCharts.api.visualization.LineChart(document.getElementById(chartsArray[i].id));
       GoogleCharts.api.visualization.events.addListener(dataChart, "ready", drawMarkers.bind(dataChart, chartsArray[i]));
       dataChart.draw(data, chartsArray[i].options);
-      
-      console.log(dataChart);
     }
   }
 }
