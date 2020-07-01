@@ -75,7 +75,6 @@ function datawell_memplot_swap(buoy_id, date) {
 }
 
 // Terms Agreement for all downloads
-
 function uwa_trigger_tac($form, type, spectrum) {
 	// Terms Agree
 	dialog = $( "#dialog-confirm" ).dialog({
@@ -107,7 +106,6 @@ function uwa_trigger_tac($form, type, spectrum) {
 }
 
 // Progress Dialog for Multipart Downloads
-
 function uwa_trigger_spec_progress($form, spectrum) {
 	// Dialog Box
 	$( "#dialog-csv-progress" ).dialog({
@@ -230,8 +228,6 @@ function uwa_reset_csv_downloads() {
 	globalCsvsTotal = 0;
 }
 
-
-
 function uwa_datawell_spectrum_fetch(dates, bouyID, spectrum) {
 	// Fetch all in a date range
 	var data = {
@@ -242,7 +238,6 @@ function uwa_datawell_spectrum_fetch(dates, bouyID, spectrum) {
 		spectrum: spectrum
 	};
 	
-
 	jQuery.getJSON(ajax_object.ajax_url, data, function(response) {
 		// response = response.replace('  ', '');
 		if(response !== '0') {
@@ -275,8 +270,6 @@ $.when( $.ready ).then(function() {
 	$('.csv-form button').not('[disabled]').on('click', function(e) {
 		e.preventDefault();
 		
-
-
 		var type = '', spectrum = '';
 		
 		if($(this).parent().hasClass('csv-form-2d') || $(this).parent().hasClass('csv-form-1d')) {

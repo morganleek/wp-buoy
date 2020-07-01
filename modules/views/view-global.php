@@ -28,10 +28,10 @@
 			wp_register_script('date-range-picker', "https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js", array('moment'), '1.0.0');
 	
 			// Google Charts
-			wp_register_script('google-charts', 'https://www.gstatic.com/charts/loader.js', array(), '1.0.0');
+			// wp_register_script('google-charts', 'https://www.gstatic.com/charts/loader.js', array(), '1.0.0');
 	
 			// Theme Scripts
-			wp_register_script('scm_scripts', UWA__PLUGIN_URL . 'modules/views/js/theme-min.js', array('jquery', 'date-range-picker', 'google-charts', 'jquery-ui-core', 'jquery-ui-progressbar', 'jquery-ui-dialog'), '1.1.20');
+			wp_register_script('scm_scripts', UWA__PLUGIN_URL . 'modules/views/js/theme.js', array('jquery', 'date-range-picker', 'jquery-ui-core', 'jquery-ui-progressbar', 'jquery-ui-dialog'), '1.1.20');
 	
 			// Enqueue Scripts
 			wp_enqueue_script('scm_scripts');
@@ -62,6 +62,10 @@
 				wp_register_script('google-maps-init', UWA__PLUGIN_URL . 'modules/views/js/google-maps-init.js', array('google-maps', 'google-maps-marker-with-label'), '1.0.20', true);
 				wp_enqueue_script('google-maps-init');
 			}
+
+			// Replacement bundled scripts
+			wp_register_script('scm_scripts_bundled', UWA__PLUGIN_URL . 'dist/js/bundle.js', array(), '1.0.0');
+			wp_enqueue_script('scm_scripts_bundled');
 		}
 		if ($GLOBALS['pagenow'] != 'wp-login.php' && !is_admin() && !is_page('home')) {
 			// Conditional script(s)

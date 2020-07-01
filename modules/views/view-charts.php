@@ -39,7 +39,7 @@
 		$sanitized_buoy_id = str_replace('-', '_', sanitize_title($bouy_id));
 		
 	  $html .= '<div class="chart-surround">';
-		  $html .= '<div id="' . $chart_id . '"></div>';
+		  $html .= '<div id="' . $chart_id . '" class="ticks-chart"></div>';
 	    foreach($direction_points as $k => $w) {
 		    if($k % $modulus == 0) {
 		    	$html .= '<div class="overlay-marker om-' . $sanitized_buoy_id . '-overlay-marker-' . $k . ' direction-' . $w . '">
@@ -50,23 +50,32 @@
 	    $html .= '<div class="overlay-marker om-' . $sanitized_buoy_id . '-legend-marker direction-0">
   	    <img src="' . get_template_directory_uri() . '/img/0.png" width="25" height="25" style="width: 25px; height: 25px;">
   	  </div>';
-	  $html .= '</div>';
 	  
-	  $waveTicks = array();
-	  $waveTickMax = ceil($max_wave / 4) * 4;
-	  $waveTickDivider = $waveTickMax / 4;
-	  for($i = 0; $i <= 5; $i++) {
-			$waveTicks[] = $i * $waveTickDivider;
-		}
 	  
-	  $peakTicks = array();
-	  $peakTickMax = ceil($max_peak / 4) * 4;
-	  $peakTickDivider = $peakTickMax / 4;
-	  for($i = 0; $i <= 5; $i++) {
-		  $peakTicks[] = $i * $peakTickDivider;
-	  }
-	  
-		$html .= '<script type="text/javascript">
+			$waveTicks = array();
+			$waveTickMax = ceil($max_wave / 4) * 4;
+			$waveTickDivider = $waveTickMax / 4;
+			for($i = 0; $i <= 5; $i++) {
+				$waveTicks[] = $i * $waveTickDivider;
+			}
+			
+			$peakTicks = array();
+			$peakTickMax = ceil($max_peak / 4) * 4;
+			$peakTickDivider = $peakTickMax / 4;
+			for($i = 0; $i <= 5; $i++) {
+				$peakTicks[] = $i * $peakTickDivider;
+			}
+			$data_points_json = json_encode($data_points);
+			$html .= '<div class="ticks-data"
+				data-buoy-id="' . $sanitized_buoy_id . '"
+				data-wave-tick-max="' . $waveTickMax . '"
+				data-wave-ticks="' . implode(',', $waveTicks) . '"
+				data-peak-tick-max="' . $peakTickMax . '"
+				data-peak-ticks="' . implode(',', $peakTicks) . '"
+				data-data-points=\'' . $data_points_json . '\'
+				></div>';
+		$html .= '</div>';
+		/* $html .= '<script type="text/javascript">
 			var global_' . $chart_id . ';
 	
 	  	google.charts.load(\'current\', {\'packages\':[\'line\', \'corechart\']});
@@ -159,7 +168,7 @@
 
 			}
 
-		</script>';
+		</script>'; */
 		
 		if($_args['return']) {
 			return $html;

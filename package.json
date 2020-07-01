@@ -1,0 +1,47 @@
+{
+  "name": "wp-buoy",
+  "version": "1.0.0",
+  "description": "Wordpress Buoy Tracker with Support for Multiple Buoy Types",
+  "main": "index.js",
+  "scripts": {
+    "start": "gulp",
+    "build": "gulp build --prod"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/morganleek/wp-buoy.git"
+  },
+  "keywords": [
+    "Buoy"
+  ],
+  "author": "Morgan Leek",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/morganleek/wp-buoy/issues"
+  },
+  "homepage": "https://github.com/morganleek/wp-buoy#readme",
+  "dependencies": {
+    "google-charts": "^2.0.0",
+    "jquery": "^3.5.1",
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
+    "@babel/register": "^7.8.3",
+    "autoprefixer": "^9.7.4",
+    "babel-loader": "^8.0.6",
+    "browser-sync": "^2.26.7",
+    "del": "^5.1.0",
+    "gulp": "^4.0.2",
+    "gulp-clean-css": "^4.2.0",
+    "gulp-if": "^3.0.0",
+    "gulp-imagemin": "^7.1.0",
+    "gulp-postcss": "^8.0.0",
+    "gulp-replace": "^1.0.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-wp-pot": "^2.3.6",
+    "vinyl-named": "^1.1.0",
+    "webpack-stream": "^5.2.1",
+    "yargs": "^15.1.0"
+  },
+  "theme_name": "wp_bouy"
+}

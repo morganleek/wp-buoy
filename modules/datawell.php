@@ -257,6 +257,7 @@
  	}
  	
  	function uwa_datawell_grab_and_fill($type, $type_db, $date_sep) {
+		uwa_log('datawell', 'Grad and Fill: "DatawellBuoys", "' . $type . '", "datawell", "' . $type_db . '", "' . $date_sep . '"');
 		uwa_grab_and_fill('DatawellBuoys', $type, 'datawell', $type_db, $date_sep);
  	}
  	

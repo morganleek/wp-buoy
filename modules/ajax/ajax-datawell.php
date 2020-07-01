@@ -11,6 +11,7 @@
 	function uwa_aws_direct($args, $return = false) {
 		$header = [];
 		$html = '';
+		$log = '';
 
 		uwa_log($args['buoy_type'], 'Preparing AWS fetch');
 
@@ -125,7 +126,6 @@
 							}
 						
 						} catch (S3Exception $e) {
-							uwa_log($args['buoy_type'], 'ERROR: ' . $e->getMessage());
 							$html = $e->getMessage() . PHP_EOL;
 						}
 
@@ -379,7 +379,7 @@
 		uwa_datawell_grab_and_fill('Spec2D', 'spec_2d', '_Spec2D_');
 		
 		uwa_datawell_grab_and_fill('MEMplot', 'memplot', '_MEMplot_');
-		
+
 		print 1;
 		
 		wp_die();
