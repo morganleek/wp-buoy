@@ -119,6 +119,7 @@
 			$prefix = $bucket . '/' . $buoy_id . '/' . date('Y') . '/'; // This date('Y') won't always be accurate
 			
 			$query = array(
+				'buoy_type=' . $parent_db,
 				'action=uwa_datawell_aws', // Global AWS Fetch
 				'do=fetch_after_prefix', 
 				'max-keys=48',
@@ -138,10 +139,8 @@
 			}
 
 			// grab files from aws
-			$json = uwa_datawell_aws_direct(
-				uwa_query_array_to_key_value($query), 
-				true
-			);
+			$json = uwa_aws_direct(uwa_query_array_to_key_value($query), true);
+
 			$files = json_decode($json['html']);
 
 			// number of files found

@@ -90,11 +90,15 @@ function uwa_log($buoy, $message = '') {
 		// Set
 		$_br = "&#13;&#10;";
 		// Add newline and timestamp
-		$message =  date('Y-m-d H:i:s.v') . ': ' . $message . $_br . $_br;
+		$processed_message =  date('Y-m-d H:i:s.v') . ': ' . $message . $_br . $_br;
 		// Limit log to 500 lines
 		$history = implode($_br, explode($_br, get_option($buoy . '_log', ''), 500));
 		// Update
-		update_option( $buoy . '_log', $message . $history);
+		update_option( $buoy . '_log', $processed_message . $history);
+		// Verbose?
+		if(isset($_REQUEST['very-verbose'])) {
+			print $message . "\n";
+		}
 	}
 }
 

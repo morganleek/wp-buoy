@@ -138,7 +138,8 @@
 				uwa_log('datawell', 'Fetching ' . $key);
 				 
 				// $contents = file_get_contents($url);
-				$contents = uwa_datawell_aws_direct(array(
+				$contents = uwa_aws_direct(array(
+					'buoy_type' => 'datawell',
 					'do' => 'csv_fetch',
 					'key' => $key
 				), true);
@@ -250,6 +251,7 @@
  	// Fetch AWS S3 File List
  	function uwa_datawell_fetch_s3_file_list($return = false) {
 		uwa_log('datawell', "Grab and Fill CSV: 'waved', 'csv', 'datawell', 'csv'");
+
 		// This will grab all the current CSVs.
  		uwa_grab_and_fill_csv('waved', 'csv', 'datawell', 'csv', '');
  		

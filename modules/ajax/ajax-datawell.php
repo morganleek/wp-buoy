@@ -320,6 +320,8 @@
 			uwa_log($args['buoy_type'], 'No "do" argument set');
 		}
 
+		// uwa_log($args['buoy_type'], 'Return set ' + sprintf('%d', $return));
+
 		if($return) {
 			return array('header' => $header, 'html' => $html);
 		}
@@ -331,16 +333,16 @@
 	}
 
 	// datawell version replaced by global above
-	function uwa_datawell_aws_direct($args, $return = false) {
-		$args['buoy_type'] = 'datawell';
-		uwa_aws_direct($args, $return);
-	}
+	// function uwa_datawell_aws_direct($args, $return = false) {
+	// 	$args['buoy_type'] = 'datawell';
+	// 	uwa_aws_direct($args, $return);
+	// }
 	
-
 	function uwa_datawell_aws() {
 		$args = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+		$args['buoy_type'] = 'datawell';
 
-		uwa_datawell_aws_direct($args);
+		uwa_aws_direct($args);
 		
 		wp_die();
 	}
@@ -353,10 +355,10 @@
  	function cron_update_datawell() {
 		// Update run option	
 		update_option('cron_updated_datawell', time());
-		
+				
 		// Fetch CSVs
 		// Only Check Every 24 Hours
-		$files = uwa_datawell_fetch_s3_file_list(true);
+		uwa_datawell_fetch_s3_file_list(true);
 		
 		// Process CSVs
 		uwa_datawell_process_csvs();
