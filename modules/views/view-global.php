@@ -89,7 +89,7 @@
 			$points = array();
 			
 			// Get list of Buoys
-			$buoys = $wpdb->get_results("SELECT * FROM `{$wpdb->prefix}buoy_info` WHERE `visible` = 1");
+			$buoys = $wpdb->get_results("SELECT * FROM `{$wpdb->prefix}buoy_info` WHERE `visible` = 1 AND `visibility_options` != 2");
 
 			foreach($buoys as $b) {
 				// Points 

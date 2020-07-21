@@ -11,6 +11,7 @@
       LEFT JOIN `{$wpdb->prefix}buoy_info` AS b
       ON s.buoy_serial = b.buoy_id
       WHERE b.visible = 1 
+      AND b.visibility_options != 1
       AND b.buoy_type = 'triaxy'
     ");
 

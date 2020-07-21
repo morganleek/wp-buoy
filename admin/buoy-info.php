@@ -118,7 +118,7 @@ class Buoy_Info_List extends WP_List_Table {
 	 */
 	function column_cb( $item ) {
 		return sprintf(
-			'<input type="checkbox" name="bulk-delete[]" value="%s" />', $item['ID']
+			'<input type="checkbox" name="bulk-delete[]" value="%s" />', $item['id']
 		);
 	}
 
@@ -198,16 +198,17 @@ class Buoy_Info_List extends WP_List_Table {
 	 * Handles data query and filter, sorting, and pagination.
 	 */
 	public function prepare_items() {
-
 		$this->_column_headers = $this->get_column_info();
-
+		
+		
 		/** Process bulk action */
 		$this->process_bulk_action();
-
-		$per_page     = $this->get_items_per_page( 'buoys_per_page', 5 );
+		
+		$per_page     = $this->get_items_per_page( 'buoys_per_page', 20 );
 		$current_page = $this->get_pagenum();
 		$total_items  = self::record_count();
-
+		
+		
 		$this->set_pagination_args( [
 			'total_items' => $total_items, //WE have to calculate the total number of items
 			'per_page'    => $per_page //WE have to determine how many items to show on a page
@@ -217,9 +218,9 @@ class Buoy_Info_List extends WP_List_Table {
 	}
 
 	public function process_bulk_action() {
-		
-		//Detect when a bulk action is being triggered...
+		// Detect when a bulk action is being triggered...
 		if ( 'delete' === $this->current_action() ) {
+			
 			// In our file that handles the request, verify the nonce.
 			$nonce = esc_attr( $_REQUEST['_wpnonce'] );
 			
@@ -227,27 +228,25 @@ class Buoy_Info_List extends WP_List_Table {
 				die( 'Go get a life script kiddies' );
 			}
 			else {
-				self::delete_buoy( absint( $_GET['buoy'] ) );
+				self::delete_buoy( absint( $_REQUEST['buoy'] ) );
 			}
 		}
 
 		// If the delete bulk action is triggered
-		if ( ( isset( $_POST['action'] ) && $_POST['action'] == 'bulk-delete' )
-		     || ( isset( $_POST['action2'] ) && $_POST['action2'] == 'bulk-delete' )
+		if ( ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'bulk-delete' )
+		     || ( isset( $_REQUEST['action2'] ) && $_REQUEST['action2'] == 'bulk-delete' )
 		) {
-
-			$delete_ids = esc_sql( $_POST['bulk-delete'] );
-
+			$delete_ids = esc_sql( $_REQUEST['bulk-delete'] );
+			
 			// loop over the array of record IDs and delete them
 			foreach ( $delete_ids as $id ) {
 				self::delete_buoy( $id );
-
 			}
-
+			
 			// esc_url_raw() is used to prevent converting ampersand in url to "#038;"
-		        // add_query_arg() return the current url
-		        wp_redirect( esc_url_raw(add_query_arg()) );
-			exit;
+			// add_query_arg() return the current url
+			// wp_redirect( esc_url_raw(add_query_arg()) );
+			// exit;
 		}
 	}
 
@@ -305,12 +304,11 @@ class Buoy_Info_Plugin {
 								
 								$title = 'Add New Buoy';
 								
-								if(isset($_POST['buoy-info'])) {
+								if(isset($_REQUEST['buoy-info'])) {
 									// nonce check
 									
-									
 									// Existing
-									if(isset($_POST['hidden-id']) && !empty($_POST['hidden-id'])) {
+									if(isset($_REQUEST['hidden-id']) && !empty($_REQUEST['hidden-id'])) {
 										$wpdb->query(
 											$wpdb->prepare("
 												UPDATE {$wpdb->prefix}buoy_info
@@ -329,26 +327,28 @@ class Buoy_Info_Plugin {
 												`wave_height_increments` = '%s',
 												`buoy_order` = %d,
 												`true_north_offset` = %f,
-												`spotter_token` = '%s'
+												`spotter_token` = '%s',
+												`visibility_options` = '%d'
 												WHERE `id` = %d
 											", 
-												$_POST['tag-buoy-id'], 
-												$_POST['tag-aws-label'],
-												$_POST['tag-title'],
-												$_POST['tag-description'],
-												$_POST['tag-buoy-type'],
-												isset($_POST['tag-enabled']) ? 1 : 0,
-												isset($_POST['tag-hide-location']) ? 1 : 0,
-												isset($_POST['tag-custom-lat']) ? $_POST['tag-custom-lat'] : '',
-												isset($_POST['tag-custom-lng']) ? $_POST['tag-custom-lng'] : '',
-												$_POST['tag-image'],
-												$_POST['tag-intervals'],
-												$_POST['tag-depth'],
-												$_POST['tag-wave-height-increments'],
-												$_POST['tag-buoy-order'],
-												$_POST['tag-true-north-offset'],
-												$_POST['tag-spotter-token'],
-												$_POST['hidden-id']
+												$_REQUEST['tag-buoy-id'], 
+												$_REQUEST['tag-aws-label'],
+												$_REQUEST['tag-title'],
+												$_REQUEST['tag-description'],
+												$_REQUEST['tag-buoy-type'],
+												isset($_REQUEST['tag-enabled']) ? 1 : 0,
+												isset($_REQUEST['tag-hide-location']) ? 1 : 0,
+												isset($_REQUEST['tag-custom-lat']) ? $_REQUEST['tag-custom-lat'] : '',
+												isset($_REQUEST['tag-custom-lng']) ? $_REQUEST['tag-custom-lng'] : '',
+												$_REQUEST['tag-image'],
+												$_REQUEST['tag-intervals'],
+												$_REQUEST['tag-depth'],
+												$_REQUEST['tag-wave-height-increments'],
+												$_REQUEST['tag-buoy-order'],
+												$_REQUEST['tag-true-north-offset'],
+												$_REQUEST['tag-spotter-token'],
+												$_REQUEST['tag-visibility-options'],
+												$_REQUEST['hidden-id']
 											)
 										);
 									}	
@@ -357,22 +357,23 @@ class Buoy_Info_Plugin {
 										$wpdb->insert( 
 											"{$wpdb->prefix}buoy_info", 
 											array( 
-												'buoy_id' => $_POST['tag-buoy-id'], 
-												'aws_label' => $_POST['tag-aws-label'],
-												'title' => $_POST['tag-title'],
-												'description' => $_POST['tag-description'],
-												'buoy_type' => $_POST['tag-buoy-type'],
-												'visible' => isset($_POST['tag-enabled']) ? 1 : 0,
-												'hide_location' => isset($_POST['tag-hide-location']) ? 1 : 0,
-												'custom_lat' => isset($_POST['tag-custom-lat']) ? $_POST['tag-custom-lat'] : '', 
-												'custom_lng' => isset($_POST['tag-custom-lng']) ? $_POST['tag-custom-lng'] : '', 
-												'image_url' => $_POST['tag-image'], 
-												'homepage_graph_event_limit' => $_POST['tag-intervals'],
-												'depth' => $_POST['tag-depth'],
-												'wave_height_increments' => $_POST['tag-wave-height-increments'],
-												'buoy_order' => $_POST['tag-buoy-order'],
-												'true_north_offset' => $_POST['tag-true-north-offset'], 
-												'spotter_token' => $_POST['tag-spotter-token']
+												'buoy_id' => $_REQUEST['tag-buoy-id'], 
+												'aws_label' => $_REQUEST['tag-aws-label'],
+												'title' => $_REQUEST['tag-title'],
+												'description' => $_REQUEST['tag-description'],
+												'buoy_type' => $_REQUEST['tag-buoy-type'],
+												'visible' => isset($_REQUEST['tag-enabled']) ? 1 : 0,
+												'hide_location' => isset($_REQUEST['tag-hide-location']) ? 1 : 0,
+												'custom_lat' => isset($_REQUEST['tag-custom-lat']) ? $_REQUEST['tag-custom-lat'] : '', 
+												'custom_lng' => isset($_REQUEST['tag-custom-lng']) ? $_REQUEST['tag-custom-lng'] : '', 
+												'image_url' => $_REQUEST['tag-image'], 
+												'homepage_graph_event_limit' => $_REQUEST['tag-intervals'],
+												'depth' => $_REQUEST['tag-depth'],
+												'wave_height_increments' => $_REQUEST['tag-wave-height-increments'],
+												'buoy_order' => $_REQUEST['tag-buoy-order'],
+												'true_north_offset' => $_REQUEST['tag-true-north-offset'], 
+												'spotter_token' => $_REQUEST['tag-spotter-token'],
+												'visibility_options' => $_REQUEST['tag-visibility-options']
 											), 
 											array( 
 												'%s', 
@@ -390,18 +391,16 @@ class Buoy_Info_Plugin {
 												'%s',
 												'%d',
 												'%f',
-												'%s'
+												'%s',
+												'%d'
 											) 
 										);
-										
-										// _d($wpbd);
 									}
 									
 								}
 								else if(isset($_REQUEST['action'])) {
 									
-									if($_REQUEST['action'] === 'edit' && $_REQUEST['buoy']) {
-										
+									if($_REQUEST['action'] === 'edit' && $_REQUEST['buoy']) {										
 										$buoy = $wpdb->get_row(
 											$wpdb->prepare("SELECT * FROM {$wpdb->prefix}buoy_info WHERE id = %d", $_REQUEST['buoy'])
 										);
@@ -423,7 +422,8 @@ class Buoy_Info_Plugin {
 											'wave_height_increments' => $buoy->wave_height_increments,
 											'buoy_order' => $buoy->buoy_order,
 											'true_north_offset' => $buoy->true_north_offset,
-											'spotter_token' => $buoy->spotter_token
+											'spotter_token' => $buoy->spotter_token,
+											'visibility_options' => $buoy->visibility_options
 										);		
 										
 										$title = 'Edit Existing Buoy';
@@ -477,9 +477,25 @@ class Buoy_Info_Plugin {
 									<p><strong>Spotter only</strong>. This allows the site to request buoy wind data from the Spotter API.</p>
 								</div>
 								<div class="form-field form-required term-enabled-wrap">
-									<label for="tag-enabled">Enabled</label>
+									<label for="tag-enabled">Show Buoy</label>
 									<input name="tag-enabled" id="tag-enabled" type="checkbox" value="1" <?php print (isset($form_data['visible'])) ? checked($form_data['visible']) : ''; ?> size="40" aria-required="true">
 									<p>Unchecking this box will hide the buoy on the website.</p>
+								</div>
+								<?php $visibility_options = (isset($form_data['visibility_options'])) ? intval($form_data['visibility_options']) : 0; ?>
+								<div class="form-field form-required term-enabled-wrap">
+									<label for="tag-visibility-options">Visibility Options</label>
+									<p>
+										<input name="tag-visibility-options" id="tag-visibility-options-all" type="radio" value="0" <?php checked(0, $visibility_options, true); ?> aria-required="true">
+										<label style="display: inline;" for="tag-visibility-options-all">Show both</label>
+									</p>
+									<p>
+										<input name="tag-visibility-options" id="tag-visibility-options-map" type="radio" value="1" <?php checked(1, $visibility_options, true); ?> aria-required="true">
+										<label style="display: inline;" for="tag-visibility-options-map">Map only</label>
+									</p>
+									<p>
+										<input name="tag-visibility-options" id="tag-visibility-options-list" type="radio" value="2" <?php checked(2, $visibility_options, true); ?> aria-required="true">
+										<label style="display: inline;" for="tag-visibility-options-list">List only</label>
+									</p>
 								</div>
 								<div class="form-field form-required term-hide-location-wrap">
 									<label for="tag-hide-location">Hide Location</label>

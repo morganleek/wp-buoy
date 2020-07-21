@@ -22,7 +22,7 @@
 
 	// Options
 	global $uwa_db_version;
-	$uwa_db_version = '2.0.10';
+	$uwa_db_version = '2.0.11';
 	
 	global $wpdb;
 	

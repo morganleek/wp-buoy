@@ -212,6 +212,7 @@
 			buoy_order SMALLINT DEFAULT 0,
 			true_north_offset DECIMAL(5,2) NOT NULL,
 			spotter_token varchar(100) NOT NULL,
+			visibility_options SMALLINT DEFAULT 0,
 			PRIMARY KEY (id)
 		) $charset_collate;";
 		dbDelta( $sql );

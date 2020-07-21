@@ -5,7 +5,13 @@
 		global $uwa_buoy_details; 
 
 		// Get list of Buoys
-		$buoys = $wpdb->get_results("SELECT * FROM `{$wpdb->prefix}buoy_info` WHERE `visible` = 1 AND `buoy_type` = 'datawell'");
+		$buoys = $wpdb->get_results("
+			SELECT * 
+			FROM `{$wpdb->prefix}buoy_info` 
+			WHERE `visible` = 1 
+			AND `visibility_options` != 1
+			AND `buoy_type` = 'datawell'
+		");
 
 		$html_buoys = array();
 		
