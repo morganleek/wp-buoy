@@ -1,5 +1,4 @@
 <?php
-
 	/* 
 	 ** AJAX
 	 ** Called via CRON
