@@ -4,40 +4,11 @@
  	require_once( UWA__PLUGIN_DIR . 'modules/views/view-spoondrift.php' );
  	// Ajax
 	require_once( UWA__PLUGIN_DIR . 'modules/ajax/ajax-spoondrift.php' );
-	
-	// function uwa_spoondrift_grab_and_fill($type, $type_db, $date_sep) {
-	// 	uwa_log('spoondrift', 'Grad and Fill: "SpoondriftBuoys", "' . $type . '", "spoondrift", "' . $type_db . '", "' . $date_sep . '"');
-	// 	uwa_grab_and_fill('SpoondriftBuoys', $type, 'spoondrift', $type_db, $date_sep);
-	// }
  	
  	/* 
- 	** AJAX
+	 ** AJAX
+	 ** Called via CRON
  	*/ 
- 	
-	// // Cron Second Memplot, 1d and 2d
- 	// function cron_rev_update_spoondrift() {
-	// 	// Log
-	// 	uwa_log('spoondrift', 'Cron Rev Update Spoondrift');
-
-	// 	// // Specrum 1D
-	// 	// uwa_log('spoondrift', 'Grad and Fill: "SpoondriftBuoys", "Spec1D", "spoondrift", "spec_1d", "_Spec1D_"');
-	// 	// uwa_grab_and_fill('SpoondriftBuoys', 'Spec1D', 'spoondrift', 'spec_1d', '_Spec1D_');
-		
-	// 	// // Specrum 2D
-	// 	// uwa_log('spoondrift', 'Grad and Fill: "SpoondriftBuoys", "Spec2D", "spoondrift", "spec_2d", "_Spec2D_"');
-	// 	// uwa_grab_and_fill('SpoondriftBuoys', 'Spec2D', 'spoondrift', 'spec_2d', '_Spec2D_');
-		
-	// 	// Specrum Memplots
-	// 	// uwa_log('spoondrift', 'Grad and Fill: "SpoondriftBuoys", "MEMplot", "spoondrift", "memplot", "_MEMplot_"');
-	// 	// uwa_grab_and_fill('SpoondriftBuoys', 'MEMplot', 'spoondrift', 'memplot', '_MEMplot_');
-		
-	// 	print 1;
-		
-	// 	wp_die();
- 	// }
-	
-	// add_action( 'wp_ajax_update_spoondrift_rev', 'cron_rev_update_spoondrift' );
-	// add_action( 'wp_ajax_nopriv_update_spoondrift_rev', 'cron_rev_update_spoondrift' );
 
 	function update_spoondrift_1d() {
 		// Specrum 1D
