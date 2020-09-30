@@ -20,6 +20,9 @@
 	define( 'UWA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 	define( 'UWA__PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
+	// Math
+	define( 'UWA_RAD', 57.2958 );
+
 	// Options
 	global $uwa_db_version;
 	$uwa_db_version = '2.0.11';

@@ -115,6 +115,8 @@
 		foreach($buoys as $buoy) {
 			$buoy_id = $buoy->buoy_id;
 			$label = $buoy->aws_label;
+
+			uwa_log($parent_db, "Buoy '" . $label . "::" . $buoy_id . "' ");
 			
 			$prefix = $bucket . '/' . $buoy_id . '/' . date('Y') . '/'; // This date('Y') won't always be accurate
 			
@@ -122,7 +124,7 @@
 				'buoy_type=' . $parent_db,
 				'action=uwa_datawell_aws', // Global AWS Fetch
 				'do=fetch_after_prefix', 
-				'max-keys=48',
+				'max-keys=192',
 				'prefix=' . $prefix
 			);
 			
@@ -144,16 +146,18 @@
 			$files = json_decode($json['html']);
 
 			// number of files found
-			uwa_log($parent_db, "Files found " . sizeof($files));
+			uwa_log($parent_db, "... Files found " . sizeof($files));
+
+			uwa_log($parent_db, "");
+			uwa_log($parent_db, "... Begin Processing");
 		
 			// if there are files process them
 			if(!empty($files)) {
 				foreach($files as $file_a) {
 					$url = $file_a[0];
 					$date = $file_a[1];
-					uwa_log($parent_db, "Processing " . $url);
 					if(strpos($url, '.csv') > 0 || strpos($url, '.jpg') > 0) {
-						uwa_log($parent_db, "Is CSV or JPG");
+						uwa_log($parent_db, "... Processing " . $url);
 						$timestamp = str_replace('+00:00', '', $date);
 						$timestamp = str_replace('T', ' ', $timestamp);
 											
@@ -169,13 +173,7 @@
 						);
 
 						if($wpdb->num_rows === 0) {
-							uwa_log($parent_db, "New file: " . $url); 
-						}
-						else {
-							uwa_log($parent_db, "File exists: " . $url);
-						}
-					
-						if($wpdb->num_rows === 0) {
+							uwa_log($parent_db, "...... Inserting in DB (" . $timestamp . "): " . $url); 
 							$wpdb->insert(
 								$wpdb->prefix . $parent_db . "_" . $type_db, 
 								array( 
@@ -190,18 +188,17 @@
 								) 
 							);
 						}
+						else {
+							uwa_log($parent_db, "...... Exists in DB (" . $timestamp . "): " . $url); 
+						}
 					}
 					else {
-						uwa_log($parent_db, "Not CSV or JPG");
+						uwa_log($parent_db, "... Skipping " . $url);
 					}
 				}
 			}
 			else {
-				uwa_log($parent_db, "Empty files");
+				uwa_log($parent_db, "... Empty files");
 			}
 		}
-	}
-	
-	function uwa_grab_and_fill_other() {
-		print 'hello';
 	}

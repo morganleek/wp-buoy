@@ -9,7 +9,7 @@
 		$html = '';
 		$log = '';
 
-		uwa_log($args['buoy_type'], 'Preparing AWS fetch');
+		uwa_log($args['buoy_type'], '... Preparing AWS fetch');
 
 		if(isset($args['do'])) {
 			$uwa_datawell_s3_key = get_option('uwa_datawell_s3_key');
@@ -112,6 +112,7 @@
 							uwa_log($args['buoy_type'], '... Query success');
 							// uwa_log($args['buoy_type'], '... Objects output: &#13;&#10;' . print_r($objects, true));
 							if(isset($objects['Contents'])) {
+								uwa_log($args['buoy_type'], '... ' . count($objects['Contents']) . ' objects found');
 								foreach ($objects['Contents'] as $object) {
 									uwa_log($args['buoy_type'], '... Object found: ' . $object['Key'], $object['LastModified']->__toString());
 									array_push($files, array($object['Key'], $object['LastModified']->__toString()));
