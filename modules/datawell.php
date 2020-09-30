@@ -329,7 +329,7 @@
 			
 			?>
 			<div class="wrap">
-				<h2>Spoondrift Events</h2>
+				<h2>Datawell</h2>
 	
 				<table class="form-table">
 					<tbody>
