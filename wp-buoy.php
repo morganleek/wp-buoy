@@ -54,6 +54,7 @@
 	
 	// Library
 	require_once( UWA__PLUGIN_DIR . 'libraries/tools.php' );
+	require_once( UWA__PLUGIN_DIR . 'libraries/aws.php' );
 	
 	require_once( UWA__PLUGIN_DIR . 'admin/construct.php' );
 	require_once( UWA__PLUGIN_DIR . 'admin/buoy-info.php' );
