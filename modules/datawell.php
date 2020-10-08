@@ -233,9 +233,7 @@
 					}
 					
 					uwa_log('datawell', '... Generated ' . count($inserts) . ' inserts');
-
-					uwa_log('')
-
+					
 					foreach($inserts as $insert) {
 						// Check if exists
 						$exists = $wpdb->get_results("SELECT * 
