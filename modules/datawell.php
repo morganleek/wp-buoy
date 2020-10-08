@@ -117,20 +117,29 @@
 
  		global $wpdb;
 
- 		$like = date('Y-m') . '.csv';
- 		$csvs = $wpdb->get_results("
- 			SELECT * FROM `wp_datawell_csv` 
- 			WHERE `url` LIKE '%{0xF25}$like' 
- 			OR `url` LIKE '%{0xF26}$like' 
- 			OR `url` LIKE '%{0xF80}$like' 
-		 ");
-		 
-		uwa_log('datawell', $wpdb->num_rows . ' CSVs found');
- 		
+ 		// $like = date('Y-m') . '.csv';
+ 		// $csvs = $wpdb->get_results("
+ 		// 	SELECT * FROM `wp_datawell_csv` 
+ 		// 	WHERE `url` LIKE '%{0xF25}$like' 
+ 		// 	OR `url` LIKE '%{0xF26}$like' 
+ 		// 	OR `url` LIKE '%{0xF80}$like' 
+		//  ");
+		$from = date('Y-m-01');
+		$csvs = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM `wp_datawell_csv` 
+				WHERE `timestamp` > '%s' ", 
+				$from
+			)
+		);
+		
+		uwa_log('datawell', 'Timestamp > ' . $from . ' CSVs found');
+		uwa_log('datawell', sizeof($csvs) . ' files found');
+
  		foreach($csvs as $csv) {
-	 		preg_match('/{(.*?)}/', $csv->url, $matches, PREG_OFFSET_CAPTURE);
-	 		if(sizeof($matches) == 2) {
-		 		$case = $matches[1][0];
+			preg_match('/{(0xF(?:25|26|80))}/', $csv->url, $matches);
+			if(!empty($matches)) {
+				$case = $matches[1];
 		 		
 		 		// Download
 		 		$key = $csv->url;
@@ -224,6 +233,9 @@
 					}
 					
 					uwa_log('datawell', '... Generated ' . count($inserts) . ' inserts');
+
+					uwa_log('')
+
 					foreach($inserts as $insert) {
 						// Check if exists
 						$exists = $wpdb->get_results("SELECT * 
@@ -254,7 +266,10 @@
 						}
 					}
 				}
-	 		}
+			}
+			else {
+				uwa_log('datawell', 'Not CSV');
+			}
  		}
  	}
 
