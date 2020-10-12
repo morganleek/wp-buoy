@@ -82,24 +82,26 @@ function uwa_query_array_to_key_value($query_array = array()) {
 }
  
 function uwa_log($buoy, $message = '') {
-	if($message === '') {
-		// Get
-		return get_option($buoy . '_log', '...');
-	}
-	else {
-		// Set
-		$_br = "&#13;&#10;";
-		// Add newline and timestamp
-		$processed_message =  date('Y-m-d H:i:s.v') . ': ' . $message . $_br . $_br;
-		// Limit log to 500 lines
-		$history = implode($_br, explode($_br, get_option($buoy . '_log', ''), 500));
-		// Update
-		update_option( $buoy . '_log', $processed_message . $history);
-		// Verbose?
-		if(isset($_REQUEST['very-verbose'])) {
-			print $message . "\n";
-		}
-	}
+	return;
+
+	// if($message === '') {
+	// 	// Get
+	// 	return get_option($buoy . '_log', '...');
+	// }
+	// else {
+	// 	// Set
+	// 	$_br = "&#13;&#10;";
+	// 	// Add newline and timestamp
+	// 	$processed_message =  date('Y-m-d H:i:s.v') . ': ' . $message . $_br . $_br;
+	// 	// Limit log to 500 lines
+	// 	$history = implode($_br, explode($_br, get_option($buoy . '_log', ''), 500));
+	// 	// Update
+	// 	update_option( $buoy . '_log', $processed_message . $history);
+	// 	// Verbose?
+	// 	if(isset($_REQUEST['very-verbose'])) {
+	// 		print $message . "\n";
+	// 	}
+	// }
 }
 
 function uwa_log_clear($buoy) {
