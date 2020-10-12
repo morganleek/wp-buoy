@@ -48,11 +48,8 @@
   
         $title = (isset($b->title)) ? $b->title : '';
         $last_observation = "";
-        if($recent) {
-          _d($recent->timestamp);
+        if($recent) { 
           $recent_time = strtotime($recent->timestamp);
-          _d($recent_time);
-          _d($uwa_triaxy_time_adjustment);
           $recent_time_adjusted = strtotime($uwa_triaxy_time_adjustment . ' hours', $recent_time);
           $recent_time_alert = strtotime('-120 minutes', strtotime($uwa_triaxy_time_adjustment)); // strtotime('-120 minutes');
           $date = date('d M, H:i', $recent_time_adjusted);

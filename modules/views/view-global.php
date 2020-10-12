@@ -715,10 +715,10 @@
 						
 						if(!$uwa_buoy_details[$buoy_id_details]['hide_location']) {
 							if(isset($uwa_buoy_details[$buoy_id_details]['custom_lat']) && isset($uwa_buoy_details[$buoy_id_details]['custom_lat']) && $uwa_buoy_details[$buoy_id_details]['custom_lat'] != 0) {
-								$html .= '<br>Position <br>(' . round($uwa_buoy_details[$buoy_id_details]['custom_lat'], 3) . '&deg; ' . round($uwa_buoy_details[$buoy_id_details]['custom_lng'], 3) . '&deg;)';
+								$html .= '<br>Position <br>(' . round($uwa_buoy_details[$buoy_id_details]['custom_lat'], 4) . '&deg; ' . round($uwa_buoy_details[$buoy_id_details]['custom_lng'], 4) . '&deg;)';
 							}
 							else {
-								$html .= '<br>Position <br>(' . round($recent->latitude, 3) . '&deg;, ' . round($recent->longitude, 3) . '&deg;)';	
+								$html .= '<br>Position <br>(' . round($recent->latitude, 4) . '&deg;, ' . round($recent->longitude, 4) . '&deg;)';	
 							}
 						}
 						if(isset($uwa_buoy_details[$buoy_id_details]['depth']) && !empty($uwa_buoy_details[$buoy_id_details]['depth'])) {
