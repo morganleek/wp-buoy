@@ -17,15 +17,23 @@
 		
 		foreach($buoys as $b) {
 			$html = '';
-			
-			$recent = $wpdb->get_row("
-				SELECT * FROM 
-				(SELECT * FROM `wp_spoondrift_post_data_processed` WHERE `spotter_id` = '" . $b->buoy_id . "' ORDER BY id DESC LIMIT 1) AS P
-				LEFT JOIN `wp_spoondrift_post_data_processed_waves` AS W
-				ON P.`id` = W.`post_data_processed_id`
-				ORDER BY W.`timestamp` DESC
-				LIMIT 1
-			");
+
+			$recent = $wpdb->get_row(
+				$wpdb->prepare("
+					SELECT * FROM (
+						SELECT * FROM 
+						`{$wpdb->prefix}spoondrift_post_data_processed` 
+						WHERE `spotter_id` = '%s' 
+						ORDER BY id 
+						DESC LIMIT 1
+					) AS P
+					LEFT JOIN `{$wpdb->prefix}spoondrift_post_data_processed_waves` AS W
+					ON P.`id` = W.`post_data_processed_id`
+					ORDER BY W.`timestamp` DESC
+					LIMIT 1
+				",
+				$b->buoy_id)
+			);
 
 			// Get offset
       $uwa_spoondrift_time_adjustment = get_option('uwa_spoondrift_time_adjustment', '+8');

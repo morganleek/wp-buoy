@@ -623,6 +623,22 @@
 					",
 					$buoy_id)
 				);
+				$recent = $wpdb->get_row(
+					$wpdb->prepare("
+						SELECT * FROM (
+							SELECT * FROM 
+							`{$wpdb->prefix}spoondrift_post_data_processed` 
+							WHERE `spotter_id` = '%s' 
+							ORDER BY id 
+							DESC LIMIT 1
+						) AS P
+						LEFT JOIN `{$wpdb->prefix}spoondrift_post_data_processed_waves` AS W
+						ON P.`id` = W.`post_data_processed_id`
+						ORDER BY W.`timestamp` DESC
+						LIMIT 1
+					",
+					$buoy_id)
+				);	
 				break;
 			case 'datawell':
 				$recent = $wpdb->get_row(
