@@ -33,7 +33,7 @@
       );
 
       // Get offset
-      $uwa_triaxy_time_adjustment = get_option('uwa_triaxy_time_adjustment', '+8');
+      $uwa_triaxy_time_adjustment = get_option('uwa_triaxy_time_adjustment', '+8') ?: '+8'; // Ternary for empty option values
       
       // Check for cached chart
       $recent_option = get_option('triaxy_recent_event_' . $b->buoy_serial_id, 0);
@@ -49,7 +49,10 @@
         $title = (isset($b->title)) ? $b->title : '';
         $last_observation = "";
         if($recent) {
+          _d($recent->timestamp);
           $recent_time = strtotime($recent->timestamp);
+          _d($recent_time);
+          _d($uwa_triaxy_time_adjustment);
           $recent_time_adjusted = strtotime($uwa_triaxy_time_adjustment . ' hours', $recent_time);
           $recent_time_alert = strtotime('-120 minutes', strtotime($uwa_triaxy_time_adjustment)); // strtotime('-120 minutes');
           $date = date('d M, H:i', $recent_time_adjusted);
@@ -58,16 +61,10 @@
         }
         
         $hide_location = ($b->hide_location === "1") ? true : false;
-        $lat = '';
-        $lng = '';
-        if(!empty($b->custom_lat) && !empty($b->custom_lng)) {
-          $lat = $b->custom_lat;
-          $lng = $b->custom_lng;
-        }
-        else {
-          $lat = $recent->latitude;
-          $lng = $recent->longitude;
-        }
+
+        // Grab custom lat/lng if set
+				$lat = (!empty($b->custom_lat)) ? $b->custom_lat : $recent->latitude;
+        $lng = (!empty($b->custom_lng)) ? $b->custom_lng : $recent->longitude;
 
         $html .= '<div class="panel-heading clearfix">
           <h5 style="float: left;">' . $title . ' &mdash; ';

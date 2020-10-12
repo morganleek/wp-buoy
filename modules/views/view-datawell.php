@@ -60,9 +60,13 @@
 				
 				$hide_location = ($b->hide_location === "1") ? true : false;
 
+				// Grab custom lat/lng if set
+				$lat = (!empty($uwa_buoy_details[$b->buoy_id]['custom_lat'])) ? $uwa_buoy_details[$b->buoy_id]['custom_lat'] : $recent->latitude;
+				$lng = (!empty($uwa_buoy_details[$b->buoy_id]['custom_lng'])) ? $uwa_buoy_details[$b->buoy_id]['custom_lng'] : $recent->longitude;
+
 				$html .= '<div class="panel-heading clearfix">
 					<h5 style="float: left;">' . $title . ' &mdash; ';
-					$html .= (!$hide_location) ? '[' . round($recent->latitude, 4) . '&deg;, ' . round($recent->longitude, 4) . '&deg;] &mdash; ' : '';
+					$html .= (!$hide_location) ? '[' . round($lat, 4) . '&deg;, ' . round($lng, 4) . '&deg;] &mdash; ' : '';
 					$html .= $last_observation . '</h5>
 					<a style="float: right;" href="/datawell?buoy_id=' . $b->buoy_id . '&buoy_info_id=' . $b->id . '" class="btn btn-success" role="button">Go to ' . $title . ' Data Page</a>
 				</div>';
