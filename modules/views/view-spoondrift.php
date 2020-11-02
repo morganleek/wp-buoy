@@ -110,6 +110,7 @@
 						$data_points = ''; 
 						$max_wave = 0; 
 						$max_peak = 0; 
+						$temperature = 0;
 						// True North Offset
 						$true_north_offset = (!empty($b->true_north_offset)) ? floatval($b->true_north_offset) : 0;
 						foreach($waves as $k => $w) {
@@ -122,9 +123,12 @@
 							$adjusted_time = strtotime($uwa_spoondrift_time_adjustment . ' hours', $wave_time);
 							$label = 'Location: ' . date('M d, Y g:iA', $adjusted_time) . ' (' . $uwa_spoondrift_time_adjustment . ')\nGMT: ' . date('M d, Y g:iA', $wave_time) . '\nSignificant Wave Height: ' . $w->significant_wave_height . ' m\nPeak Period: ' . $w->peak_period . ' s';
 							$data_points .= '[new Date(' . $wave_time . '000), ' . $w->significant_wave_height . ', "' . $label . '", ' . $w->peak_period . ', "' . $label . '"],';
+							// Temp
+							$temperature = $w->temperature;
 						}
 						$max_wave = round($max_wave * 2);
 						$max_peak = $max_peak + 3;
+						$temperature = (floatval($temperature) != 0) ? floatval($temperature) . ' &degc' : '-';
 
 						$html .= generate_google_chart_with_args(
 							array(
@@ -152,6 +156,7 @@
 						);
 						$wind_speed = ($wpdb->num_rows > 0) ? floatval($wave->speed) : '-';
 						$direction = ($wpdb->num_rows > 0) ? floatval($wave->direction) % 360 : '-';
+						
 
 						$table_values = array(
 							'significant_wave_height' => array('Significant Wave Height', '<strong>' . $recent->significant_wave_height . ' m</strong>'),
@@ -159,7 +164,8 @@
 							'peak_direction' => array('Peak Direction', strval((floatval($recent->peak_direction) + $true_north_offset) % 360) . ' degrees'),
 							'directional_spreading' => array('Directional spreading', $recent->peak_directional_spread . ' degrees'),
 							'wind_speed' => array('Wind Speed', $wind_speed . ' m/s'),
-							'wind_direction' => array('Wind Direction', $direction . ' degrees')
+							'wind_direction' => array('Wind Direction', $direction . ' degrees'),
+							'temperature' => array('Temp', $temperature)
 						);
 
 						$html .= '<table class="table">';
