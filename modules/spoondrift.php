@@ -321,7 +321,8 @@
 						'payload_type' => ($data->data->payloadType == null) ? '' : $data->data->payloadType,
 						'battery_voltage' => ($data->data->batterVoltage == null) ? 0 : $data->data->batterVoltage,
 						'solar_voltage' => ($data->data->solarVoltage == null) ? 0 : $data->data->solarVoltage,
-						'humidity' => ($data->data->humidity == null) ? 0 : $data->data->humidity
+						'humidity' => ($data->data->humidity == null) ? 0 : $data->data->humidity,
+						'temperature' => ($data->data->surfaceTemp[0]->degrees == null) ? 0 : $data->data->surfaceTemp[0]->degrees
 					), 
 					array( 
 						'%d',
