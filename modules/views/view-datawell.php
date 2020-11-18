@@ -79,7 +79,7 @@
 						$wave_until = date('Y-m-d H:i:s', strtotime('-3 days', strtotime($recent->timestamp))); // 216000sec is 2.5 days
 
 						$html .= '<div class="chart-js-layout" data-buoy="' . $b->buoy_id . '" style="width: 100%;">
-							<p style="text-align: center;">Loading&hellip;</p>
+							<p class="loading" style="display: none; text-align: center;">Loading&hellip;</p>
 							<canvas id="canvas-' . $b->buoy_id . '"></canvas>
 						</div>';
 

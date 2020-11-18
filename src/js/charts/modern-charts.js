@@ -59,7 +59,13 @@ $(function() {
 		let buoyOffset = '+8'; // Replace
 		let waveHeightData = [];
 		let peakPeriodData = [];
+		let peakDirectionData = [];
+		let arrowPointers = [];
 		let chartLabels = [];
+
+		let arrowImage = new Image( 28, 28 );
+		arrowImage.src = ajax_object.plugin_url + "/dist/images/arrow-yellow.png";
+
 		if( waves.length ) {
 			for( let i = 0; i < waves.length; i++ ) {
 				let time = uwaGenerateBuoyDate( waves[i].time, buoyOffset );
@@ -73,9 +79,11 @@ $(function() {
 					case 6:
 					case 8:
 						chartLabels.push( uwaGenerateBuoyDateString( waves[i].time, buoyOffset, 'H:mm a' ) );
+						arrowPointers.push( arrowImage );
 						break;
 					default:
 						chartLabels.push( '' );
+						arrowPointers.push( '' );
 						break;
 				}
 				
@@ -87,6 +95,9 @@ $(function() {
 					x: time,
 					y: waves[i].peak_period,
 				} );
+				peakDirectionData.push (
+					Math.abs( waves[i].peak_direction - 180 ) // Pointing the oppsite direction
+				);
 			}
 
 			// Draw Chart
@@ -97,16 +108,24 @@ $(function() {
 					labels: chartLabels,
 					datasets: [
 						{
-							label: 'Wave Height',
+							label: 'Wave Height (m)',
 							backgroundColor: 'rgba(60, 118, 61, 0.7)',
 							borderColor: 'rgba(60, 118, 61, 1)',
+							borderWidth: 2,
+							lineTension: 0,
+							pointRadius: 0,
 							fill: true,
 							data: waveHeightData,
 							yAxisID: 'y-axis-1',
 						}, {					
-							label: 'Peak Period',
+							label: 'Peak Period (s)',
 							backgroundColor: 'rgba(238, 238, 238, 0.7)',
 							borderColor: 'rgba(238, 238, 238, 1)',
+							borderWidth: 2,
+							lineTension: 0,
+							pointRadius: 35,
+							pointStyle: arrowImage,
+							rotation: peakDirectionData,
 							fill: false,
 							data: peakPeriodData,
 							yAxisID: 'y-axis-2',
@@ -115,6 +134,7 @@ $(function() {
 				},
 				options: {
 					responsive: true,
+					aspectRatio: 3,
 					hoverMode: 'index',
 					stacked: false,
 					title: {
@@ -127,41 +147,26 @@ $(function() {
 							display: true,
 							position: 'left',
 							id: 'y-axis-1',
+							ticks: {
+								beginAtZero: true,
+								min: 0,
+								max: 8
+							},
 						}, {
 							type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
 							display: true,
 							position: 'right',
 							id: 'y-axis-2',
-
-							// grid line settings
 							gridLines: {
 								drawOnChartArea: false, // only want the grid lines for one axis to show up
 							},
+							ticks: {
+								beginAtZero: true,
+								min: 0,
+								max: 20
+							},
 						}],
 					}
-					// title: {
-					// 	text: 'Significant Wave Height'
-					// },
-					// scales: {
-					// 	xAxes: [{
-					// 		type: 'time',
-					// 		time: {
-					// 			parser: 'MM/DD/YYYY HH:mm',
-					// 			// round: 'day'
-					// 			tooltipFormat: 'll HH:mm'
-					// 		},
-					// 		scaleLabel: {
-					// 			display: true,
-					// 			labelString: 'Date'
-					// 		}
-					// 	}],
-					// 	yAxes: [{
-					// 		scaleLabel: {
-					// 			display: true,
-					// 			labelString: 'Wave Height (m)'
-					// 		}
-					// 	}]
-					// },
 				}
 			};
 

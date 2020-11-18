@@ -50,6 +50,7 @@
 				'ajax_object', 
 				array(
 					'ajax_url' => admin_url( 'admin-ajax.php' ),
+					'plugin_url' => UWA__PLUGIN_URL,
 					'starting_lat' => $lat,
 					'starting_lng' => $lng
 				)
