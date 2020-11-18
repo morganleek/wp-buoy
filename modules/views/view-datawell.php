@@ -78,7 +78,10 @@
 						$wave_from = $recent->timestamp;
 						$wave_until = date('Y-m-d H:i:s', strtotime('-3 days', strtotime($recent->timestamp))); // 216000sec is 2.5 days
 
-						$html .= '<div class="chart-js-layout" data-buoy="' . $b->buoy_id . '"><p style="text-align: center;">Loading&hellip;</a></div>';
+						$html .= '<div class="chart-js-layout" data-buoy="' . $b->buoy_id . '" style="width: 100%;">
+							<p style="text-align: center;">Loading&hellip;</p>
+							<canvas id="canvas-' . $b->buoy_id . '"></canvas>
+						</div>';
 
 						// Fetch Wave Points
 						$args = uwa_datawell_wave_points($b, $wave_from, $wave_until, $uwa_datawell_time_adjustment);

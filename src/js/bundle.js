@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { GoogleCharts } from 'google-charts';
 
-import './charts/charts';
+import './charts/modern-charts';
 
 // Charts
 let chartsArray = []; // , dataPointsArray = [];
