@@ -60,6 +60,7 @@ $(function() {
 		let waveHeightData = [];
 		let peakPeriodData = [];
 		let peakDirectionData = [];
+		let meanPeriodData = [];
 		let arrowPointers = [];
 		let chartLabels = [];
 
@@ -95,6 +96,10 @@ $(function() {
 					x: time,
 					y: waves[i].peak_period,
 				} );
+				meanPeriodData.push( {
+					x: time,
+					y: waves[i].mean_period,
+				} );
 				peakDirectionData.push (
 					Math.abs( waves[i].peak_direction - 180 ) // Pointing the oppsite direction
 				);
@@ -129,7 +134,20 @@ $(function() {
 							fill: false,
 							data: peakPeriodData,
 							yAxisID: 'y-axis-2',
-						} 
+						},
+						{
+							label: 'Mean Period (s)',
+							backgroundColor: 'rgba(51, 122, 183, 0.7)',
+							borderColor: 'rgba(51, 122, 183, 1)',
+							borderWidth: 2,
+							lineTension: 0,
+							pointRadius: 1,
+							fill: false,
+							data: meanPeriodData,
+							yAxisID: 'y-axis-2',
+							
+							hidden: true,
+						}
 					]
 				},
 				options: {
