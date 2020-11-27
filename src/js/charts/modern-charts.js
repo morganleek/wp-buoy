@@ -79,7 +79,7 @@ $(function() {
 					case 4:
 					case 6:
 					case 8:
-						chartLabels.push( uwaGenerateBuoyDateString( waves[i].time, buoyOffset, 'H:mm a' ) );
+						chartLabels.push( uwaGenerateBuoyDateString( waves[i].time, buoyOffset, 'H:mm' ) );
 						arrowPointers.push( arrowImage );
 						break;
 					default:
@@ -124,7 +124,7 @@ $(function() {
 							yAxisID: 'y-axis-1',
 						}, {					
 							label: 'Peak Period (s)',
-							backgroundColor: 'rgba(238, 238, 238, 0.7)',
+							backgroundColor: 'rgba(202, 226, 200, 0.7)',
 							borderColor: 'rgba(238, 238, 238, 1)',
 							borderWidth: 2,
 							lineTension: 0,
@@ -156,8 +156,8 @@ $(function() {
 					hoverMode: 'index',
 					stacked: false,
 					title: {
-						display: true,
-						text: 'Significant Wave Height'
+						display: false,
+						// text: 'Significant Wave Height'
 					},
 					scales: {
 						yAxes: [{
@@ -190,9 +190,14 @@ $(function() {
 
 			// Load chart
 			window.onload = function() {
-				var ctx = document.getElementById( 'canvas-' + buoyID ).getContext( '2d' );
+				let ctx = document.getElementById( 'canvas-' + buoyID ).getContext( '2d' );
+				// Hide loading message
+				const chartWrapper = document.getElementsByClassName('chart-js-layout-Dev_site');
+				if( chartWrapper ) {
+					chartWrapper[0].getElementsByClassName('loading')[0].setAttribute( 'style', 'display: none');
+				}
+				// Load chart
 				window.myLine = new Chart(ctx, config);
-				
 			};
 		}
 		else {

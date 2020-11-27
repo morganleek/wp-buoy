@@ -37,7 +37,7 @@
       
       // Check for cached chart
       $recent_option = get_option('triaxy_recent_event_' . $b->buoy_serial_id, 0);
-      if($recent_option == strtotime($recent->timestamp) && !isset($_GET['flush_charts'])) {
+      if($recent_option == strtotime($recent->timestamp) && !isset($_REQUEST['flush_charts'])) {
         // Grab Cached Version
         $cached = get_option('triaxy_recent_cache_' . $b->buoy_serial_id, '<p>No cached version available</p>');
         $html_buoys[$b->buoy_order . '-' . $b->buoy_id] =  $cached;

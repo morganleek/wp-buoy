@@ -35,7 +35,7 @@
 
 			// Check for cached chart
 			$recent_option = get_option('datawell_recent_event_' . $b->buoy_id, 0);
-			if($recent_option == strtotime($recent->timestamp) && !isset($_GET['flush_charts'])) {
+			if($recent_option == strtotime($recent->timestamp) && !isset($_REQUEST['flush_charts'])) {
 				// Grab Cached Version
 				$cached = get_option('datawell_recent_cache_' . $b->buoy_id, '<p>No cached version available</p>');
 				$html_buoys[$b->buoy_order . '-' . $b->buoy_id] = $cached;
@@ -78,8 +78,13 @@
 						$wave_from = $recent->timestamp;
 						$wave_until = date('Y-m-d H:i:s', strtotime('-3 days', strtotime($recent->timestamp))); // 216000sec is 2.5 days
 
-						$html .= '<div class="chart-js-layout" data-buoy="' . $b->buoy_id . '" style="width: 100%;">
-							<p class="loading" style="display: none; text-align: center;">Loading&hellip;</p>
+						$html .= '<div class="chart-js-layout chart-js-layout-' . $b->buoy_id . '" data-buoy="' . $b->buoy_id . '" style="width: 100%;">
+							<div class="chart-js-menu">
+								<button class="map-focus" aria-label="Map Focus"></button>
+								<button class="show-chart" aria-label="Show Chart"></button>
+								<button class="calendar-trigger" aria-label="Calendar Trigger"></button>
+							</div>
+							<p class="loading" style="text-align: center;">Loading&hellip;</p>
 							<canvas id="canvas-' . $b->buoy_id . '"></canvas>
 						</div>';
 

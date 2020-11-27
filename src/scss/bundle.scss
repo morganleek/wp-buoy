@@ -1,8 +1,2 @@
-@import '../../node_modules/chart.js/dist/Chart';
-
-.chart-surround {
-  margin: 0 -25px;
-  @media (min-width: 768px) { 
-    margin: 0 -40px;
-  }
-}
+@import './components/colors';
+@import './components/modern-charts';
