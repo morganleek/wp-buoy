@@ -128,7 +128,7 @@
 						}
 						$max_wave = round($max_wave * 2);
 						$max_peak = $max_peak + 3;
-						
+						$html .= _d($temperature, true);
 						$temperature = (floatval($temperature) != 0) ? floatval($temperature) . ' &degc' : '-';
 
 						$html .= generate_google_chart_with_args(
@@ -169,7 +169,7 @@
 							'temperature' => array('Temp', $temperature)
 						);
 
-						$html .= '<table class="table" style="font-size: 0.9em;">';
+						$html .= '<table class="table">';
 							$html .= '<thead><tr>';
 							foreach($table_values as $k => $v) {
 								$html .= '<th class="' . sanitize_title($k) . '">' . uwa_global_get_label($k, $v[0]) . '</th>';
