@@ -1,18 +1,12 @@
 import $ from 'jquery';
-// import Chart from '../../../node_modules/chartjs';
 import Chart from 'chart.js';
 
 $(function() {
 	const charts = document.getElementsByClassName('chart-js-layout');
 	if( charts.length > 0 ) {
+		// Fetch chart data on load
 		for( let i = 0; i < charts.length; i++ ) {
 			const buoyID = charts[i].dataset['buoy'];
-
-			// Ajax
-			const init = {
-				method: 'POST'
-			};
-
 			const params = {
 				action: 'uwa_datawell_wave_points_json',
 				buoy_id: buoyID,
@@ -21,20 +15,31 @@ $(function() {
 				time_adjustment: '+8' // Replace
 			};
 
+			uwaFetchChartData( params );
+		}
+	}
+
+	function uwaFetchChartData( params ) {
+		// Ajax
+		const init = {
+			method: 'POST'
+		};
+
+		if( params ) {
 			let paramsString = Object.keys(params).map(function(key) {
 				return key + '=' + params[key];
 			}).join('&');
 
 			fetch(ajax_object.ajax_url + '?' + paramsString, init)
 			.then((response) => {
-			  return response.json();
+				return response.json();
 			})
 			.then((waves) => {
 				// Generate Chart
 				if( waves.length > 0 ) {
 					let buoyID = waves[0].buoy_id
 					uwaGenerateChart( buoyID, waves );
-				}
+				} 
 			})
 			.catch((e) => {
 				// Error
@@ -49,10 +54,16 @@ $(function() {
 		return utcDate.utcOffset( utcOffset ).toDate();
 	}
 
-	function uwaGenerateBuoyDateString( timestamp, utcOffset, format = 'MM/DD/YYYY HH:mm' ) {
+	function uwaGenerateBuoyDateString( timestamp, utcOffset, formatTime = 'H:mm', formatDay = 'MM/DD' ) {
 		const timeMilliseconds = timestamp * 1000; // Milliseconds for JS
 		const utcDate = moment(timeMilliseconds);
-		return utcDate.utcOffset( utcOffset ).format( format );
+		const noonOffset = parseFloat( utcOffset ) * 3600;
+		if( timeMilliseconds % noonOffset == 0 || timeMilliseconds % ( noonOffset + 1800 ) == 0 ) {
+			return utcDate.utcOffset( utcOffset ).format( formatDay );
+		}
+		else {
+			return utcDate.utcOffset( utcOffset ).format( formatTime );
+		}
 	}
 
 	function uwaGenerateChart( buoyID, waves ) {
@@ -71,15 +82,16 @@ $(function() {
 			for( let i = 0; i < waves.length; i++ ) {
 				let time = uwaGenerateBuoyDate( waves[i].time, buoyOffset );
 				
+				
 				switch( i % 10 ) {
 					case 0:
-						chartLabels.push( uwaGenerateBuoyDateString( waves[i].time, buoyOffset, 'MM/DD' ) );
-						break;
+						// chartLabels.push( uwaGenerateBuoyDateString( waves[i].time, buoyOffset, 'MM/DD' ) );
+						// break;
 					case 2:
 					case 4:
 					case 6:
 					case 8:
-						chartLabels.push( uwaGenerateBuoyDateString( waves[i].time, buoyOffset, 'H:mm' ) );
+						chartLabels.push( uwaGenerateBuoyDateString( waves[i].time, buoyOffset, 'H:mm', 'MM/DD' ) );
 						arrowPointers.push( arrowImage );
 						break;
 					default:
@@ -87,7 +99,7 @@ $(function() {
 						arrowPointers.push( '' );
 						break;
 				}
-				
+
 				waveHeightData.push( {
 					x: time,
 					y: waves[i].significant_wave_height,

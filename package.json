@@ -41,6 +41,8 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-wp-pot": "^2.3.6",
     "jquery": "^3.5.1",
+    "load-google-maps-api": "^2.0.2",
+    "markerwithlabel": "^2.0.2",
     "vinyl-named": "^1.1.0",
     "webpack-stream": "^5.2.1",
     "yargs": "^15.1.0"

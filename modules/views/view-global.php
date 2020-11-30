@@ -46,23 +46,26 @@
 			}
 			
 			// Add AJAX Object
+			$api = get_option('uwa_google_maps_api');
+
 			wp_localize_script('scm_scripts', 
 				'ajax_object', 
 				array(
 					'ajax_url' => admin_url( 'admin-ajax.php' ),
 					'plugin_url' => UWA__PLUGIN_URL,
 					'starting_lat' => $lat,
-					'starting_lng' => $lng
+					'starting_lng' => $lng,
+					'google_maps_api_key' => $api
 				)
 			);
 			
 			// Maps Footer Scripts
-			if($api = get_option('uwa_google_maps_api')) {
-				wp_register_script('google-maps', 'https://maps.googleapis.com/maps/api/js?v=3&key=' . $api, array(), '1.0.2', true); // &callback=initMap
-				wp_register_script('google-maps-marker-with-label', UWA__PLUGIN_URL . 'modules/views/js/v3-utility-library/markerwithlabel/src/markerwithlabel.js', array('google-maps'), '1.2.4', true);
-				wp_register_script('google-maps-init', UWA__PLUGIN_URL . 'modules/views/js/google-maps-init.js', array('google-maps', 'google-maps-marker-with-label'), '1.0.20', true);
-				wp_enqueue_script('google-maps-init');
-			}
+			// if( $api ) {
+			// 	wp_register_script('google-maps', 'https://maps.googleapis.com/maps/api/js?v=3&key=' . $api, array(), '1.0.2', true); // &callback=initMap
+			// 	wp_register_script('google-maps-marker-with-label', UWA__PLUGIN_URL . 'modules/views/js/v3-utility-library/markerwithlabel/src/markerwithlabel.js', array('google-maps'), '1.2.4', true);
+			// 	wp_register_script('google-maps-init', UWA__PLUGIN_URL . 'modules/views/js/google-maps-init.js', array('google-maps', 'google-maps-marker-with-label'), '1.0.20', true);
+			// 	wp_enqueue_script('google-maps-init');
+			// }
 
 			// Replacement bundled scripts
 			wp_register_script('scm_scripts_bundled', UWA__PLUGIN_URL . 'dist/js/bundle.js', array(), '1.0.0');
@@ -197,6 +200,8 @@
 					print '["' . implode('","', $p) . '"],';
 				}
 				print '];';
+				
+				print 'var global_points_object = ' . json_encode($points) . ';';
 			print '</script>';
 		}
 	}

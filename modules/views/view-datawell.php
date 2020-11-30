@@ -55,7 +55,7 @@
           $recent_time_alert = strtotime('-120 minutes', strtotime($uwa_datawell_time_adjustment)); // strtotime('-120 minutes');
           $date = date('d M, H:i', $recent_time_adjusted);
           $alert = ($recent_time_alert > $recent_time) ? 'warning' : '';
-          $last_observation = "Latest Observations at <span class='" . $alert . "'>" . $date . " (" . $uwa_datawell_time_adjustment . ")</span>";
+					$last_observation = "Latest Observations at <span class='" . $alert . "'>" . $date . " (" . $uwa_datawell_time_adjustment . ")</span>";
 				}
 				
 				$hide_location = ($b->hide_location === "1") ? true : false;

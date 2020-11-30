@@ -2,6 +2,7 @@ import $ from 'jquery';
 import { GoogleCharts } from 'google-charts';
 
 import './charts/modern-charts';
+import './charts/buoys-map';
 
 // Charts
 let chartsArray = []; // , dataPointsArray = [];
