@@ -312,8 +312,6 @@
 				$post_data_id = $u;
 				$data = json_decode($u->data);
 
-				
-
 				$wpdb->insert(
 					$wpdb->prefix . 'spoondrift_post_data_processed', 
 					array( 

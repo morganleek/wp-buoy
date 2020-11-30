@@ -169,7 +169,7 @@
 							'temperature' => array('Temp', $temperature)
 						);
 
-						$html .= '<table class="table">';
+						$html .= '<table class="table" style="font-size: 0.9em;">';
 							$html .= '<thead><tr>';
 							foreach($table_values as $k => $v) {
 								$html .= '<th class="' . sanitize_title($k) . '">' . uwa_global_get_label($k, $v[0]) . '</th>';
