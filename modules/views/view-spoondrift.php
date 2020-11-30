@@ -129,7 +129,7 @@
 						$max_wave = round($max_wave * 2);
 						$max_peak = $max_peak + 3;
 
-						$temperature = (floatval($temperature) != 0) ? floatval($temperature) . ' &degc' : '-';
+						$temperature = (floatval($temperature) != 0) ? round(floatval($temperature), 1) . ' &degc' : '-';
 
 						$html .= generate_google_chart_with_args(
 							array(
