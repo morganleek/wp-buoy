@@ -529,9 +529,10 @@
 			}
 
 			$title = (isset($uwa_buoy_details[$data[0]->spotter_id])) ? $uwa_buoy_details[$data[0]->spotter_id]['title'] : $data[0]->spotter_id;
+			$buoy_type = ( $_args['buoy_type'] == 'spoondrift' ) ? 'SOFAR Spotter' : $_args['buoy_type'];
 
 			$html .= '<div class="panel panel-primary">';
-				$html .= '<div class="panel-heading">' . $title . ' (' . ucfirst($_args['buoy_type']) . ') &mdash; Time Series Data<br>( ' . date('d-m-Y', strtotime($from_date)) . '  &mdash; ' . date('d-m-Y', strtotime($until_date)) . ' )</div>';
+				$html .= '<div class="panel-heading">' . $title . ' (' . ucfirst($buoy_type) . ') &mdash; Time Series Data<br>( ' . date('d-m-Y', strtotime($from_date)) . '  &mdash; ' . date('d-m-Y', strtotime($until_date)) . ' )</div>';
 
 				$html .= '<div class="panel-body">';
 					$html .= generate_time_series_charts($_args['buoy_id'], $sig_wave_x, $sig_wave_y, array(), array(), $peak_period_x, $peak_period_y, $mean_period_x, $mean_period_y, $peak_direction_x, $peak_direction_y, $peak_directional_spread_x, $peak_directional_spread_y, $mean_direction_x, $mean_direction_y, $mean_directional_spread_x, $mean_directional_spread_y, false, true);
