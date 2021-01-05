@@ -802,7 +802,24 @@
 		switch($_args['buoy_type']) {
 			case 'spoondrift':
 				$data = $wpdb->get_results(
-					$wpdb->prepare( "SELECT * 
+					$wpdb->prepare( "
+						SELECT UNIX_TIMESTAMP(W.`timestamp`) AS unix_timestamp, 
+						P.spotter_id, 
+						P.spotter_name, 
+						P.payload_type, 
+						P.battery_voltage, 
+						P.solar_voltage, 
+						P.temperature, 
+						P.humidity, 
+						W.significant_wave_height, 
+						W.peak_period, 
+						W.mean_period, 
+						W.peak_direction, 
+						W.peak_directional_spread, 
+						W.mean_direction, 
+						W.mean_directional_spread, 
+						W.latitude, 
+						W.longitude 
 						FROM `{$wpdb->prefix}spoondrift_post_data_processed` AS P 
 						LEFT JOIN `{$wpdb->prefix}spoondrift_post_data_processed_waves` AS W 
 						ON P.`id` = W.`post_data_processed_id` 
