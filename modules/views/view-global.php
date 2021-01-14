@@ -868,3 +868,70 @@
 		}
 		return $label;
 	}
+
+	function uwa_wave_points_json( ) {
+		global $wpdb;
+
+		if( isset( $_REQUEST ) ) {
+			if( isset( $_REQUEST['buoy_type'] ) &&
+					isset( $_REQUEST['buoy_id'] ) &&
+					isset( $_REQUEST['wave_from'] ) &&
+					isset( $_REQUEST['wave_until'] ) &&
+					isset( $_REQUEST['time_adjustment'] ) ) {
+
+				$buoy_type = sanitize_text_field( $_REQUEST['buoy_type'] );						
+				$buoy_id = sanitize_text_field( $_REQUEST['buoy_id'] );
+				$wave_from = sanitize_text_field( html_entity_decode($_REQUEST['wave_from']) );
+				$wave_until = sanitize_text_field( html_entity_decode($_REQUEST['wave_until']) );
+				$time_adjustment = sanitize_text_field( $_REQUEST['time_adjustment'] );
+
+				$query = "";
+						
+				switch( $buoy_type ) {
+					case 'datawell': 
+						$query = '
+						SELECT *, UNIX_TIMESTAMP(`timestamp`) AS time
+						FROM `' . $wpdb->prefix . 'datawell_post_data_processed_waves`
+						WHERE `timestamp` < "%1$s"
+						AND `timestamp` > "%2$s"
+						AND (`peak_period` != 0 AND `peak_direction` != 0) # disclude empty values
+						AND `buoy_id` = "%3$s"
+						ORDER BY `timestamp` ASC';
+						break;
+					case 'spoondrift':
+						$query = '
+						SELECT * FROM 
+						(SELECT * FROM `' . $wpdb->prefix . 'spoondrift_post_data_processed` WHERE spotter_id = "%3$s") AS P
+						INNER JOIN
+						(SELECT * FROM `' . $wpdb->prefix . 'spoondrift_post_data_processed_waves` WHERE `timestamp` < "%1$s" AND `timestamp` > "%2$s") AS W
+						ON P.id = W.post_data_processed_id
+						ORDER BY W.`timestamp`';
+						break;
+					default;
+						break;
+				}
+				
+
+				if( !empty( $query ) ) {
+					$waves = $wpdb->get_results(
+						$wpdb->prepare(
+							$query,
+							$wave_from,
+							$wave_until,
+							$buoy_id
+						)
+					);
+
+					print_r(json_encode($waves));
+					wp_die();
+				}
+				wp_die();
+			}
+		}
+
+		wp_die();
+		// $buoy, $wave_from, $wave_until, $time_adjustment
+	}
+
+	add_action( 'wp_ajax_uwa_wave_points_json', 'uwa_wave_points_json' );
+	add_action( 'wp_ajax_nopriv_uwa_wave_points_json', 'uwa_wave_points_json' );

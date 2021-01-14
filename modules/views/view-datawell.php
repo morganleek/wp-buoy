@@ -78,7 +78,7 @@
 						$wave_from = $recent->timestamp;
 						$wave_until = date('Y-m-d H:i:s', strtotime('-3 days', strtotime($recent->timestamp))); // 216000sec is 2.5 days
 
-						$html .= '<div class="chart-js-layout chart-js-layout-' . $b->buoy_id . '" data-buoy="' . $b->buoy_id . '" style="width: 100%;">
+						$html .= '<div class="chart-js-layout chart-js-layout-' . $b->buoy_id . '" data-buoy="' . $b->buoy_id . '" data-buoy-type="datawell" style="width: 100%;">
 							<div class="chart-js-menu">
 								<button class="map-focus" aria-label="Map Focus"></button>
 								<button class="show-chart" aria-label="Show Chart"></button>
@@ -123,7 +123,7 @@
 
 		return $html_buoys;
 	}
-
+	
 	function uwa_datawell_wave_points_json( ) {
 		global $wpdb;
 
@@ -154,21 +154,6 @@
 				);
 
 				print_r(json_encode($waves));
-				
-				// $b = $wpdb->get_row(
-				// 	$wpdb->prepare("
-				// 		SELECT * 
-				// 		FROM `{$wpdb->prefix}buoy_info` 
-				// 		WHERE `visible` = 1 
-				// 		AND `visibility_options` != 1
-				// 		AND `buoy_type` = 'datawell'
-				// 		AND `buoy_id` = '%s'
-				// 	", $buoy_id)
-				// );
-
-				// if( $wpdb->num_rows ) {
-				// 	print json_encode(uwa_datawell_wave_points($b, $wave_from, $wave_until, $time_adjustment));
-				// }
 			}
 		}
 

@@ -157,6 +157,15 @@
 						$wind_speed = ($wpdb->num_rows > 0) ? floatval($wave->speed) : '-';
 						$direction = ($wpdb->num_rows > 0) ? floatval($wave->direction) % 360 : '-';
 						
+						$html .= '<div class="chart-js-layout chart-js-layout-' . $b->buoy_id . '" data-buoy="' . $b->buoy_id . '" data-buoy-type="spoondrift" style="width: 100%;">
+							<div class="chart-js-menu">
+								<button class="map-focus" aria-label="Map Focus"></button>
+								<button class="show-chart" aria-label="Show Chart"></button>
+								<button class="calendar-trigger" aria-label="Calendar Trigger"></button>
+							</div>
+							<p class="loading" style="text-align: center;">Loading&hellip;</p>
+							<canvas id="canvas-' . $b->buoy_id . '"></canvas>
+						</div>';
 
 						$table_values = array(
 							'significant_wave_height' => array('Significant Wave Height', '<strong>' . $recent->significant_wave_height . ' m</strong>'),
@@ -193,3 +202,47 @@
 		}		
 		return $html_buoys;
 	}
+
+	function uwa_spoondrift_wave_points_json( ) {
+		
+		global $wpdb;
+
+		if( isset( $_REQUEST ) ) {
+			if( isset( $_REQUEST['buoy_id'] ) &&
+					isset( $_REQUEST['wave_from'] ) &&
+					isset( $_REQUEST['wave_until'] ) &&
+					isset( $_REQUEST['time_adjustment'] ) ) {
+						
+				
+				$buoy_id = sanitize_text_field( $_REQUEST['buoy_id'] );
+				$wave_from = sanitize_text_field( html_entity_decode($_REQUEST['wave_from']) );
+				$wave_until = sanitize_text_field( html_entity_decode($_REQUEST['wave_until']) );
+				$time_adjustment = sanitize_text_field( $_REQUEST['time_adjustment'] );
+
+				$waves = $wpdb->get_results(
+					$wpdb->prepare("	
+						SELECT * FROM 
+						(SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed` WHERE spotter_id = '%s') AS P
+						INNER JOIN
+						(SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed_waves` WHERE `timestamp` < '%s' AND `timestamp` > '%s') AS W
+						ON P.id = W.post_data_processed_id
+						ORDER BY W.`timestamp`
+						", 
+						$buoy_id,
+						$wave_from,
+						$wave_until
+					)
+				);
+
+				print_r($wpdb); wp_die();
+
+				print_r(json_encode($waves));
+			}
+		}
+
+		wp_die();
+		// $buoy, $wave_from, $wave_until, $time_adjustment
+	}
+
+	add_action( 'wp_ajax_uwa_spoondrift_wave_points_json', 'uwa_spoondrift_wave_points_json' );
+	add_action( 'wp_ajax_nopriv_uwa_spoondrift_wave_points_json', 'uwa_spoondrift_wave_points_json' );
