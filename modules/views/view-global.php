@@ -535,9 +535,10 @@
 			}
 
 			$title = (isset($uwa_buoy_details[$data[0]->spotter_id])) ? $uwa_buoy_details[$data[0]->spotter_id]['title'] : $data[0]->spotter_id;
+			$buoy_type = ( $_args['buoy_type'] == 'spoondrift' ) ? 'SOFAR Spotter' : $_args['buoy_type'];
 
 			$html .= '<div class="panel panel-primary">';
-				$html .= '<div class="panel-heading">' . $title . ' (' . ucfirst($_args['buoy_type']) . ') &mdash; Time Series Data<br>( ' . date('d-m-Y', strtotime($from_date)) . '  &mdash; ' . date('d-m-Y', strtotime($until_date)) . ' )</div>';
+				$html .= '<div class="panel-heading">' . $title . ' (' . ucfirst($buoy_type) . ') &mdash; Time Series Data<br>( ' . date('d-m-Y', strtotime($from_date)) . '  &mdash; ' . date('d-m-Y', strtotime($until_date)) . ' )</div>';
 
 				$html .= '<div class="panel-body">';
 					$html .= generate_time_series_charts($_args['buoy_id'], $sig_wave_x, $sig_wave_y, array(), array(), $peak_period_x, $peak_period_y, $mean_period_x, $mean_period_y, $peak_direction_x, $peak_direction_y, $peak_directional_spread_x, $peak_directional_spread_y, $mean_direction_x, $mean_direction_y, $mean_directional_spread_x, $mean_directional_spread_y, false, true);
@@ -807,7 +808,24 @@
 		switch($_args['buoy_type']) {
 			case 'spoondrift':
 				$data = $wpdb->get_results(
-					$wpdb->prepare( "SELECT * 
+					$wpdb->prepare( "
+						SELECT UNIX_TIMESTAMP(W.`timestamp`) AS unix_timestamp, 
+						P.spotter_id, 
+						P.spotter_name, 
+						P.payload_type, 
+						P.battery_voltage, 
+						P.solar_voltage, 
+						P.temperature, 
+						P.humidity, 
+						W.significant_wave_height, 
+						W.peak_period, 
+						W.mean_period, 
+						W.peak_direction, 
+						W.peak_directional_spread, 
+						W.mean_direction, 
+						W.mean_directional_spread, 
+						W.latitude, 
+						W.longitude 
 						FROM `{$wpdb->prefix}spoondrift_post_data_processed` AS P 
 						LEFT JOIN `{$wpdb->prefix}spoondrift_post_data_processed_waves` AS W 
 						ON P.`id` = W.`post_data_processed_id` 
@@ -823,7 +841,19 @@
 				break;
 			case 'datawell':
 				$data = $wpdb->get_results(
-					$wpdb->prepare( "SELECT id, buoy_id, significant_wave_height AS 'significant_wave_height (meters)', peak_period AS 'peak_period (seconds)', mean_period AS 'mean_period (seconds)', peak_direction AS 'peak_direction (degrees)', peak_directional_spread AS 'peak_directional_spread (degress)', mean_direction AS 'mean_direction (degrees)', mean_directional_spread AS 'mean_directional_spread (degrees)', timestamp, latitude, longitude
+					$wpdb->prepare( "SELECT 
+					UNIX_TIMESTAMP(timestamp) AS 'unix_timestamp', 
+					id, 
+					buoy_id, 
+					significant_wave_height AS 'significant_wave_height (meters)', 
+					peak_period AS 'peak_period (seconds)', 
+					mean_period AS 'mean_period (seconds)', 
+					peak_direction AS 'peak_direction (degrees)', 
+					peak_directional_spread AS 'peak_directional_spread (degress)', 
+					mean_direction AS 'mean_direction (degrees)', 
+					mean_directional_spread AS 'mean_directional_spread (degrees)', 
+					latitude, 
+					longitude
 						FROM `{$wpdb->prefix}datawell_post_data_processed_waves` 
 						WHERE `buoy_id` = '%s' 
 						AND `timestamp` >= '%s' 
@@ -837,7 +867,19 @@
 				break;
 			case 'triaxy':
 				$data = $wpdb->get_results(
-					$wpdb->prepare( "SELECT id, buoy_serial_id, significant_wave_height AS 'significant_wave_height (meters)', peak_period AS 'peak_period (seconds)', mean_period AS 'mean_period (seconds)', peak_direction AS 'peak_direction (degrees)', peak_directional_spread AS 'peak_directional_spread (degress)', mean_direction AS 'mean_direction (degrees)', mean_directional_spread AS 'mean_directional_spread (degrees)', timestamp, latitude, longitude
+					$wpdb->prepare( "SELECT 
+					UNIX_TIMESTAMP(timestamp) AS 'unix_timestamp',
+					id, 
+					buoy_serial_id, 
+					significant_wave_height AS 'significant_wave_height (meters)', 
+					peak_period AS 'peak_period (seconds)', 
+					mean_period AS 'mean_period (seconds)', 
+					peak_direction AS 'peak_direction (degrees)', 
+					peak_directional_spread AS 'peak_directional_spread (degress)', 
+					mean_direction AS 'mean_direction (degrees)', 
+					mean_directional_spread AS 'mean_directional_spread (degrees)', 
+					latitude, 
+					longitude
 						FROM `{$wpdb->prefix}triaxy_post_data_processed_waves`  
 						WHERE `buoy_serial_id` = '%s' 
 						AND `timestamp` >= '%s' 
