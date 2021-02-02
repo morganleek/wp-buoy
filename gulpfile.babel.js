@@ -62,7 +62,7 @@ export const scripts = () => {
       ]
     },
     mode: PRODUCTION ? 'production' : 'development',
-    devtool: !PRODUCTION ? 'inline-source-map' : false,
+    // devtool: !PRODUCTION ? 'inline-source-map' : false,
     output: {
       filename: '[name].js'
     },
