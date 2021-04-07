@@ -34,7 +34,7 @@ $(function() {
 						var opacity = ( 1 - ( parseInt( marker ) * 0.35 ) );
 
 						var icon = {
-							url: ajax_object.plugin_url + 'dist/images/map-marker-0-128.png',
+							url: ajax_object.plugin_url + 'dist/images/map-marker-' + marker + '-128.png',
 							scaledSize: { width: 32, height: 32 }
 						};
 

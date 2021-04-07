@@ -486,6 +486,9 @@
 			$mean_directional_spread_x = array();
 			$mean_directional_spread_y = array();
 
+			$temperature_x = array();
+			$temperature_y = array();
+
 			foreach($data as $d) {
 				if(!$offset = get_option('uwa_' . $_args['buoy_type'] . '_time_adjustment')) {
 					$offset = '+8'; // Default to Perth +8 hours
@@ -533,6 +536,11 @@
 					array_push($mean_directional_spread_y, $d->mean_directional_spread);
 				}
 
+				if(property_exists($d, 'temperature') && $d->temperature > 0) {
+					array_push($temperature_x, $timestamp);
+					array_push($temperature_y, $d->temperature);
+				}
+
 			}
 
 			$title = (isset($uwa_buoy_details[$data[0]->spotter_id])) ? $uwa_buoy_details[$data[0]->spotter_id]['title'] : $data[0]->spotter_id;
@@ -542,7 +550,7 @@
 				$html .= '<div class="panel-heading">' . $title . ' (' . ucfirst($buoy_type) . ') &mdash; Time Series Data<br>( ' . date('d-m-Y', strtotime($from_date)) . '  &mdash; ' . date('d-m-Y', strtotime($until_date)) . ' )</div>';
 
 				$html .= '<div class="panel-body">';
-					$html .= generate_time_series_charts($_args['buoy_id'], $sig_wave_x, $sig_wave_y, array(), array(), $peak_period_x, $peak_period_y, $mean_period_x, $mean_period_y, $peak_direction_x, $peak_direction_y, $peak_directional_spread_x, $peak_directional_spread_y, $mean_direction_x, $mean_direction_y, $mean_directional_spread_x, $mean_directional_spread_y, false, true);
+					$html .= generate_time_series_charts($_args['buoy_id'], $sig_wave_x, $sig_wave_y, array(), array(), $peak_period_x, $peak_period_y, $mean_period_x, $mean_period_y, $peak_direction_x, $peak_direction_y, $peak_directional_spread_x, $peak_directional_spread_y, $mean_direction_x, $mean_direction_y, $mean_directional_spread_x, $mean_directional_spread_y, $temperature_x, $temperature_y, false, true);
 				$html .= '</div>';
 			$html .= '</div>';
 		}
@@ -621,16 +629,16 @@
 		
 		switch($buoy_type) {
 			case 'spoondrift':
-				$recent = $wpdb->get_row(
-					$wpdb->prepare("
-						SELECT * FROM {$wpdb->prefix}spoondrift_post_data_processed_waves AS w 
-						LEFT JOIN {$wpdb->prefix}spoondrift_post_data_processed AS p 
-						ON p.id = w.post_data_processed_id 
-						WHERE `spotter_id` = '%s' 
-						LIMIT 1;
-					",
-					$buoy_id)
-				);
+				// $recent = $wpdb->get_row(
+				// 	$wpdb->prepare("
+				// 		SELECT * FROM {$wpdb->prefix}spoondrift_post_data_processed_waves AS w 
+				// 		LEFT JOIN {$wpdb->prefix}spoondrift_post_data_processed AS p 
+				// 		ON p.id = w.post_data_processed_id 
+				// 		WHERE `spotter_id` = '%s' 
+				// 		LIMIT 1;
+				// 	",
+				// 	$buoy_id)
+				// );
 				$recent = $wpdb->get_row(
 					$wpdb->prepare("
 						SELECT * FROM (

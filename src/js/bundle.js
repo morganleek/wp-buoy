@@ -90,7 +90,7 @@ $(function() {
       {'packages': ['line', 'corechart']}
     );
 
-    $(window).resize(function() {
+    $(window).on('resize', function() {
       drawChart();
     });
   }

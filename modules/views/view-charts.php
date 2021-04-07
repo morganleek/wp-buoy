@@ -82,7 +82,7 @@
 		print $html;
 	} 
 	
-	function generate_time_series_charts($buoy_id, $sig_wave_x, $sig_wave_y, $max_wave_x, $max_wave_y, $peak_period_x, $peak_period_y, $mean_period_x, $mean_period_y, $peak_direction_x, $peak_direction_y, $peak_directional_spread_x, $peak_directional_spread_y, $mean_direction_x, $mean_direction_y, $mean_directional_spread_x, $mean_directional_spread_y, $plotclick = false, $return = false) {
+	function generate_time_series_charts($buoy_id, $sig_wave_x, $sig_wave_y, $max_wave_x, $max_wave_y, $peak_period_x, $peak_period_y, $mean_period_x, $mean_period_y, $peak_direction_x, $peak_direction_y, $peak_directional_spread_x, $peak_directional_spread_y, $mean_direction_x, $mean_direction_y, $mean_directional_spread_x, $mean_directional_spread_y, $temperature_x, $temperature_y, $plotclick = false, $return = false) {
 		$html = '';
 
 		// Only show title if data exists
@@ -99,6 +99,11 @@
 		$html .= '<hr>';
 		$html .= '<h5>Peak Direction</h5>'; // &amp; Peak Spread
 		$html .= '<div id="plot-peak-direction" class="plot"></div>';
+		if(!empty($temperature_y)) {
+			$html .= '<hr>';
+			$html .= '<h5>Temperature</h5>'; // &amp; Peak Spread
+			$html .= '<div id="plot-temperature" class="plot"></div>';
+		}
 
 		// $html .= '<h5>Mean Direction &amp; Mean Spread</h5>';
 		// $html .= '<div id="plot-mean-direction" class="plot"></div>';
@@ -131,9 +136,14 @@
 			'var meanDirectionX = [\'' . implode('\', \'', $mean_direction_x) . '\'];' . 
 			'var meanDirectionY = [\'' . implode('\', \'', $mean_direction_y) . '\'];' .
 			'var meanDirectionalSpreadX = [\'' . implode('\', \'', $mean_directional_spread_x) . '\'];' . 
-			'var meanDirectionalSpreadY = [\'' . implode('\', \'', $mean_directional_spread_y) . '\'];' .
+			'var meanDirectionalSpreadY = [\'' . implode('\', \'', $mean_directional_spread_y) . '\'];';
+			
+			if(!empty($temperature_y)) {
+				$html .= 'var temperatureX = [\'' . implode('\', \'', $temperature_x) . '\'];';
+				$html .= 'var temperatureY = [\'' . implode('\', \'', $temperature_y) . '\'];';
+			}
 
-			'var layout = {
+			$html .= 'var layout = {
 				margin: {
 			    l: 50,
 			    r: 20,
@@ -234,22 +244,27 @@
 				processPlotClick(data);
 			});
 
-			/*var meanDirectionTrace = {
-				  x: meanDirectionX,
-				  y: meanDirectionY,
-				  mode: \'lines+markers\',
-				  name: \'Mean Period (seconds)\'
-				};
-			var meanDirectionalSpreadTrace = {
-				  x: meanDirectionalSpreadX,
-				  y: meanDirectionalSpreadY,
-				  mode: \'lines+markers\',
-				  name: \'Mean Directional Spread (seconds)\'
-				};
+			if(typeof(temperatureX) != "undefined") {
+				layout.yaxis.title = \'Temperature (c)\';
+				var temperatureTrace = {
+						x: temperatureX,
+						y: temperatureY,
+						mode: \'lines+markers\',
+						name: \'Temperature (c)\'
+					};
 
-			var data = [meanDirectionTrace, meanDirectionalSpreadTrace];
+				var data = [temperatureTrace];
+				var plottemperature = document.getElementById(\'plot-temperature\');
+				Plotly.newPlot(\'plot-temperature\', data, layout);
+				
+				plottemperature.on(\'plotly_click\', function(data){
+					processPlotClick(data);
+				});
 
-			Plotly.newPlot(\'plot-mean-direction\', data, layout);*/
+				window.onresize = function() {
+					Plotly.Plots.resize(\'plot-temperature\');
+				};
+			}
 			
 			window.onresize = function() {
 		    Plotly.Plots.resize(\'plot-sig-wave\');
