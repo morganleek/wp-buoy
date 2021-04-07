@@ -3,7 +3,7 @@
 	Plugin Name:  WP Buoy
 	Plugin URI:   https://morganleek.me/
 	Description:  Buoy Monitoring Plugin
-	Version:      2.0.2
+	Version:      2.0.3
 	Author:       https://morganleek.me/
 	Author URI:   https://morganleek.me/
 	License:      GPL2
