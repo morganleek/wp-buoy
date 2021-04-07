@@ -158,15 +158,15 @@
 						$wind_speed = ($wpdb->num_rows > 0) ? floatval($wave->speed) : '-';
 						$direction = ($wpdb->num_rows > 0) ? floatval($wave->direction) % 360 : '-';
 						
-						$html .= '<div class="chart-js-layout chart-js-layout-' . $b->buoy_id . '" data-buoy="' . $b->buoy_id . '" data-buoy-type="spoondrift" style="width: 100%;">
-							<div class="chart-js-menu">
-								<button class="map-focus" aria-label="Map Focus"></button>
-								<button class="show-chart" aria-label="Show Chart"></button>
-								<button class="calendar-trigger" aria-label="Calendar Trigger"></button>
-							</div>
-							<p class="loading" style="text-align: center;">Loading&hellip;</p>
-							<canvas id="canvas-' . $b->buoy_id . '"></canvas>
-						</div>';
+						// $html .= '<div class="chart-js-layout chart-js-layout-' . $b->buoy_id . '" data-buoy="' . $b->buoy_id . '" data-buoy-type="spoondrift" style="width: 100%;">
+						// 	<div class="chart-js-menu">
+						// 		<button class="map-focus" aria-label="Map Focus"></button>
+						// 		<button class="show-chart" aria-label="Show Chart"></button>
+						// 		<button class="calendar-trigger" aria-label="Calendar Trigger"></button>
+						// 	</div>
+						// 	<p class="loading" style="text-align: center;">Loading&hellip;</p>
+						// 	<canvas id="canvas-' . $b->buoy_id . '"></canvas>
+						// </div>';
 
 						$table_values = array(
 							'significant_wave_height' => array('Significant Wave Height', '<strong>' . $recent->significant_wave_height . ' m</strong>'),
