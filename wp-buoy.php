@@ -3,7 +3,7 @@
 	Plugin Name:  WP Buoy
 	Plugin URI:   https://morganleek.me/
 	Description:  Buoy Monitoring Plugin
-	Version:      20200109
+	Version:      2.0.1
 	Author:       https://morganleek.me/
 	Author URI:   https://morganleek.me/
 	License:      GPL2
@@ -14,8 +14,12 @@
 
 	// Security
 	defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
+	
 	// Version
-	define( 'UWA_VERSION', '20200112' );
+	require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+	$plugin_data = get_plugin_data( __FILE__ );
+	define( 'UWA_VERSION', $plugin_data['Version'] );
+
 	// Paths
 	define( 'UWA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 	define( 'UWA__PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -25,7 +29,7 @@
 
 	// Options
 	global $uwa_db_version;
-	$uwa_db_version = '2.0.11';
+	$uwa_db_version = '2.0.12';
 	
 	global $wpdb;
 	

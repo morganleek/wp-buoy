@@ -203,6 +203,7 @@
 			depth varchar(100) NOT NULL,
 			buoy_type varchar(100) NOT NULL,
 			visible TINYINT(1) DEFAULT 0,
+			marker SMALLINT DEFAULT 0,
 			hide_location TINYINT(1) DEFAULT 0,
 			custom_lat varchar(50) NOT NULL,
 			custom_lng varchar(50) NOT NULL,

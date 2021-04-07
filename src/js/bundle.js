@@ -1,18 +1,19 @@
 import $ from 'jquery';
-// import { GoogleCharts } from 'google-charts';
+import { GoogleCharts } from 'google-charts';
 
 import './modules';
 
 // Charts
 let chartsArray = []; // , dataPointsArray = [];
 
-$(function() {
+$(function() {  
   if( typeof( GoogleCharts ) !== 'undefined' ) {
     // get charts
     $('.ticks-chart').each(function() {
       let $chart = $(this);
       let $surround = $(this).closest('.chart-surround');
       let id, buoyID, waveTickMax, waveTicks, peakTickMax, peakTicks, dataPoints;
+      
       if($chart.attr('id') !== undefined) {
         // chartsArray.push();
         id = $(this).attr('id');

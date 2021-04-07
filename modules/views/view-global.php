@@ -68,16 +68,16 @@
 			// }
 
 			// Replacement bundled scripts
-			wp_register_script('scm_scripts_bundled', UWA__PLUGIN_URL . 'dist/js/bundle.js', array(), '1.0.0');
+			wp_register_script('scm_scripts_bundled', UWA__PLUGIN_URL . 'dist/js/bundle.js', array(), UWA_VERSION);
 			wp_enqueue_script('scm_scripts_bundled');
 
 			// Bundled style
-			wp_register_style( 'scm_styles_bundled',  UWA__PLUGIN_URL . 'dist/css/bundle.css', array(), '1.0.0', 'all' );
+			wp_register_style( 'scm_styles_bundled',  UWA__PLUGIN_URL . 'dist/css/bundle.css', array(), UWA_VERSION, 'all' );
 			wp_enqueue_style( 'scm_styles_bundled' );
 		}
 		if ($GLOBALS['pagenow'] != 'wp-login.php' && !is_admin() && !is_page('home')) {
 			// Conditional script(s)
-			wp_register_script('plotly', 'https://cdn.plot.ly/plotly-latest.min.js', array(), '1.0.0');
+			wp_register_script('plotly', 'https://cdn.plot.ly/plotly-latest.min.js', array(), UWA_VERSION);
 			wp_enqueue_script('plotly');
 		}
 	}
@@ -105,6 +105,7 @@
 					'mean_direction' => 0,
 					'title' => (!empty($b->title)) ? $b->title : $b->buoy_id,
 					'url' => '',
+					'marker' => $b->marker
 					// 'type' => ''
 				);
 

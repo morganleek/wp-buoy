@@ -30,6 +30,14 @@ $(function() {
 	
 					// Set markers
 					for(var i = 0; i < global_points.length; i++) {
+						var marker = ( global_points[i].length >= 8 ) ? global_points[i][7] : "0";
+						var opacity = ( 1 - ( parseInt( marker ) * 0.35 ) );
+
+						var icon = {
+							url: ajax_object.plugin_url + 'dist/images/map-marker-0-128.png',
+							scaledSize: { width: 32, height: 32 }
+						};
+
 						var point = new MarkerWithLabel({
 							position: {
 								lat: parseFloat(global_points[i][2]), 
@@ -40,7 +48,9 @@ $(function() {
 							labelContent: global_points[i][5],
 							labelAnchor: new googleMaps.Point(0, -2),
 							labelClass: "maps-label", // the CSS class for the label
-							labelStyle: {opacity: 0.9}
+							labelStyle: {opacity: 0.9},
+							icon: icon,
+							opacity: opacity
 						});
 					}
 				}).catch( (e) => {

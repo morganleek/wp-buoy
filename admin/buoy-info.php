@@ -328,7 +328,8 @@ class Buoy_Info_Plugin {
 												`buoy_order` = %d,
 												`true_north_offset` = %f,
 												`spotter_token` = '%s',
-												`visibility_options` = '%d'
+												`visibility_options` = '%d',
+												`marker` = '%d'
 												WHERE `id` = %d
 											", 
 												$_REQUEST['tag-buoy-id'], 
@@ -348,6 +349,7 @@ class Buoy_Info_Plugin {
 												$_REQUEST['tag-true-north-offset'],
 												$_REQUEST['tag-spotter-token'],
 												$_REQUEST['tag-visibility-options'],
+												$_REQUEST['tag-marker'],
 												$_REQUEST['hidden-id']
 											)
 										);
@@ -373,7 +375,8 @@ class Buoy_Info_Plugin {
 												'buoy_order' => $_REQUEST['tag-buoy-order'],
 												'true_north_offset' => $_REQUEST['tag-true-north-offset'], 
 												'spotter_token' => $_REQUEST['tag-spotter-token'],
-												'visibility_options' => $_REQUEST['tag-visibility-options']
+												'visibility_options' => $_REQUEST['tag-visibility-options'],
+												'marker' => $_REQUEST['tag-marker']
 											), 
 											array( 
 												'%s', 
@@ -392,6 +395,7 @@ class Buoy_Info_Plugin {
 												'%d',
 												'%f',
 												'%s',
+												'%d',
 												'%d'
 											) 
 										);
@@ -423,7 +427,8 @@ class Buoy_Info_Plugin {
 											'buoy_order' => $buoy->buoy_order,
 											'true_north_offset' => $buoy->true_north_offset,
 											'spotter_token' => $buoy->spotter_token,
-											'visibility_options' => $buoy->visibility_options
+											'visibility_options' => $buoy->visibility_options,
+											'marker' => $buoy->marker
 										);		
 										
 										$title = 'Edit Existing Buoy';
@@ -495,6 +500,18 @@ class Buoy_Info_Plugin {
 									<p>
 										<input name="tag-visibility-options" id="tag-visibility-options-list" type="radio" value="2" <?php checked(2, $visibility_options, true); ?> aria-required="true">
 										<label style="display: inline;" for="tag-visibility-options-list">List only</label>
+									</p>
+								</div>
+								<?php $marker = (isset($form_data['marker'])) ? intval($form_data['marker']) : 0; ?>
+								<div class="form-field form-required term-enabled-wrap">
+									<label for="tag-marker">Map Marker</label>
+									<p>
+										<input name="tag-marker" id="tag-marker-default" type="radio" value="0" <?php checked(0, $marker, true); ?> aria-required="true">
+										<label style="display: inline;" for="tag-marker-default">Default</label>
+									</p>
+									<p>
+										<input name="tag-marker" id="tag-marker-decommissioned" type="radio" value="1" <?php checked(1, $marker, true); ?> aria-required="true">
+										<label style="display: inline;" for="tag-marker-decommissioned">Decommisioned</label>
 									</p>
 								</div>
 								<div class="form-field form-required term-hide-location-wrap">
