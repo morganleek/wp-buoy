@@ -52,6 +52,10 @@ $(function() {
 							icon: icon,
 							opacity: opacity
 						});
+
+						point.addListener('click', function() {
+							window.location = this.getTitle();
+						});
 					}
 				}).catch( (e) => {
 					console.error(e);
