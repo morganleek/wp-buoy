@@ -35,7 +35,7 @@ $(function() {
         // console.log( dataPoints );
         
         dataPoints.forEach( ( item, i ) => {          
-          const newDate = new Date( ( item[0] - 0 ) + offset );
+          const newDate = new Date( ( item[0] - 0 ) + offset ); // '- 0' converts to time
           updatedDataPoints.push([
             newDate, item[1], item[2], item[3], item[4]
           ]);
