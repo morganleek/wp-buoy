@@ -53,12 +53,9 @@
 					
 				$last_observation = "";
 				if($recent) {
-          $recent_time = strtotime($recent->timestamp);
-          $recent_time_adjusted = strtotime($uwa_spoondrift_time_adjustment . ' hours', $recent_time);
-          $recent_time_alert = strtotime('-120 minutes', strtotime($uwa_spoondrift_time_adjustment)); // strtotime('-120 minutes');
-          $date = date('d M, H:i', $recent_time_adjusted);
-          $alert = ($recent_time_alert > $recent_time) ? 'warning' : '';
-          $last_observation = "Latest Observations at <span class='" . $alert . "'>" . $date . " (" . $uwa_spoondrift_time_adjustment . ")</span>";
+          $recent_time = strtotime( $recent->timestamp );
+					$alert = ( strtotime( '-120 minutes' ) > $recent_time) ? 'warning' : '';
+					$last_observation = "Latest Observations at <span class='" . $alert . "'>" . date( 'd M, H:i', $recent_time ) . " (GMT)</span>";
         }
 				
 				$hide_location = ($b->hide_location === "1") ? true : false;
@@ -89,7 +86,7 @@
 								SELECT * FROM 
 								(SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed` WHERE spotter_id = '%s') AS P
 								INNER JOIN
-								(SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed_waves` WHERE `timestamp` < '%s' AND `timestamp` > '%s') AS W
+								(SELECT * FROM `{$wpdb->prefix}spoondrift_post_data_processed_waves` WHERE `timestamp` <= '%s' AND `timestamp` >= '%s') AS W
 								ON P.id = W.post_data_processed_id
 								ORDER BY W.`timestamp`
 								", 
@@ -119,9 +116,12 @@
 							$max_wave = ($w->significant_wave_height > $max_wave) ? $w->significant_wave_height : $max_wave;
 							$max_peak = ($w->peak_period > $max_peak) ? $w->peak_period : $max_peak;
 							// Adjust time from GMT using offset
-							$wave_time = strtotime($w->timestamp); // GMT
-							$adjusted_time = strtotime($uwa_spoondrift_time_adjustment . ' hours', $wave_time);
-							$label = 'Location: ' . date('M d, Y g:iA', $adjusted_time) . ' (' . $uwa_spoondrift_time_adjustment . ')\nGMT: ' . date('M d, Y g:iA', $wave_time) . '\nSignificant Wave Height: ' . $w->significant_wave_height . ' m\nPeak Period: ' . $w->peak_period . ' s';
+							$wave_time = strtotime( $w->timestamp ); // GMT
+							// $adjusted_time = strtotime($uwa_spoondrift_time_adjustment . ' hours', $wave_time);
+							$label = gmdate('M d, Y g:iA', $wave_time) . ' GMT\n' . 
+											 // 'Location: ' . date('M d, Y g:iA', $adjusted_time) . ' (' . $uwa_spoondrift_time_adjustment . ')\n' . 
+											 'Significant Wave Height: ' . $w->significant_wave_height . ' m\n' . 
+											 'Peak Period: ' . $w->peak_period . ' s';
 							$data_points .= '[new Date(' . $wave_time . '000), ' . $w->significant_wave_height . ', "' . $label . '", ' . $w->peak_period . ', "' . $label . '"],';
 							// Temp
 							$temperature = $w->temperature;

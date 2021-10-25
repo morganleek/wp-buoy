@@ -1,0 +1,40 @@
+[12-Jul-2021 10:45:16 Australia/Sydney] PHP Warning:  Use of undefined constant ABSPATH - assumed 'ABSPATH' (this will throw an Error in a future version of PHP) in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[12-Jul-2021 10:45:16 Australia/Sydney] PHP Warning:  require_once(ABSPATHwp-admin/includes/class-wp-list-table.php): failed to open stream: No such file or directory in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[12-Jul-2021 10:45:16 Australia/Sydney] PHP Fatal error:  require_once(): Failed opening required 'ABSPATHwp-admin/includes/class-wp-list-table.php' (include_path='.:/opt/alt/php74/usr/share/pear') in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[12-Jul-2021 13:28:14 Australia/Sydney] PHP Fatal error:  Uncaught Error: Call to undefined function add_action() in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/menus.php:148
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/menus.php on line 148
+[23-Jul-2021 13:34:23 Australia/Sydney] PHP Fatal error:  Uncaught Error: Call to undefined function register_activation_hook() in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/construct.php:376
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/construct.php on line 376
+[25-Jul-2021 01:57:20 Australia/Sydney] PHP Warning:  Use of undefined constant ABSPATH - assumed 'ABSPATH' (this will throw an Error in a future version of PHP) in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[25-Jul-2021 01:57:20 Australia/Sydney] PHP Warning:  require_once(ABSPATHwp-admin/includes/class-wp-list-table.php): failed to open stream: No such file or directory in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[25-Jul-2021 01:57:20 Australia/Sydney] PHP Fatal error:  require_once(): Failed opening required 'ABSPATHwp-admin/includes/class-wp-list-table.php' (include_path='.:/opt/alt/php74/usr/share/pear') in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[25-Jul-2021 14:01:21 Australia/Sydney] PHP Fatal error:  Uncaught Error: Call to undefined function register_activation_hook() in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/construct.php:376
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/construct.php on line 376
+[30-Jul-2021 18:35:56 Australia/Sydney] PHP Warning:  Use of undefined constant ABSPATH - assumed 'ABSPATH' (this will throw an Error in a future version of PHP) in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[30-Jul-2021 18:35:56 Australia/Sydney] PHP Warning:  require_once(ABSPATHwp-admin/includes/class-wp-list-table.php): failed to open stream: No such file or directory in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[30-Jul-2021 18:35:56 Australia/Sydney] PHP Fatal error:  require_once(): Failed opening required 'ABSPATHwp-admin/includes/class-wp-list-table.php' (include_path='.:/opt/alt/php74/usr/share/pear') in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[31-Jul-2021 23:46:35 Australia/Sydney] PHP Warning:  Use of undefined constant ABSPATH - assumed 'ABSPATH' (this will throw an Error in a future version of PHP) in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[31-Jul-2021 23:46:35 Australia/Sydney] PHP Warning:  require_once(ABSPATHwp-admin/includes/class-wp-list-table.php): failed to open stream: No such file or directory in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[31-Jul-2021 23:46:35 Australia/Sydney] PHP Fatal error:  require_once(): Failed opening required 'ABSPATHwp-admin/includes/class-wp-list-table.php' (include_path='.:/opt/alt/php74/usr/share/pear') in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/buoy-info.php on line 3
+[03-Aug-2021 11:55:50 Australia/Sydney] PHP Fatal error:  Uncaught Error: Call to undefined function add_action() in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/menus.php:148
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/menus.php on line 148
+[04-Aug-2021 06:01:48 Australia/Sydney] PHP Fatal error:  Uncaught Error: Call to undefined function register_activation_hook() in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/construct.php:376
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/construct.php on line 376
+[07-Aug-2021 07:45:00 Australia/Sydney] PHP Fatal error:  Uncaught Error: Call to undefined function add_action() in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/menus.php:148
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/menus.php on line 148
+[21-Sep-2021 12:12:51 Australia/Sydney] PHP Fatal error:  Uncaught Error: Call to undefined function add_action() in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/menus.php:148
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/admin/menus.php on line 148

@@ -1,0 +1,12 @@
+[10-Oct-2021 18:32:58 Australia/Sydney] PHP Fatal error:  Uncaught Error: Interface 'Aws\CommandInterface' not found in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/libraries/aws/Aws/Command.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/libraries/aws/Aws/Command.php on line 7
+[11-Oct-2021 16:25:36 Australia/Sydney] PHP Fatal error:  Uncaught Error: Interface 'Aws\CacheInterface' not found in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/libraries/aws/Aws/DoctrineCacheAdapter.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/libraries/aws/Aws/DoctrineCacheAdapter.php on line 6
+[15-Oct-2021 08:21:34 Australia/Sydney] PHP Fatal error:  Uncaught Error: Interface 'Psr\Http\Message\StreamInterface' not found in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/libraries/aws/Aws/HashingStream.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/libraries/aws/Aws/HashingStream.php on line 10

@@ -1,0 +1,8 @@
+[23-Jul-2021 00:24:14 Australia/Sydney] PHP Fatal error:  Uncaught Error: Call to undefined function add_action() in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/api/routes.php:79
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/api/routes.php on line 79
+[07-Aug-2021 04:34:43 Australia/Sydney] PHP Fatal error:  Uncaught Error: Call to undefined function add_action() in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/api/routes.php:79
+Stack trace:
+#0 {main}
+  thrown in /home/vicwaves/public_html/wp-content/plugins/wp-buoy/api/routes.php on line 79
