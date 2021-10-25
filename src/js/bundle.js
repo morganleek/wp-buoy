@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $, { data } from 'jquery';
 import { GoogleCharts } from 'google-charts';
 
 import './modules';
@@ -27,13 +27,26 @@ $(function() {
           dataPoints = ($ticksData.attr('data-data-points') !== undefined) ? eval('[' + JSON.parse($ticksData.attr('data-data-points')) + ']') : '';
         }
 
-        // local time label
-        const offset = new Date().getTimezoneOffset() / 60 * -1; // hours from GMT
-        const timeLabel = (offset === 0) ? "Time (GMT)" : (offset > 0) ? "Time (GMT+" + offset + ")" : "Time (GMT" + offset + ")";
-
+        // Offset values because javascript sucks
+        const offset = new Date().getTimezoneOffset() * 60 * 1000; //  / 60 * -1; // hours from GMT
+        const timeLabel = "Time GMT"; // (offset === 0) ? "Time (GMT)" : (offset > 0) ? "Time (GMT+" + offset + ")" : "Time (GMT" + offset + ")";
+        
+        let updatedDataPoints = [];
+        // console.log( dataPoints );
+        
+        dataPoints.forEach( ( item, i ) => {          
+          const newDate = new Date( ( item[0] - 0 ) + offset );
+          updatedDataPoints.push([
+            newDate, item[1], item[2], item[3], item[4]
+          ]);
+        } );
+ 
+ 
         // push to chart array
         if(id !== undefined && buoyID.length > 0 && waveTicks.length > 0 && waveTickMax.length > 0 && peakTicks.length > 0 && peakTickMax.length > 0 && dataPoints.length > 0) {
-          chartsArray.push({id: id, buoyID: buoyID, dataPoints: dataPoints.slice(0, -1), options: {
+          // dataPoints = dataPoints.slice(0, -1); // Remove last entry?          
+          // console.log( dataPoints );
+          chartsArray.push({id: id, buoyID: buoyID, dataPoints: updatedDataPoints, options: {
             title: '',
             height: 280,
             backgroundColor: { fill: "transparent" },

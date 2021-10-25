@@ -17,7 +17,7 @@ const PRODUCTION = yargs.argv.prod;
 const server = browserSync.create();
 export const serve = done => {
   server.init({
-    proxy: "https://dea.gonzo",
+    proxy: "https://vicwaves:8890",
     https: true
   });
   done();

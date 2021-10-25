@@ -109,18 +109,22 @@
 		// $html .= '<div id="plot-mean-direction" class="plot"></div>';
 
 		$html .= '<script type="text/javascript">';
-			if($plotclick) {		 	
-				$html .= 'function processPlotClick(data) {
-					var date = "";
-			    for(var i=0; i < data.points.length; i++){
-			        date = data.points[i].x;
-			    }
+			// if($plotclick) {		 	
+			// 	$html .= 'function processPlotClick(data) {
+			// 		var date = "";
+			//     for(var i=0; i < data.points.length; i++){
+			//         date = data.points[i].x;
+			//     }
 			    
-			    var formatDate = new Date(date + ":00+0800");
+			//     var formatDate = new Date(date + ":00+0800");
 			    
-			    datawell_memplot_swap(\'' . $buoy_id . '\', formatDate);
-				}';
-			}
+			//     datawell_memplot_swap(\'' . $buoy_id . '\', formatDate);
+			// 	}';
+			// }
+			// foreach( $sig_wave_x as $k => $v ) {
+			// 	$sig_wave_x[$k] = str_replace(' ', 'T', $v ) . '+000';
+			// }
+
 			$html .= 'var sigWaveX = [\'' . implode('\', \'', $sig_wave_x) . '\'];' . 
 			'var sigWaveY = [\'' . implode('\', \'', $sig_wave_y) . '\'];' .
 			'var maxWaveX = [\'' . implode('\', \'', $max_wave_x) . '\'];' . 
@@ -137,6 +141,10 @@
 			'var meanDirectionY = [\'' . implode('\', \'', $mean_direction_y) . '\'];' .
 			'var meanDirectionalSpreadX = [\'' . implode('\', \'', $mean_directional_spread_x) . '\'];' . 
 			'var meanDirectionalSpreadY = [\'' . implode('\', \'', $mean_directional_spread_y) . '\'];';
+
+			// Offset adjust
+			// $html .= 'var offset = new Date().getTimezoneOffset() * 60 * 1000;';
+			// $html .= 'sigWaveX.forEach( function( item, i ) { sigWaveX[i] = new Date( new Date( item ) - offset ); } );';
 			
 			if(!empty($temperature_y)) {
 				$html .= 'var temperatureX = [\'' . implode('\', \'', $temperature_x) . '\'];';
@@ -167,7 +175,10 @@
 			  },
 			  yaxis: {
 			    title: \'Height (m)\',
-			  }
+			  },
+				xaxis: {
+					title: \'Time GMT\'
+				} 
 			};' . 
 
 			'var sigWaveTrace = {
@@ -193,12 +204,13 @@
 			}
 			
 			$html .= '
+			
 			var plotSigWave = document.getElementById(\'plot-sig-wave\');
 			Plotly.newPlot(\'plot-sig-wave\', data, layout);
 			
-			plotSigWave.on(\'plotly_click\', function(data){
-				processPlotClick(data);
-			});
+			// plotSigWave.on(\'plotly_click\', function(data){
+			// 	processPlotClick(data);
+			// });
 			
 			layout.yaxis.title = \'Period (s)\';
 			var peakPeriodTrace = {
@@ -218,9 +230,9 @@
 			var plotPeakPeriod = document.getElementById(\'plot-peak-period\');
 			Plotly.newPlot(\'plot-peak-period\', data, layout);
 			
-			plotPeakPeriod.on(\'plotly_click\', function(data){
-				processPlotClick(data);
-			});
+			// plotPeakPeriod.on(\'plotly_click\', function(data){
+			// 	processPlotClick(data);
+			// });
 
 			layout.yaxis.title = \'Direction (degrees)\';
 			var peakDirectionTrace = {
@@ -240,9 +252,9 @@
 			var plotPeakDirection = document.getElementById(\'plot-peak-direction\');
 			Plotly.newPlot(\'plot-peak-direction\', data, layout);
 			
-			plotPeakDirection.on(\'plotly_click\', function(data){
-				processPlotClick(data);
-			});
+			// plotPeakDirection.on(\'plotly_click\', function(data){
+			// 	processPlotClick(data);
+			// });
 
 			if(typeof(temperatureX) != "undefined") {
 				layout.yaxis.title = \'Temperature (c)\';
@@ -257,9 +269,9 @@
 				var plottemperature = document.getElementById(\'plot-temperature\');
 				Plotly.newPlot(\'plot-temperature\', data, layout);
 				
-				plottemperature.on(\'plotly_click\', function(data){
-					processPlotClick(data);
-				});
+				// plottemperature.on(\'plotly_click\', function(data){
+				// 	processPlotClick(data);
+				// });
 
 				window.onresize = function() {
 					Plotly.Plots.resize(\'plot-temperature\');

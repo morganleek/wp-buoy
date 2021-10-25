@@ -11,6 +11,9 @@
 			}
 			// Convert to CSV
 			foreach($data as $row) {
+				// Unixtime creation
+				$row->unix_timestamp = strtotime( $row->timestamp_gmt );
+				
 				$array_row = array();
 				foreach($row as $r) {
 					array_push($array_row, $r);	

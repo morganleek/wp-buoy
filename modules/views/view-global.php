@@ -408,7 +408,8 @@
 			$from_date = Date('Y-m-d H:i:s', (time() - (60 * 60 * 24 * 7 * 8)));
 		}
 		if($until_date == null) {
-			$until_date = Date('Y-m-d H:i:s', time());
+			$until_date = Date( 'Y-m-d H:i:s', strtotime('+1 day') );
+			// $until_date = '3000-01-01 00:00:00'; // Date('Y-m-d H:i:s', time());
 		}
 
 		$data = null;
@@ -490,10 +491,10 @@
 			$temperature_y = array();
 
 			foreach($data as $d) {
-				if(!$offset = get_option('uwa_' . $_args['buoy_type'] . '_time_adjustment')) {
-					$offset = '+8'; // Default to Perth +8 hours
-				}
-				$timestamp = date('Y-m-d H:i:s', strtotime($offset . ' hours', strtotime($d->timestamp)));
+				// if(!$offset = get_option('uwa_' . $_args['buoy_type'] . '_time_adjustment')) {
+				// 	$offset = '+8'; // Default to Perth +8 hours
+				// }
+				$timestamp = date( 'Y-m-d H:i:s', strtotime( $d->timestamp ) ); // strtotime($offset . ' hours', strtotime($d->timestamp)));
 				// Significant Wave Heig
 				if($d->significant_wave_height > 0) {
 					array_push($sig_wave_x, $timestamp);
@@ -547,7 +548,7 @@
 			$buoy_type = ( $_args['buoy_type'] == 'spoondrift' ) ? 'SOFAR Spotter' : $_args['buoy_type'];
 
 			$html .= '<div class="panel panel-primary">';
-				$html .= '<div class="panel-heading">' . $title . ' (' . ucfirst($buoy_type) . ') &mdash; Time Series Data<br>( ' . date('d-m-Y', strtotime($from_date)) . '  &mdash; ' . date('d-m-Y', strtotime($until_date)) . ' )</div>';
+				$html .= '<div class="panel-heading">' . $title . ' (' . ucfirst($buoy_type) . ') &mdash; Time Series Data<br>( ' . date('d-m-Y', strtotime($from_date)) . '  &mdash; ' . date('d-m-Y', strtotime($until_date)) . ' ) GMT</div>';
 
 				$html .= '<div class="panel-body">';
 					$html .= generate_time_series_charts($_args['buoy_id'], $sig_wave_x, $sig_wave_y, array(), array(), $peak_period_x, $peak_period_y, $mean_period_x, $mean_period_y, $peak_direction_x, $peak_direction_y, $peak_directional_spread_x, $peak_directional_spread_y, $mean_direction_x, $mean_direction_y, $mean_directional_spread_x, $mean_directional_spread_y, $temperature_x, $temperature_y, false, true);
@@ -818,7 +819,8 @@
 			case 'spoondrift':
 				$data = $wpdb->get_results(
 					$wpdb->prepare( "
-						SELECT UNIX_TIMESTAMP(W.`timestamp`) AS unix_timestamp, 
+						SELECT 1 AS unix_timestamp, 
+						W.`timestamp` AS timestamp_gmt,
 						P.spotter_id, 
 						P.spotter_name, 
 						P.payload_type, 
@@ -851,7 +853,8 @@
 			case 'datawell':
 				$data = $wpdb->get_results(
 					$wpdb->prepare( "SELECT 
-					UNIX_TIMESTAMP(timestamp) AS 'unix_timestamp', 
+					1 AS 'unix_timestamp',
+					timestamp AS timestamp_gmt,
 					id, 
 					buoy_id, 
 					significant_wave_height AS 'significant_wave_height (meters)', 
@@ -877,7 +880,8 @@
 			case 'triaxy':
 				$data = $wpdb->get_results(
 					$wpdb->prepare( "SELECT 
-					UNIX_TIMESTAMP(timestamp) AS 'unix_timestamp',
+					1 AS 'unix_timestamp',
+					timestamp AS timestamp_gmt,
 					id, 
 					buoy_serial_id, 
 					significant_wave_height AS 'significant_wave_height (meters)', 
