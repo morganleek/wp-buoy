@@ -1,0 +1,12 @@
+{
+	"name": "morgan/waves-ftp-fetch",
+	"require": {
+		"league/flysystem-ftp": "^2.0"
+	},
+	"authors": [
+		{
+			"name": "Morgan Leek",
+			"email": "morganl@6cm.com.au"
+		}
+	]
+}
