@@ -477,7 +477,7 @@
       }
       else {
         // $triaxy_ftp_log .= time() . ":" . "Failed $_br";
-        $log[] = time() . ": Failed";
+        $log[] = time() . ": Connection Failed " . $root . "/";
       }
 
       // close the FTP stream 
