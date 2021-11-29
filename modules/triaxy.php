@@ -334,7 +334,7 @@
                           }
 
                           // $triaxy_ftp_log .= time() . ":" . "Checking if scanned " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/" . $wave['link'] . " $_br";
-                          $log[] = time() . ": Checking if scanned " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/" . $wave['link'];
+                          // $log[] = time() . ": Checking if scanned " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/" . $wave['link'];
 
                           $w = array(
                             'serial' => $serial,
@@ -356,6 +356,7 @@
 
                           if($wpdb->num_rows === 0) {
                             // $triaxy_ftp_log .= time() . ":" . "Not scanned ... downloading $_br";
+                            $log[] = time() . ": Checking if scanned " . $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/" . $wave['link'];
                             $log[] = time() . ": Not scanned ... downloading";
 
                             $cache = "cache.wave";
@@ -371,8 +372,8 @@
                             else {
                               // $triaxy_ftp_log .= time() . ":" . "Download failed $_br";
                               $log[] = time() . ": Download failed";
-                              update_option( 'triaxy_ftp_log', $triaxy_ftp_log . $_br . implode($_br, $log));
-                              return -2;
+                              // update_option( 'triaxy_ftp_log', $triaxy_ftp_log . $_br . implode($_br, $log));
+                              // return -2;
                             }
 
                             $wave = uwa_extract_wave_data($cache);
