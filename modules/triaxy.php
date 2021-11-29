@@ -314,7 +314,7 @@
                       'root' => $root,
                       'folder' => $root . "/" . $year['link'] . "/" . $month['link'] . "/" . 'WAVE' . "/",
                       'folder_size' => count($waves),
-                      'offset' => '+32 days' 
+                      'offset' => '+5 days' 
                     ), $log);
 
                     if(!$m_exhausted) {
