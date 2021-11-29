@@ -295,7 +295,15 @@
                 }
               }
 
-              print_r( $months );
+              // Check they've not been exhausted
+              // $y_exhausted = uwa_triaxy_check_folder(array(
+              //   'root' => $root,
+              //   'folder' => '/' . $year . '/',
+              //   'folder_size' => count($years),
+              //   'offset' => '+366 days'
+              // ), $log);
+          
+                      if(!$y_exhausted) {
               // foreach( $months as $month ) {
               //   // Check which haven't been checked
               //   $months_check = $wpdb->get_row(
@@ -305,7 +313,7 @@
               //       WHERE `file_path` = '%s'
               //       AND `complete` = 1
               //       LIMIT 1",
-              //       "/" . $month . 'WAVE' . "/"
+              //       '/' . $month . '/WAVE/'
               //     )
               //   );
               // }
